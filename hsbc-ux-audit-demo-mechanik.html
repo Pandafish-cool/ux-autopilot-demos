@@ -59,7 +59,30 @@ body > *{position:relative;z-index:1}
 .nav-status{display:inline-flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-2);letter-spacing:.1em;text-transform:uppercase}
 .nav-status .led{width:6px;height:6px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@media(max-width:900px){.nav-links{display:none}}
+
+/* Mobile hamburger button */
+.nav-menu-btn{display:none;width:32px;height:32px;align-items:center;justify-content:center;background:var(--cream);border:1px solid var(--ink);border-radius:0;cursor:pointer;padding:0;color:var(--ink)}
+.nav-menu-btn:hover{background:var(--ink);color:var(--cream)}
+.nav-menu-btn svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none}
+
+/* Mobile nav drawer */
+.nav-drawer{position:fixed;inset:0;background:var(--cream);z-index:200;display:none;flex-direction:column;padding:18px;animation:drawerFade .2s ease}
+.nav-drawer.open{display:flex}
+.nav-drawer-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:18px;border-bottom:1px solid var(--ink);margin-bottom:22px}
+.nav-drawer-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--ink)}
+.nav-drawer-item{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:var(--cream);border:none;border-bottom:1px solid var(--ink);font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);cursor:pointer;text-align:left;width:100%;transition:background .12s,color .12s}
+.nav-drawer-item:last-child{border-bottom:none}
+.nav-drawer-item:hover{background:var(--cream-2)}
+.nav-drawer-item.active{background:var(--ink);color:var(--cream)}
+.nav-drawer-item .arr{font-weight:400;letter-spacing:0}
+.nav-drawer-foot{margin-top:auto;padding-top:24px;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--ink-2);letter-spacing:.14em;text-transform:uppercase}
+@keyframes drawerFade{from{opacity:0}to{opacity:1}}
+
+@media(max-width:900px){
+  .nav-links{display:none}
+  .nav-menu-btn{display:inline-flex}
+  .topnav .nav-status{display:none}
+}
 
 /* ─── Layout ─── */
 .page-wrap{max-width:1180px;margin:0 auto;padding:36px 24px 96px}
@@ -298,9 +321,39 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
       <button class="nav-btn" onclick="navTo('history',this)">History</button>
       <button class="nav-btn" onclick="navTo('guide',this)">Guide</button>
     </div>
-    <div class="nav-status"><span class="led"></span>Agent ready</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="nav-status"><span class="led"></span>Agent ready</div>
+      <button class="nav-menu-btn" onclick="openNav()" aria-label="Open menu">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
   </nav>
 </header>
+
+<!-- Mobile nav drawer -->
+<div class="nav-drawer" id="nav-drawer" role="dialog" aria-label="Navigation">
+  <div class="nav-drawer-head">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-name">UX-AUTPLT / v1.0</span>
+    </div>
+    <button class="nav-menu-btn" style="display:inline-flex" onclick="closeNav()" aria-label="Close menu">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="nav-drawer-list">
+    <button class="nav-drawer-item active" data-key="upload" onclick="navToM('upload')">Upload<span class="arr">→</span></button>
+    <button class="nav-drawer-item" data-key="checklist" onclick="navToM('checklist')">Checklist<span class="arr">→</span></button>
+    <button class="nav-drawer-item" data-key="report" onclick="navToM('report')">Report<span class="arr">→</span></button>
+    <button class="nav-drawer-item" data-key="dashboard" onclick="navToM('dashboard')">Dashboard<span class="arr">→</span></button>
+    <button class="nav-drawer-item" data-key="history" onclick="navToM('history')">History<span class="arr">→</span></button>
+    <button class="nav-drawer-item" data-key="guide" onclick="navToM('guide')">Guide<span class="arr">→</span></button>
+  </div>
+  <div class="nav-drawer-foot">
+    <span class="nav-status"><span class="led"></span>Agent ready</span>
+    <span>UNIT-ID / 001-AX</span>
+  </div>
+</div>
 
 <!-- ══ UPLOAD PAGE ══ -->
 <div id="page-upload" class="page-view active">
@@ -935,11 +988,16 @@ function cpTk(btn,i){navigator.clipboard.writeText(window._tk[i].text).then(()=>
 function navTo(key,btn){
   if(btn){document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
   document.querySelectorAll('.nav-btn').forEach(function(b){if(b.textContent.trim().toLowerCase()===key)b.classList.add('active');});
+  document.querySelectorAll('.nav-drawer-item').forEach(function(b){b.classList.toggle('active',b.dataset.key===key);});
   document.querySelectorAll('.page-view').forEach(p=>p.classList.remove('active'));
   const map={upload:'page-upload',checklist:'page-checklist',report:'page-report',dashboard:'page-dashboard',history:'page-history',guide:'page-guide'};
   const el=document.getElementById(map[key]);if(el)el.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }
+
+function openNav(){var d=document.getElementById('nav-drawer');if(d){d.classList.add('open');document.body.style.overflow='hidden';}}
+function closeNav(){var d=document.getElementById('nav-drawer');if(d){d.classList.remove('open');document.body.style.overflow='';}}
+function navToM(key){closeNav();setTimeout(function(){navTo(key,null);},120);}
 
 renderChecklist();
 chk();

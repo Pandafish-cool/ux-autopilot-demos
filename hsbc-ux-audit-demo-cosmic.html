@@ -81,7 +81,27 @@ body > *{position:relative;z-index:1}
 .nav-btn{padding:6px 14px;font-size:13px;font-weight:400;color:var(--text-2);background:none;border:none;border-radius:999px;cursor:pointer;font-family:inherit;letter-spacing:-.005em;transition:color .15s,background .15s}
 .nav-btn:hover{color:var(--text)}
 .nav-btn.active{color:var(--text);background:rgba(255,255,255,.06)}
-@media(max-width:900px){.nav-links{display:none}}
+
+/* Mobile hamburger button */
+.nav-menu-btn{display:none;width:36px;height:36px;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--border);border-radius:999px;cursor:pointer;padding:0;color:var(--text)}
+.nav-menu-btn svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none}
+
+/* Mobile nav drawer */
+.nav-drawer{position:fixed;inset:0;background:rgba(8,6,14,.94);backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px);z-index:200;display:none;flex-direction:column;padding:22px;animation:drawerFade .25s ease}
+.nav-drawer.open{display:flex}
+.nav-drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.nav-drawer-list{display:flex;flex-direction:column;gap:10px}
+.nav-drawer-item{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;background:var(--surface);border:1px solid var(--border);border-radius:18px;font-size:18px;font-weight:500;color:var(--text);letter-spacing:-.005em;cursor:pointer;font-family:inherit;text-align:left;width:100%;transition:background .15s,border-color .15s}
+.nav-drawer-item:hover,.nav-drawer-item.active{background:var(--surface-2);border-color:rgba(149,239,209,.3)}
+.nav-drawer-item .arr{color:var(--text-3);font-size:18px;font-weight:300}
+.nav-drawer-foot{margin-top:auto;padding-top:24px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-3);letter-spacing:.04em}
+@keyframes drawerFade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+@media(max-width:900px){
+  .nav-links{display:none}
+  .nav-menu-btn{display:inline-flex}
+  .topnav .pill-status{display:none}
+}
 
 /* ─── Layout ─── */
 .page-wrap{max-width:1100px;margin:0 auto;padding:48px 22px 96px}
@@ -292,10 +312,38 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
       <button class="nav-btn" onclick="navTo('history',this)">History</button>
       <button class="nav-btn" onclick="navTo('guide',this)">Guide</button>
     </div>
-    <div>
+    <div style="display:flex;align-items:center;gap:8px">
       <span class="pill-status"><span class="pill-mint-dot"></span>Agent ready</span>
+      <button class="nav-menu-btn" onclick="openNav()" aria-label="Open menu">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
     </div>
   </header>
+</div>
+
+<!-- Mobile nav drawer -->
+<div class="nav-drawer" id="nav-drawer" role="dialog" aria-label="Navigation">
+  <div class="nav-drawer-head">
+    <div class="brand">
+      <span class="brand-mark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+      <span class="brand-name">UX Autopilot</span>
+    </div>
+    <button class="nav-menu-btn" style="display:inline-flex" onclick="closeNav()" aria-label="Close menu">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="nav-drawer-list">
+    <button class="nav-drawer-item active" data-key="upload" onclick="navToM('upload')">Upload<span class="arr">→</span></button>
+    <button class="nav-drawer-item" data-key="checklist" onclick="navToM('checklist')">Checklist<span class="arr">→</span></button>
+    <button class="nav-drawer-item" data-key="report" onclick="navToM('report')">Report<span class="arr">→</span></button>
+    <button class="nav-drawer-item" data-key="dashboard" onclick="navToM('dashboard')">Dashboard<span class="arr">→</span></button>
+    <button class="nav-drawer-item" data-key="history" onclick="navToM('history')">History<span class="arr">→</span></button>
+    <button class="nav-drawer-item" data-key="guide" onclick="navToM('guide')">Guide<span class="arr">→</span></button>
+  </div>
+  <div class="nav-drawer-foot">
+    <span class="pill-status"><span class="pill-mint-dot"></span>Agent ready</span>
+    <span>v1.0</span>
+  </div>
 </div>
 
 <!-- ══ UPLOAD PAGE ══ -->
@@ -960,11 +1008,22 @@ function cpTk(btn,i){navigator.clipboard.writeText(window._tk[i].text).then(()=>
 function navTo(key,btn){
   if(btn){document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
   document.querySelectorAll('.nav-btn').forEach(function(b){if(b.textContent.trim().toLowerCase()===key)b.classList.add('active');});
+  // Sync drawer active state
+  document.querySelectorAll('.nav-drawer-item').forEach(function(b){b.classList.toggle('active',b.dataset.key===key);});
   document.querySelectorAll('.page-view').forEach(p=>p.classList.remove('active'));
   const map={upload:'page-upload',checklist:'page-checklist',report:'page-report',dashboard:'page-dashboard',history:'page-history',guide:'page-guide'};
   const el=document.getElementById(map[key]);if(el)el.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }
+
+// Mobile drawer
+function openNav(){
+  var d=document.getElementById('nav-drawer');if(d){d.classList.add('open');document.body.style.overflow='hidden';}
+}
+function closeNav(){
+  var d=document.getElementById('nav-drawer');if(d){d.classList.remove('open');document.body.style.overflow='';}
+}
+function navToM(key){closeNav();setTimeout(function(){navTo(key,null);},120);}
 
 // Initial render of checklist with default statuses
 renderChecklist();
