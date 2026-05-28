@@ -70,6 +70,55 @@ body > *{position:relative;z-index:1}
 /* Scroll bar */
 #scroll-bar{position:fixed;top:0;left:0;height:2px;background:var(--grad);z-index:200;width:0;transition:width .1s}
 
+/* ─── Frosted glass cursor spotlight (desktop only) ─── */
+.mouse-spotlight{
+  position:fixed;
+  top:0;left:0;
+  width:560px;height:560px;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:60;
+  background:radial-gradient(circle,
+    rgba(149,239,209,.14) 0%,
+    rgba(203,184,255,.08) 30%,
+    transparent 65%);
+  filter:blur(28px);
+  transform:translate3d(-9999px,-9999px,0);
+  will-change:transform;
+  mix-blend-mode:screen;
+  opacity:0;
+  transition:opacity .35s ease;
+}
+.has-spotlight .mouse-spotlight{opacity:1}
+
+/* Frosted highlight following cursor inside each card */
+.spot-target{position:relative;overflow:hidden;transition:border-color .25s ease,background .25s ease}
+.spot-target::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  z-index:1;
+  background:radial-gradient(
+    circle 260px at var(--mx,50%) var(--my,50%),
+    rgba(255,255,255,.10) 0%,
+    rgba(149,239,209,.06) 22%,
+    transparent 60%
+  );
+  opacity:0;
+  transition:opacity .25s ease;
+}
+.spot-target:hover::before{opacity:1}
+.card.spot-target:hover,
+.side-panel.spot-target:hover{border-color:rgba(149,239,209,.22)}
+
+/* Disable on touch / mobile */
+@media (hover:none),(max-width:900px){
+  .mouse-spotlight{display:none}
+  .spot-target::before{display:none}
+}
+
 /* ─── Nav (pill) ─── */
 .topnav-wrap{position:sticky;top:18px;z-index:100;padding:0 22px;display:flex;justify-content:center}
 .topnav{width:100%;max-width:1100px;background:rgba(20,16,30,.66);backdrop-filter:saturate(180%) blur(22px);-webkit-backdrop-filter:saturate(180%) blur(22px);border:1px solid var(--border);border-radius:999px;padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:18px}
@@ -692,6 +741,54 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
 <script>
 // Scroll progress
 addEventListener('scroll',()=>{const t=document.documentElement.scrollTop,h=document.documentElement.scrollHeight-innerHeight;document.getElementById('scroll-bar').style.width=(t/h*100)+'%';});
+
+// ─── Frosted spotlight (desktop only) ───
+(function(){
+  if(matchMedia('(hover:none)').matches || innerWidth < 901) return;
+  // Global ambient spotlight
+  var sp=document.createElement('div');sp.className='mouse-spotlight';document.body.appendChild(sp);
+  var spX=0,spY=0,tgX=0,tgY=0,raf=null;
+  function loop(){
+    spX += (tgX - spX) * 0.18;
+    spY += (tgY - spY) * 0.18;
+    sp.style.transform = 'translate3d(' + (spX-280) + 'px,' + (spY-280) + 'px,0)';
+    if(Math.abs(tgX-spX)>0.5 || Math.abs(tgY-spY)>0.5){
+      raf = requestAnimationFrame(loop);
+    } else { raf=null; }
+  }
+  document.addEventListener('mousemove', function(e){
+    tgX = e.clientX; tgY = e.clientY;
+    document.body.classList.add('has-spotlight');
+    if(!raf) raf = requestAnimationFrame(loop);
+  });
+  document.addEventListener('mouseleave', function(){
+    document.body.classList.remove('has-spotlight');
+  });
+
+  // Per-card frosted highlight — auto-tag elements
+  var targets = [
+    '.card','.side-panel','.dim-card','.cat-card','.kpi','.pat-card','.subscore',
+    '.check-card','.stat-card','.issue-row','.flag-card','.summ-box','.pat',
+    '.stat','.row','.score-row','.upload-zone','.side-step','.cat-item'
+  ].join(',');
+  function tagAndBind(){
+    document.querySelectorAll(targets).forEach(function(el){
+      if(el.classList.contains('spot-target')) return;
+      el.classList.add('spot-target');
+      el.addEventListener('mousemove', function(e){
+        var r = el.getBoundingClientRect();
+        var x = ((e.clientX - r.left) / r.width) * 100;
+        var y = ((e.clientY - r.top) / r.height) * 100;
+        el.style.setProperty('--mx', x + '%');
+        el.style.setProperty('--my', y + '%');
+      });
+    });
+  }
+  tagAndBind();
+  // Re-tag after dynamic renders (results, checklist)
+  var mo = new MutationObserver(function(){tagAndBind();});
+  mo.observe(document.body,{childList:true,subtree:true});
+})();
 
 // ─── Demo data: 4 categories, 18 items ───
 const CATS=[
