@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UX Autopilot — three design directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  background:#f5f5f4;color:#18181b;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  line-height:1.5;letter-spacing:-.005em;
+  min-height:100vh;
+}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;letter-spacing:.04em}
+
+.wrap{max-width:1100px;margin:0 auto;padding:64px 28px 96px}
+
+/* Header */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:64px;flex-wrap:wrap;gap:16px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-dot{width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.18)}
+.brand-name{font-size:14px;font-weight:700;letter-spacing:-.01em}
+.hdr-meta{font-size:12px;color:#71717a;letter-spacing:.04em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace}
+.hdr-meta a{color:#52525b;text-decoration:none;border-bottom:1px solid rgba(0,0,0,.15);padding-bottom:1px}
+.hdr-meta a:hover{color:#18181b;border-bottom-color:#18181b}
+
+/* Hero */
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;color:#52525b;letter-spacing:.18em;text-transform:uppercase;margin-bottom:18px}
+.eyebrow::before{content:'';width:20px;height:1px;background:#18181b}
+.hero-title{font-size:64px;font-weight:700;line-height:1.05;letter-spacing:-.035em;margin-bottom:18px;max-width:780px}
+.hero-title em{font-style:normal;color:#71717a;font-weight:700}
+.hero-sub{font-size:18px;color:#52525b;line-height:1.55;max-width:640px;font-weight:400;letter-spacing:-.005em}
+.hero-sub strong{color:#18181b;font-weight:600}
+
+/* Section bar */
+.sec-bar{display:flex;align-items:center;gap:14px;margin:72px 0 24px}
+.sec-bar-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#71717a;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+.sec-bar-title{font-size:13px;font-weight:600;letter-spacing:-.005em}
+.sec-bar::after{content:'';flex:1;height:1px;background:rgba(24,24,27,.12)}
+
+/* Cards */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{
+  background:#fff;border-radius:18px;border:1px solid rgba(24,24,27,.08);
+  overflow:hidden;display:flex;flex-direction:column;
+  transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;
+  text-decoration:none;color:inherit;
+}
+.card:hover{transform:translateY(-3px);box-shadow:0 18px 40px -16px rgba(0,0,0,.12);border-color:rgba(24,24,27,.16)}
+
+/* Preview area — swatch unique to each demo */
+.preview{position:relative;aspect-ratio:1.3/1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:24px}
+
+/* ── Apple preview ── */
+.prev-apple{background:#fff;border-bottom:1px solid rgba(24,24,27,.06)}
+.prev-apple .mini{display:flex;flex-direction:column;align-items:center;gap:12px}
+.prev-apple .mini-title{font-size:22px;font-weight:600;color:#1d1d1f;letter-spacing:-.02em}
+.prev-apple .ring{width:64px;height:64px;border-radius:50%;border:6px solid rgba(0,0,0,.08);position:relative;display:flex;align-items:center;justify-content:center}
+.prev-apple .ring::before{content:'';position:absolute;inset:-6px;border-radius:50%;border:6px solid transparent;border-top-color:#0071e3;border-right-color:#0071e3;transform:rotate(20deg)}
+.prev-apple .ring-num{font-size:22px;font-weight:700;color:#1d1d1f;letter-spacing:-.02em}
+.prev-apple .pill{padding:6px 14px;border-radius:999px;background:#0071e3;color:#fff;font-size:11px;font-weight:500;letter-spacing:-.005em}
+
+/* ── Cosmic preview ── */
+.prev-cosmic{background:#08060e;border-bottom:1px solid rgba(255,255,255,.08);position:relative}
+.prev-cosmic::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%, rgba(149,128,255,.25), transparent 70%),radial-gradient(1.5px 1.5px at 22% 30%, #fff, transparent 50%),radial-gradient(1px 1px at 70% 40%, rgba(255,255,255,.7), transparent 50%),radial-gradient(1.5px 1.5px at 50% 70%, rgba(255,255,255,.6), transparent 50%);pointer-events:none}
+.prev-cosmic .mini{display:flex;flex-direction:column;align-items:center;gap:12px;position:relative}
+.prev-cosmic .mini-title{font-size:22px;font-weight:700;color:#ede4d8;letter-spacing:-.02em}
+.prev-cosmic .ring{width:64px;height:64px;border-radius:50%;border:6px solid rgba(255,255,255,.1);position:relative;display:flex;align-items:center;justify-content:center}
+.prev-cosmic .ring::before{content:'';position:absolute;inset:-6px;border-radius:50%;border:6px solid transparent;border-top-color:#d8f3c8;border-right-color:#c9d8ff;border-bottom-color:#ffd5b8;transform:rotate(30deg)}
+.prev-cosmic .ring-num{font-size:22px;font-weight:800;color:#ede4d8;letter-spacing:-.025em}
+.prev-cosmic .pill{padding:5px 12px;border-radius:999px;background:linear-gradient(135deg,#d8f3c8,#c9d8ff,#ffd5b8);color:#1a1024;font-size:11px;font-weight:600;letter-spacing:-.005em}
+
+/* ── Mechanik preview ── */
+.prev-mech{background:#e8e3d4;border-bottom:1px solid #1c1a14}
+.prev-mech .mini{display:flex;flex-direction:column;align-items:center;gap:14px}
+.prev-mech .mini-title{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:#1c1a14;letter-spacing:-.035em;text-transform:uppercase}
+.prev-mech .mini-title em{font-style:normal;color:#d63b1f}
+.prev-mech .ring{width:64px;height:64px;border-radius:50%;border:5px solid rgba(28,26,20,.15);position:relative;display:flex;align-items:center;justify-content:center;background:#1c1a14}
+.prev-mech .ring::before{content:'';position:absolute;inset:-5px;border-radius:50%;border:5px solid transparent;border-top-color:#fff;border-right-color:#fff;transform:rotate(25deg)}
+.prev-mech .ring-num{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:#fff;letter-spacing:-.03em}
+.prev-mech .pill{padding:4px 12px;background:#1c1a14;color:#e8e3d4;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+
+/* Card body */
+.body{padding:24px 24px 26px;display:flex;flex-direction:column;flex:1;gap:12px}
+.idx{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#71717a;letter-spacing:.14em;text-transform:uppercase}
+.title{font-size:22px;font-weight:600;letter-spacing:-.015em}
+.desc{font-size:14px;color:#52525b;line-height:1.55;flex:1}
+.cta{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#18181b;border-bottom:1px solid #18181b;padding-bottom:2px;align-self:flex-start;letter-spacing:-.005em}
+.card:hover .cta{color:#000;border-bottom-color:currentColor}
+
+/* About */
+.about{margin-top:72px;padding:36px 36px;background:#fff;border-radius:18px;border:1px solid rgba(24,24,27,.08);display:grid;grid-template-columns:1fr 1.4fr;gap:36px;align-items:start}
+.about h3{font-size:20px;font-weight:600;letter-spacing:-.015em;margin-bottom:14px}
+.about p{font-size:14px;color:#52525b;line-height:1.7;margin-bottom:14px}
+.about p:last-child{margin-bottom:0}
+.about ul{font-size:14px;color:#52525b;line-height:1.7;padding-left:20px}
+.about ul li{margin-bottom:6px}
+.about strong{color:#18181b;font-weight:600}
+
+/* Footer */
+.foot{margin-top:64px;padding-top:28px;border-top:1px solid rgba(24,24,27,.1);display:flex;justify-content:space-between;font-size:12px;color:#71717a;font-family:'IBM Plex Mono',monospace;letter-spacing:.04em;flex-wrap:wrap;gap:16px}
+.foot a{color:#52525b;text-decoration:none}
+.foot a:hover{color:#18181b}
+
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr;gap:16px}
+  .about{grid-template-columns:1fr;padding:28px}
+}
+@media (max-width:640px){
+  .wrap{padding:40px 20px 80px}
+  .hero-title{font-size:42px}
+  .hero-sub{font-size:16px}
+  .hdr{margin-bottom:48px}
+  .sec-bar{margin:56px 0 18px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <header class="hdr">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-name">UX Autopilot</span>
+    </div>
+    <div class="hdr-meta">
+      <a href="https://github.com/Pandafish-cool/ux-autopilot-demos" target="_blank" rel="noopener">View on GitHub →</a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section>
+    <span class="eyebrow">Three design directions</span>
+    <h1 class="hero-title">UX QA, on autopilot.<br><em>Three ways to wear it.</em></h1>
+    <p class="hero-sub">Self-serve UX audits for the HSBC Apex platform — same logic and flow, three distinct visual moods. <strong>Pick the one your team will actually open.</strong></p>
+  </section>
+
+  <!-- Demos -->
+  <div class="sec-bar">
+    <span class="sec-bar-num">§01</span>
+    <span class="sec-bar-title">Choose your style</span>
+  </div>
+
+  <div class="grid">
+
+    <!-- Apple -->
+    <a class="card" href="hsbc-ux-audit-demo-apple.html">
+      <div class="preview prev-apple">
+        <div class="mini">
+          <div class="mini-title">UX Audit</div>
+          <div class="ring"><span class="ring-num">84</span></div>
+          <span class="pill">Run audit</span>
+        </div>
+      </div>
+      <div class="body">
+        <span class="idx">01 / Apple</span>
+        <h2 class="title">Clean &amp; restrained.</h2>
+        <p class="desc">SF Pro typography, generous whitespace, Apple-blue primary action. Reads like apple.com — professional, confident, fast to scan.</p>
+        <span class="cta">Open demo →</span>
+      </div>
+    </a>
+
+    <!-- Cosmic -->
+    <a class="card" href="hsbc-ux-audit-demo-cosmic.html">
+      <div class="preview prev-cosmic">
+        <div class="mini">
+          <div class="mini-title">UX Autopilot</div>
+          <div class="ring"><span class="ring-num">84</span></div>
+          <span class="pill">Start audit</span>
+        </div>
+      </div>
+      <div class="body">
+        <span class="idx">02 / Cosmic</span>
+        <h2 class="title">Cosmic &amp; modern.</h2>
+        <p class="desc">Deep cosmic background, glassy cards, gradient pastel CTAs (mint → lavender → peach). Feels premium and current, like a launch landing page.</p>
+        <span class="cta">Open demo →</span>
+      </div>
+    </a>
+
+    <!-- Mechanik -->
+    <a class="card" href="hsbc-ux-audit-demo-mechanik.html">
+      <div class="preview prev-mech">
+        <div class="mini">
+          <div class="mini-title">UX-QA<em>.</em></div>
+          <div class="ring"><span class="ring-num">84</span></div>
+          <span class="pill">Run audit</span>
+        </div>
+      </div>
+      <div class="body">
+        <span class="idx">03 / Mechanik</span>
+        <h2 class="title">Industrial &amp; technical.</h2>
+        <p class="desc">Heavy monospace, cream + ink + signal red. Reads like a type specimen meets industrial signal scanner — modular, mechanical, distinctive.</p>
+        <span class="cta">Open demo →</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- About -->
+  <div class="sec-bar">
+    <span class="sec-bar-num">§02</span>
+    <span class="sec-bar-title">What's behind the demos</span>
+  </div>
+
+  <section class="about">
+    <div>
+      <h3>Same logic. Same flow.</h3>
+      <p>All three demos share the same self-audit logic — <strong>four areas</strong> (Customer Mindset, UX, UI, Copy), <strong>18 self-audit items</strong>, statuses of <strong>Pass / Missing / Review</strong>, and an overall score where <strong>70 is the pass threshold</strong>.</p>
+      <p>The flow is identical too: upload a file → run the audit → see the score reveal → review action items, mindset flags, Jira tickets, and an optional Monday-format manual review ticket.</p>
+    </div>
+    <div>
+      <h3>Why three styles?</h3>
+      <ul>
+        <li><strong>Apple</strong> — the safest choice for an enterprise tool; familiar, low-risk.</li>
+        <li><strong>Cosmic</strong> — most likely to get attention from designers and product teams.</li>
+        <li><strong>Mechanik</strong> — the most distinctive, best if the brand should signal "engineered precision."</li>
+      </ul>
+      <p>Open each, run a sample audit, and see which one your team would actually use every PR.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="foot">
+    <span>UX-AUTPLT / v1.0 · HSBC Apex Design Ops</span>
+    <span><a href="https://github.com/Pandafish-cool/ux-autopilot-demos" target="_blank" rel="noopener">github.com/Pandafish-cool/ux-autopilot-demos</a></span>
+  </footer>
+
+</div>
+</body>
+</html>
