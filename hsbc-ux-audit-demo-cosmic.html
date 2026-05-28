@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en" style="color-scheme:dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UX Autopilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08060e;
+  --surface:rgba(255,255,255,.04);
+  --surface-2:rgba(255,255,255,.06);
+  --border:rgba(255,255,255,.08);
+  --border-strong:rgba(255,255,255,.14);
+  --text:#ede4d8;
+  --text-2:#a09590;
+  --text-3:#706760;
+  --mint:#95efd1;
+  --mint-soft:rgba(149,239,209,.14);
+  --coral:#ffc1a7;
+  --coral-soft:rgba(255,193,167,.14);
+  --amber:#ffe08f;
+  --amber-soft:rgba(255,224,143,.14);
+  --lavender:#cbb8ff;
+  --lavender-soft:rgba(203,184,255,.14);
+  --grad:linear-gradient(135deg,#d8f3c8 0%,#c9d8ff 45%,#ffd5b8 100%);
+  --grad-soft:linear-gradient(135deg,rgba(216,243,200,.85) 0%,rgba(201,216,255,.8) 45%,rgba(255,213,184,.85) 100%);
+}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  line-height:1.55;letter-spacing:-.005em;
+  overflow-x:hidden;
+  position:relative;
+}
+/* Cosmic background + starfield */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(149,128,255,.22), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 20%, rgba(255,213,184,.10), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 15% 80%, rgba(149,239,209,.08), transparent 70%);
+}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55;
+  background-image:
+    radial-gradient(1.5px 1.5px at 8% 12%, #fff, transparent 50%),
+    radial-gradient(1px 1px at 24% 28%, rgba(255,255,255,.7), transparent 50%),
+    radial-gradient(1.5px 1.5px at 38% 8%, rgba(255,255,255,.8), transparent 50%),
+    radial-gradient(1px 1px at 52% 35%, rgba(255,255,255,.55), transparent 50%),
+    radial-gradient(2px 2px at 68% 18%, #fff, transparent 50%),
+    radial-gradient(1px 1px at 82% 42%, rgba(255,255,255,.5), transparent 50%),
+    radial-gradient(1.5px 1.5px at 12% 65%, rgba(255,255,255,.7), transparent 50%),
+    radial-gradient(1px 1px at 32% 78%, rgba(255,255,255,.45), transparent 50%),
+    radial-gradient(2px 2px at 56% 88%, rgba(255,255,255,.6), transparent 50%),
+    radial-gradient(1px 1px at 76% 72%, rgba(255,255,255,.5), transparent 50%),
+    radial-gradient(1.5px 1.5px at 92% 60%, rgba(255,255,255,.7), transparent 50%);
+  background-size:1100px 1100px;
+  background-repeat:repeat;
+}
+body > *{position:relative;z-index:1}
+
+.mono{font-family:inherit;letter-spacing:0;text-transform:none}
+
+/* Scroll bar */
+#scroll-bar{position:fixed;top:0;left:0;height:2px;background:var(--grad);z-index:200;width:0;transition:width .1s}
+
+/* ─── Nav (pill) ─── */
+.topnav-wrap{position:sticky;top:18px;z-index:100;padding:0 22px;display:flex;justify-content:center}
+.topnav{width:100%;max-width:1100px;background:rgba(20,16,30,.66);backdrop-filter:saturate(180%) blur(22px);-webkit-backdrop-filter:saturate(180%) blur(22px);border:1px solid var(--border);border-radius:999px;padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{width:24px;height:24px;border-radius:50%;background:var(--mint-soft);display:flex;align-items:center;justify-content:center;border:1px solid rgba(149,239,209,.3)}
+.brand-mark svg{width:12px;height:12px;stroke:var(--mint);stroke-width:2.5;fill:none}
+.brand-name{font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.01em;white-space:nowrap}
+.nav-links{display:flex;gap:2px}
+.nav-btn{padding:6px 14px;font-size:13px;font-weight:400;color:var(--text-2);background:none;border:none;border-radius:999px;cursor:pointer;font-family:inherit;letter-spacing:-.005em;transition:color .15s,background .15s}
+.nav-btn:hover{color:var(--text)}
+.nav-btn.active{color:var(--text);background:rgba(255,255,255,.06)}
+@media(max-width:900px){.nav-links{display:none}}
+
+/* ─── Layout ─── */
+.page-wrap{max-width:1100px;margin:0 auto;padding:48px 22px 96px}
+.page-view{display:none}
+.page-view.active{display:block;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ─── Eyebrow ─── */
+.eyebrow{display:inline-block;font-size:11px;font-weight:600;color:var(--mint);letter-spacing:.18em;text-transform:uppercase;margin-bottom:18px}
+
+/* ─── Hero typography ─── */
+.hero-title{font-size:68px;font-weight:800;line-height:1.02;letter-spacing:-.04em;color:var(--text);margin-bottom:20px}
+.hero-title em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+.hero-sub{font-size:16px;color:var(--text-2);line-height:1.65;font-weight:400;max-width:520px;letter-spacing:0}
+
+/* ─── Cards (glassy) ─── */
+.card{background:var(--surface);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:24px}
+.card-soft{background:var(--surface-2);border:1px solid var(--border);border-radius:24px}
+
+/* ─── Section eyebrow ─── */
+.sec-eyebrow{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.16em;margin-bottom:20px}
+.sec-eyebrow::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ─── Form fields ─── */
+.field-label{display:block;font-size:12px;font-weight:500;color:var(--text-2);margin-bottom:8px;letter-spacing:0}
+.field-input{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:14px;font-size:14px;font-family:inherit;color:var(--text);background:rgba(0,0,0,.25);outline:none;transition:border-color .15s,box-shadow .15s;letter-spacing:0}
+.field-input::placeholder{color:var(--text-3)}
+.field-input:focus{border-color:rgba(149,239,209,.5);box-shadow:0 0 0 4px rgba(149,239,209,.1)}
+textarea.field-input{resize:vertical;line-height:1.55}
+select.field-input{appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path fill="none" stroke="%23a09590" stroke-width="1.5" d="M1 1.5l5 5 5-5"/></svg>');background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.field-hint{font-size:12px;color:var(--text-3);margin-top:6px}
+
+/* ─── Buttons ─── */
+.btn-primary{
+  padding:12px 28px;background:var(--grad);color:#1a1024;border:none;border-radius:999px;
+  font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:-.005em;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  transition:transform .15s,box-shadow .2s;box-shadow:0 0 0 0 rgba(216,243,200,0);
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 32px rgba(216,243,200,.18)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-secondary{
+  padding:10px 22px;background:transparent;color:var(--text);border:1px solid var(--border-strong);border-radius:999px;
+  font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:-.005em;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:background .15s,border-color .15s;
+}
+.btn-secondary:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.22)}
+.btn-text{color:var(--mint);font-size:13px;font-weight:500;cursor:pointer;background:none;border:none;font-family:inherit;letter-spacing:-.005em;display:inline-flex;align-items:center;gap:4px}
+.btn-text:hover{opacity:.8}
+
+.run-btn{width:100%;padding:14px;background:var(--grad);color:#1a1024;border:none;border-radius:999px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:24px;letter-spacing:-.005em;transition:transform .15s,box-shadow .2s}
+.run-btn:hover{transform:translateY(-1px);box-shadow:0 8px 32px rgba(216,243,200,.2)}
+.run-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* ─── Status pills ─── */
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 11px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.pill-pass{background:var(--mint-soft);color:var(--mint);border:1px solid rgba(149,239,209,.25)}
+.pill-missing{background:var(--coral-soft);color:var(--coral);border:1px solid rgba(255,193,167,.25)}
+.pill-review{background:var(--amber-soft);color:var(--amber);border:1px solid rgba(255,224,143,.25)}
+.pill-mint-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px var(--mint)}
+.pill-status{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:12px;color:var(--mint);background:var(--mint-soft);border:1px solid rgba(149,239,209,.3);font-weight:500;letter-spacing:-.005em}
+
+/* ─── Upload zone ─── */
+.upload-zone{border:1.5px dashed var(--border-strong);border-radius:24px;padding:48px 28px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.02)}
+.upload-zone:hover{border-color:var(--mint);background:rgba(149,239,209,.04)}
+.upload-zone.dragover{border-color:var(--mint);background:rgba(149,239,209,.06)}
+.upload-zone.has-file{border-style:solid;border-color:rgba(149,239,209,.4);background:rgba(149,239,209,.04);padding:24px}
+.upload-icon{width:56px;height:56px;border-radius:18px;background:var(--grad-soft);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 8px 28px rgba(216,243,200,.16)}
+#preview-grid img{display:block}
+
+/* ─── Side score panel (hero) ─── */
+.side-panel{background:var(--surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:28px;padding:24px;display:flex;flex-direction:column;gap:18px}
+.side-gauge{min-height:280px;border-radius:22px;background:rgba(0,0,0,.25);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:24px 20px 20px;gap:14px}
+.gauge-example-tag{position:absolute;top:14px;left:14px;display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);background:rgba(255,255,255,.04);border:1px solid var(--border)}
+.gauge-svg-wrap{position:relative;width:180px;height:180px}
+.gauge-svg-wrap svg{position:absolute;inset:0;filter:drop-shadow(0 0 12px rgba(149,239,209,.12))}
+.gauge-svg-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.gauge-svg-text .num{font-size:52px;font-weight:800;letter-spacing:-.03em;line-height:1;color:var(--text);opacity:.88}
+.gauge-svg-text .out{font-size:10px;color:var(--text-3);letter-spacing:.08em;margin-top:4px;text-transform:uppercase}
+.gauge-foot{display:flex;flex-direction:column;align-items:center;gap:6px}
+.gauge-foot .lbl{font-size:11px;color:var(--text-3);letter-spacing:.08em;text-transform:uppercase}
+.gauge-foot .pill-sample{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:var(--mint-soft);color:var(--mint);border:1px solid rgba(149,239,209,.25)}
+.side-step{display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:14px}
+.side-step-num{font-size:12px;color:var(--text-3);font-weight:500;letter-spacing:.04em;flex-shrink:0;min-width:22px}
+.side-step-label{font-size:14px;color:var(--text);font-weight:500;letter-spacing:-.005em}
+
+/* ─── Check cards ─── */
+.check-card{background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:12px}
+.check-card:hover{background:rgba(0,0,0,.3);border-color:var(--border-strong)}
+.check-card.checked{background:rgba(149,239,209,.06);border-color:rgba(149,239,209,.25)}
+.check-card input[type=checkbox]{margin-top:2px;flex-shrink:0;accent-color:var(--mint);width:14px;height:14px;cursor:pointer}
+.check-card label{font-size:13px;color:var(--text-2);line-height:1.5;cursor:pointer;letter-spacing:0}
+.check-card label strong{color:var(--text);font-weight:600}
+
+/* ─── Checklist item (post-audit) ─── */
+.cat-card{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:22px;padding:22px}
+.cat-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.cat-title{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.cat-count{font-size:13px;color:var(--text-2);font-weight:500;font-variant-numeric:tabular-nums}
+.cat-item{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px}
+.cat-item:last-child{margin-bottom:0}
+.cat-item-check{width:18px;height:18px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.cat-item-check.pass{background:var(--mint-soft);border:1px solid rgba(149,239,209,.3)}
+.cat-item-check.pass svg{width:11px;height:11px;stroke:var(--mint);fill:none;stroke-width:2.5}
+.cat-item-check.missing{background:transparent;border:1.5px solid rgba(255,193,167,.4)}
+.cat-item-check.review{background:transparent;border:1.5px solid rgba(255,224,143,.4)}
+.cat-item-body{flex:1;min-width:0}
+.cat-item-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;letter-spacing:-.005em}
+.cat-item-desc{font-size:12px;color:var(--text-3);letter-spacing:0;line-height:1.5}
+.cat-item-pill{flex-shrink:0}
+
+/* ─── Stat cards ─── */
+.stat-card{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:16px;padding:18px 12px;text-align:center}
+.stat-num{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--text)}
+.stat-lbl{font-size:11px;color:var(--text-3);margin-top:8px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+
+/* ─── Issue rows / flag cards ─── */
+.issue-row{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:10px}
+.flag-card{background:rgba(0,0,0,.25);border:1px solid var(--border);border-left:3px solid var(--lavender);border-radius:0 16px 16px 0;padding:16px 18px;margin-bottom:8px}
+
+/* ─── Jira block ─── */
+.jira-blk{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:12px;white-space:pre-wrap;line-height:1.7;color:var(--text-2);background:rgba(0,0,0,.35);border:1px solid var(--border);padding:16px 18px;border-radius:14px}
+
+/* ─── Tabs ─── */
+.tab-btn{padding:10px 18px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text-2);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;transition:color .15s}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--mint);border-bottom-color:var(--mint)}
+
+/* ─── Spinner ─── */
+.spinner{width:36px;height:36px;border:2px solid rgba(255,255,255,.08);border-top-color:var(--mint);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 18px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── KPI / dashboard ─── */
+.kpi{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:20px;padding:24px}
+.kpi-lbl{font-size:12px;color:var(--text-3);font-weight:500;margin-bottom:12px;letter-spacing:.04em;text-transform:uppercase}
+.kpi-num{font-size:40px;font-weight:700;letter-spacing:-.025em;line-height:1;color:var(--text)}
+.kpi-foot{font-size:12px;color:var(--text-2);margin-top:8px}
+
+/* ─── Pattern card ─── */
+.pat-card{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:16px;padding:18px}
+
+/* ─── History rows ─── */
+.hist-row{display:grid;grid-template-columns:2.5fr 1fr 1.3fr 1fr;padding:16px 22px;gap:14px;border-bottom:1px solid var(--border);align-items:center;cursor:pointer;transition:background .12s}
+.hist-row:last-child{border-bottom:none}
+.hist-row:hover{background:rgba(255,255,255,.03)}
+.hist-header-row{background:rgba(0,0,0,.2)}
+.hist-header-row span{font-size:11px;color:var(--text-3);font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+
+/* ─── Score row (the big reveal) ─── */
+.score-row{display:flex;align-items:center;gap:32px;padding:32px;background:var(--surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:28px;margin-bottom:18px;flex-wrap:wrap;position:relative;overflow:hidden}
+.score-row::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 30%, rgba(149,239,209,.08), transparent 60%);pointer-events:none}
+.score-main{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:200px;flex-shrink:0;position:relative;z-index:1}
+.score-ring{position:relative;width:200px;height:200px}
+.score-ring svg{transform:rotate(-90deg);overflow:visible;filter:drop-shadow(0 0 16px rgba(149,239,209,.18))}
+.score-ring circle{transition:stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1)}
+.score-num-wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-num{font-size:64px;font-weight:800;letter-spacing:-.03em;color:var(--text);line-height:1}
+.score-out{font-size:12px;font-weight:500;color:var(--text-3);letter-spacing:.04em;margin-top:6px;text-transform:uppercase}
+.score-status{margin-top:18px;padding:6px 18px;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
+.score-pass{background:var(--mint-soft);color:var(--mint);border:1px solid rgba(149,239,209,.3)}
+.score-fail{background:var(--coral-soft);color:var(--coral);border:1px solid rgba(255,193,167,.3)}
+.score-thresh{font-size:12px;color:var(--text-3);margin-top:10px;letter-spacing:0}
+.subscores{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;flex:1;min-width:320px;position:relative;z-index:1}
+.subscore{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:18px;padding:18px 18px}
+.subscore-lbl{font-size:12px;color:var(--text-2);font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px}
+.subscore-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.subscore-num{font-size:30px;font-weight:700;letter-spacing:-.025em;line-height:1;color:var(--text);font-variant-numeric:tabular-nums}
+.subscore-bar{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.subscore-fill{height:100%;border-radius:3px;background:var(--grad);transition:width 1.4s cubic-bezier(.4,0,.2,1)}
+
+@media(max-width:768px){
+  .topnav{padding:6px 12px}
+  .brand-sub{display:none}
+  .page-wrap{padding:32px 16px 96px}
+  .hero-title{font-size:42px}
+  .hero-grid{grid-template-columns:1fr !important}
+  .side-panel{margin-top:24px}
+  .score-row{padding:24px;gap:22px}
+  .subscores{grid-template-columns:1fr;min-width:0;width:100%}
+  .cat-grid{grid-template-columns:1fr !important}
+  .kpi-grid{grid-template-columns:1fr 1fr !important}
+  .two-col{grid-template-columns:1fr !important}
+  .three-col{grid-template-columns:1fr !important}
+  .stats-row{grid-template-columns:repeat(3,1fr) !important}
+  .hist-row{grid-template-columns:1fr auto !important;padding:14px 16px !important}
+  .hist-row>*:nth-child(3),.hist-row>*:nth-child(4){display:none !important}
+  .hist-header-row{grid-template-columns:1fr auto !important}
+  .hist-header-row>*:nth-child(3),.hist-header-row>*:nth-child(4){display:none !important}
+}
+</style>
+</head>
+<body>
+<div id="scroll-bar"></div>
+
+<!-- NAV -->
+<div class="topnav-wrap">
+  <header class="topnav">
+    <div class="brand">
+      <span class="brand-mark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+      <span class="brand-name">UX Autopilot</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn active" onclick="navTo('upload',this)">Upload</button>
+      <button class="nav-btn" onclick="navTo('checklist',this)">Checklist</button>
+      <button class="nav-btn" onclick="navTo('report',this)">Report</button>
+      <button class="nav-btn" onclick="navTo('dashboard',this)">Dashboard</button>
+      <button class="nav-btn" onclick="navTo('history',this)">History</button>
+      <button class="nav-btn" onclick="navTo('guide',this)">Guide</button>
+    </div>
+    <div>
+      <span class="pill-status"><span class="pill-mint-dot"></span>Agent ready</span>
+    </div>
+  </header>
+</div>
+
+<!-- ══ UPLOAD PAGE ══ -->
+<div id="page-upload" class="page-view active">
+  <div class="page-wrap">
+
+    <!-- Hero -->
+    <div class="hero-grid" style="display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:start;margin-bottom:56px">
+      <div>
+        <span class="eyebrow">Developer self-check workspace</span>
+        <h1 class="hero-title">UX QA,<br><em>on autopilot.</em></h1>
+        <p class="hero-sub">Auto-audit your UI in under a minute — so design review is for judgment calls, not nitpicks. Drop a file, get a score and a punch list.</p>
+        <div style="display:flex;gap:10px;margin-top:28px;flex-wrap:wrap">
+          <button class="btn-primary" onclick="document.getElementById('file-input').click()">Start audit</button>
+          <button class="btn-secondary" onclick="loadSample()">Run sample audit</button>
+        </div>
+      </div>
+      <div class="side-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="pill-status"><span class="pill-mint-dot"></span>Agent ready</span>
+          <span style="font-size:11px;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase">v1.0</span>
+        </div>
+        <div class="side-gauge">
+          <span class="gauge-example-tag">Example preview</span>
+          <div class="gauge-svg-wrap">
+            <svg width="180" height="180" viewBox="0 0 180 180">
+              <defs>
+                <linearGradient id="sidegrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#d8f3c8"/>
+                  <stop offset="50%" stop-color="#c9d8ff"/>
+                  <stop offset="100%" stop-color="#ffd5b8"/>
+                </linearGradient>
+              </defs>
+              <circle cx="90" cy="90" r="70" stroke="rgba(255,255,255,.07)" stroke-width="9" fill="none"/>
+              <circle cx="90" cy="90" r="70" stroke="url(#sidegrad)" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="439.82" stroke-dashoffset="70.4" transform="rotate(-90 90 90)"/>
+            </svg>
+            <div class="gauge-svg-text">
+              <div class="num">84</div>
+              <div class="out">out of 100</div>
+            </div>
+          </div>
+          <div class="gauge-foot">
+            <span class="lbl">UX score</span>
+            <span class="pill-sample"><span class="pill-mint-dot" style="width:5px;height:5px"></span>Sample · Passed</span>
+          </div>
+        </div>
+        <div class="side-step"><span class="side-step-num">01</span><span class="side-step-label">Upload interface file</span></div>
+        <div class="side-step"><span class="side-step-num">02</span><span class="side-step-label">Run self-check rules</span></div>
+        <div class="side-step"><span class="side-step-num">03</span><span class="side-step-label">Review action items</span></div>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div id="form-area">
+      <div class="card" style="padding:32px">
+        <div class="sec-eyebrow">New audit</div>
+
+        <div style="margin-bottom:18px">
+          <label class="field-label">Component or screen name</label>
+          <input class="field-input" id="comp-name" value="Entitlement — Assumption Management" oninput="chk()">
+        </div>
+        <div class="form-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+          <div>
+            <label class="field-label">Audit focus</label>
+            <select class="field-input" id="aud-focus">
+              <option value="full" selected>Full audit — all four areas</option>
+              <option value="flow">User flow and interaction</option>
+              <option value="a11y">Accessibility</option>
+              <option value="brand">HSBC brand compliance</option>
+              <option value="copy">Content and copy</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Pass threshold</label>
+            <select class="field-input" id="thresh">
+              <option value="70" selected>70 (default)</option>
+              <option value="75">75</option>
+              <option value="80">80</option>
+              <option value="65">65</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:18px">
+          <label class="field-label">What is the user trying to accomplish?</label>
+          <textarea class="field-input" id="ctx-goal" rows="3">The user (treasury analyst) wants to find and update specific assumption sets used in NII calculations before the next calculation run.</textarea>
+          <div class="field-hint">Write as "The user wants to…" — an outcome, not a feature name.</div>
+        </div>
+        <div class="form-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px">
+          <div><label class="field-label">Previous screen</label><input class="field-input" value="NII Calculation results"></div>
+          <div><label class="field-label">Next screen</label><input class="field-input" value="Edit assumption / back to NII"></div>
+        </div>
+
+        <!-- Upload zone -->
+        <label class="field-label">Source file or screenshot</label>
+        <div class="upload-zone" id="upload-zone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+          <input type="file" id="file-input" accept="image/*,.html,.css,.js,.jsx,.ts,.tsx,.vue,.md,.pdf" multiple style="display:none" onchange="handleFiles(this.files)">
+          <div id="upload-placeholder" onclick="document.getElementById('file-input').click()" style="cursor:pointer">
+            <div class="upload-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1024" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div style="font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px;letter-spacing:-.01em">Drop a file here or click to upload</div>
+            <div style="font-size:13px;color:var(--text-3)">Supports source files plus PDF, PNG, JPG, JPEG design artifacts.</div>
+          </div>
+          <div id="upload-preview" style="display:none">
+            <div id="preview-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:12px"></div>
+            <button class="btn-secondary" onclick="document.getElementById('file-input').click()" style="margin:0 auto;display:inline-flex">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add more files
+            </button>
+          </div>
+        </div>
+
+        <button class="run-btn" id="run-btn" onclick="runAudit()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#1a1024" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run UX audit
+        </button>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="loading-area" style="display:none">
+      <div class="card" style="padding:64px;text-align:center">
+        <div class="spinner"></div>
+        <div style="font-size:17px;font-weight:600;margin-bottom:6px;letter-spacing:-.01em" id="lmsg">Scanning file…</div>
+        <div style="font-size:13px;color:var(--text-2)" id="lsub">Reading interface signals…</div>
+        <div style="width:280px;height:3px;background:rgba(255,255,255,.06);border-radius:2px;margin:20px auto 0;overflow:hidden">
+          <div id="pfill" style="height:3px;background:var(--grad);border-radius:2px;transition:width .45s ease"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REPORT PAGE (where the score reveal lives) ══ -->
+<div id="page-report" class="page-view">
+  <div class="page-wrap">
+    <div id="report-empty">
+      <div style="margin-bottom:40px">
+        <span class="eyebrow">Audit Report</span>
+        <h1 class="hero-title">No audit yet.</h1>
+        <p class="hero-sub">Upload a file and run the audit to see your UX score.</p>
+        <button class="btn-primary" style="margin-top:24px" onclick="navTo('upload',null)">Go to upload</button>
+      </div>
+    </div>
+    <div id="report-content" style="display:none">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <div>
+          <span class="eyebrow">Audit Report</span>
+          <h1 class="hero-title" style="font-size:42px;margin-bottom:6px" id="r-title">Audit result</h1>
+          <p style="font-size:14px;color:var(--text-2)" id="r-sub"></p>
+        </div>
+        <button class="btn-secondary" onclick="resetAudit()">+ New audit</button>
+      </div>
+
+      <!-- Score reveal -->
+      <div id="rscore"></div>
+
+      <!-- Summary -->
+      <div class="card" style="padding:28px;margin-top:24px;margin-bottom:16px">
+        <div class="sec-eyebrow">Audit summary</div>
+        <p style="font-size:15px;line-height:1.7;color:var(--text-2)" id="r-summary"></p>
+      </div>
+
+      <!-- Action items -->
+      <div class="card" style="padding:28px;margin-bottom:16px">
+        <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:18px">
+          <button class="tab-btn active" onclick="swTab('actions',this)">Action items</button>
+          <button class="tab-btn" onclick="swTab('flags',this)">Mindset flags</button>
+          <button class="tab-btn" onclick="swTab('jira',this)">Jira tickets</button>
+        </div>
+        <div id="t-actions"></div>
+        <div id="t-flags" style="display:none"></div>
+        <div id="t-jira" style="display:none"></div>
+      </div>
+
+      <!-- Manual UX review (Monday ticket) -->
+      <div class="card" style="padding:28px;margin-bottom:16px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-40px;right:-40px;width:240px;height:240px;background:radial-gradient(circle, rgba(203,184,255,.16), transparent 65%);pointer-events:none"></div>
+        <div style="position:relative">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:20px">
+            <div style="flex:1;min-width:280px">
+              <span class="eyebrow" style="color:var(--lavender)">Need a human eye?</span>
+              <h2 style="font-size:24px;font-weight:700;letter-spacing:-.015em;margin-bottom:8px">Submit a manual UX review ticket</h2>
+              <p style="font-size:14px;color:var(--text-2);line-height:1.65;max-width:520px">If items above are flagged as <span class="pill pill-review" style="padding:1px 8px;font-size:10px;vertical-align:1px">Review</span> — or you'd like a designer to confirm a judgment call — submit a Monday ticket. The audit pre-fills it for you.</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-shrink:0">
+              <button class="btn-secondary" id="monday-copy-btn" onclick="cpMonday(this)">Copy ticket</button>
+              <button class="btn-primary" onclick="window.open('https://monday.com','_blank')">Open Monday<span style="margin-left:2px">↗</span></button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <span style="font-size:11px;color:var(--text-3);font-weight:600;letter-spacing:.1em;text-transform:uppercase">Monday.com format</span>
+            <div style="flex:1;height:1px;background:var(--border)"></div>
+            <span style="font-size:11px;color:var(--text-3)" id="monday-meta"></span>
+          </div>
+          <div class="jira-blk" id="monday-blk" style="max-height:340px;overflow:auto"></div>
+        </div>
+      </div>
+
+      <!-- Detail counts -->
+      <div class="stats-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div class="stat-card"><div class="stat-num" style="color:var(--mint)" id="n-pass">-</div><div class="stat-lbl">Passed</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--coral)" id="n-missing">-</div><div class="stat-lbl">Missing</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--amber)" id="n-review">-</div><div class="stat-lbl">Review</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--lavender)" id="n-flags">-</div><div class="stat-lbl">Flags</div></div>
+      </div>
+
+      <!-- Link to checklist -->
+      <div style="margin-top:24px;text-align:center">
+        <button class="btn-text" onclick="navTo('checklist',null)">See the full item-by-item checklist →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CHECKLIST PAGE ══ -->
+<div id="page-checklist" class="page-view">
+  <div class="page-wrap">
+    <div style="margin-bottom:40px;display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:16px">
+      <div>
+        <span class="eyebrow">Self-check checklist</span>
+        <h1 class="hero-title">Interactive UX audit criteria.</h1>
+      </div>
+      <button class="btn-secondary" onclick="resetChecklist()">Reset manual checks</button>
+    </div>
+    <div id="cat-empty" style="display:none">
+      <p style="font-size:15px;color:var(--text-2);margin-bottom:20px">No audit run yet. Defaults shown below — run an audit to see live statuses.</p>
+    </div>
+    <div class="cat-grid" id="cat-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px"></div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD PAGE ══ -->
+<div id="page-dashboard" class="page-view">
+  <div class="page-wrap">
+    <div style="margin-bottom:48px">
+      <span class="eyebrow">Team intelligence</span>
+      <h1 class="hero-title">Design QA <em>dashboard.</em></h1>
+      <p class="hero-sub">Defect patterns across the Apex platform — helping designers prioritise what to fix in the Design System.</p>
+    </div>
+    <div class="kpi-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px">
+      <div class="kpi"><div class="kpi-lbl">Audits this month</div><div class="kpi-num">23</div><div class="kpi-foot" style="color:var(--mint)">+8 vs last month</div></div>
+      <div class="kpi"><div class="kpi-lbl">Missing items caught</div><div class="kpi-num" style="color:var(--coral)">14</div><div class="kpi-foot">Issues that would have shipped</div></div>
+      <div class="kpi"><div class="kpi-lbl">First-pass rate</div><div class="kpi-num" style="color:var(--mint)">61%</div><div class="kpi-foot">Screens passing on first audit</div></div>
+      <div class="kpi"><div class="kpi-lbl">Designer hours saved</div><div class="kpi-num" style="color:var(--lavender)">~18h</div><div class="kpi-foot">QA reviews handled by devs</div></div>
+    </div>
+    <div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px">
+      <div class="card" style="padding:28px">
+        <div class="sec-eyebrow">Misses by area</div>
+        <div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:500">Copy</span><span style="color:var(--text-3)">42 · 25%</span></div><div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--grad);width:100%;border-radius:3px"></div></div></div>
+        <div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:500">UX</span><span style="color:var(--text-3)">38 · 23%</span></div><div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--grad);width:90%;border-radius:3px"></div></div></div>
+        <div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:500">Customer Mindset</span><span style="color:var(--text-3)">31 · 19%</span></div><div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--grad);width:74%;border-radius:3px"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:500">UI</span><span style="color:var(--text-3)">24 · 14%</span></div><div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--grad);width:57%;border-radius:3px"></div></div></div>
+      </div>
+      <div class="card" style="padding:28px">
+        <div class="sec-eyebrow">Misses by module</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:10px 0;font-size:11px;color:var(--text-3);font-weight:600;letter-spacing:.1em;text-transform:uppercase">Module</th><th style="text-align:center;padding:10px 4px;font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase">Misses</th><th style="text-align:left;padding:10px 4px;font-size:11px;color:var(--text-3);font-weight:600;letter-spacing:.1em;text-transform:uppercase">Top miss</th></tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 0;font-weight:500">NII Calculation</td><td style="text-align:center;color:var(--coral);font-weight:700">7</td><td style="padding:14px 4px;color:var(--text-2)">Missing empty states</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 0;font-weight:500">Entitlement</td><td style="text-align:center;color:var(--coral);font-weight:700">5</td><td style="padding:14px 4px;color:var(--text-2)">Placeholder copy in filters</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 0;font-weight:500">Stress Testing</td><td style="text-align:center;color:var(--coral);font-weight:700">5</td><td style="padding:14px 4px;color:var(--text-2)">No feedback after save</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 0;font-weight:500">Market Data</td><td style="text-align:center;color:var(--amber);font-weight:700">4</td><td style="padding:14px 4px;color:var(--text-2)">Generic CTA labels</td></tr>
+            <tr><td style="padding:14px 0;font-weight:500">Recovery and Resolution</td><td style="text-align:center;color:var(--amber);font-weight:700">3</td><td style="padding:14px 4px;color:var(--text-2)">Contrast failures</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card" style="padding:28px">
+      <div class="sec-eyebrow">Recurring patterns — Design System action needed</div>
+      <div class="three-col" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600">Generic CTA labels</span><span class="pill pill-missing">8 screens</span></div><div style="font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:12px">"Submit", "OK" instead of "Confirm payment" or "Save assumptions".</div><div style="font-size:12px;padding:10px 12px;border-radius:10px;background:rgba(255,193,167,.08);color:var(--coral);line-height:1.5">Add CTA writing guide to button component spec</div></div>
+        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600">Missing empty states</span><span class="pill pill-missing">7 screens</span></div><div style="font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:12px">Blank UI when search returns zero results or data fails to load.</div><div style="font-size:12px;padding:10px 12px;border-radius:10px;background:rgba(255,193,167,.08);color:var(--coral);line-height:1.5">Create standard empty state component</div></div>
+        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600">No save confirmation</span><span class="pill pill-review">6 screens</span></div><div style="font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:12px">Forms completing without any toast — users unsure if action worked.</div><div style="font-size:12px;padding:10px 12px;border-radius:10px;background:rgba(255,224,143,.08);color:var(--amber);line-height:1.5">Define standard toast pattern in DS</div></div>
+        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600">Low contrast headers</span><span class="pill pill-review">5 screens</span></div><div style="font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:12px">Table headers using ~#888 — below WCAG 4.5:1.</div><div style="font-size:12px;padding:10px 12px;border-radius:10px;background:rgba(255,224,143,.08);color:var(--amber);line-height:1.5">Update table spec to enforce min #444</div></div>
+        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600">Competing primary CTAs</span><span class="pill" style="background:var(--lavender-soft);color:var(--lavender);border:1px solid rgba(203,184,255,.25)">4 screens</span></div><div style="font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:12px">Multiple filled buttons — users can't identify primary.</div><div style="font-size:12px;padding:10px 12px;border-radius:10px;background:var(--lavender-soft);color:var(--lavender);line-height:1.5">Document one-primary-CTA rule</div></div>
+        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600">Internal jargon visible</span><span class="pill" style="background:var(--lavender-soft);color:var(--lavender);border:1px solid rgba(203,184,255,.25)">3 screens</span></div><div style="font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:12px">"Auth failed: code 401" shown to end users.</div><div style="font-size:12px;padding:10px 12px;border-radius:10px;background:var(--lavender-soft);color:var(--lavender);line-height:1.5">Add plain-language error message guide</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HISTORY PAGE ══ -->
+<div id="page-history" class="page-view">
+  <div class="page-wrap">
+    <div style="margin-bottom:40px">
+      <span class="eyebrow">Audit log</span>
+      <h1 class="hero-title">History.</h1>
+    </div>
+    <div class="card" style="overflow:hidden;padding:0">
+      <div class="hist-row hist-header-row"><span>Component</span><span>Score</span><span>Misses</span><span>When</span></div>
+      <div class="hist-row"><div><div style="font-size:14px;font-weight:500">Entitlement — Assumption Management</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">dev.chen@hsbc.com</div></div><div style="font-weight:600;color:var(--mint)">84</div><div style="font-size:13px;color:var(--text-2)">2 missing · 1 review</div><div style="font-size:12px;color:var(--text-3)">Today 14:32</div></div>
+      <div class="hist-row"><div><div style="font-size:14px;font-weight:500">Payment Confirmation Modal</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">dev.patel@hsbc.com</div></div><div style="font-weight:600;color:var(--mint)">92</div><div style="font-size:13px;color:var(--text-2)">0 missing · 2 review</div><div style="font-size:12px;color:var(--text-3)">Yesterday 11:15</div></div>
+      <div class="hist-row"><div><div style="font-size:14px;font-weight:500">NII Calculation — Filter Panel</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">dev.wang@hsbc.com</div></div><div style="font-weight:600;color:var(--coral)">58</div><div style="font-size:13px;color:var(--text-2)">6 missing · 3 review</div><div style="font-size:12px;color:var(--text-3)">Mon 7 Apr</div></div>
+      <div class="hist-row"><div><div style="font-size:14px;font-weight:500">Market Data Viewer</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">dev.smith@hsbc.com</div></div><div style="font-weight:600;color:var(--amber)">73</div><div style="font-size:13px;color:var(--text-2)">3 missing · 2 review</div><div style="font-size:12px;color:var(--text-3)">Fri 4 Apr</div></div>
+      <div class="hist-row"><div><div style="font-size:14px;font-weight:500">Treasury Governance Dashboard</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">dev.li@hsbc.com</div></div><div style="font-weight:600;color:var(--mint)">88</div><div style="font-size:13px;color:var(--text-2)">1 missing · 1 review</div><div style="font-size:12px;color:var(--text-3)">Thu 3 Apr</div></div>
+      <div class="hist-row"><div><div style="font-size:14px;font-weight:500">Stress Testing — Scenario Builder</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">dev.chen@hsbc.com</div></div><div style="font-weight:600;color:var(--coral)">62</div><div style="font-size:13px;color:var(--text-2)">5 missing · 2 review</div><div style="font-size:12px;color:var(--text-3)">Tue 1 Apr</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GUIDE PAGE ══ -->
+<div id="page-guide" class="page-view">
+  <div class="page-wrap">
+    <div style="margin-bottom:40px;max-width:680px">
+      <span class="eyebrow">How it works</span>
+      <h1 class="hero-title">The 3-step guide.</h1>
+    </div>
+    <div class="three-col" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div class="card" style="padding:28px"><div style="font-size:12px;color:var(--mint);font-weight:600;letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px">01</div><h3 style="font-size:20px;font-weight:700;letter-spacing:-.01em;margin-bottom:10px">Upload</h3><p style="font-size:14px;color:var(--text-2);line-height:1.65">Drop a screenshot, source file, or design file. The agent reads what's there — no live URL needed.</p></div>
+      <div class="card" style="padding:28px"><div style="font-size:12px;color:var(--mint);font-weight:600;letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px">02</div><h3 style="font-size:20px;font-weight:700;letter-spacing:-.01em;margin-bottom:10px">Run audit</h3><p style="font-size:14px;color:var(--text-2);line-height:1.65">The engine checks 18 self-audit items across four areas — Customer Mindset, UX, UI, Copy — and scores each.</p></div>
+      <div class="card" style="padding:28px"><div style="font-size:12px;color:var(--mint);font-weight:600;letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px">03</div><h3 style="font-size:20px;font-weight:700;letter-spacing:-.01em;margin-bottom:10px">Review</h3><p style="font-size:14px;color:var(--text-2);line-height:1.65">See a UX score (out of 100), a Pass / Not-pass verdict, and a punch list of action items ready for PR or Jira.</p></div>
+    </div>
+    <div class="card" style="padding:28px;margin-top:24px">
+      <div class="sec-eyebrow">Scoring</div>
+      <p style="font-size:15px;color:var(--text-2);line-height:1.7;margin-bottom:14px">Each of the four areas has between 4 and 5 self-audit items. Every item resolves to one of three states after the audit runs:</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px">
+        <span class="pill pill-pass">Pass</span> <span style="font-size:13px;color:var(--text-2);align-self:center">— item detected in the uploaded file.</span>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px">
+        <span class="pill pill-review">Review</span> <span style="font-size:13px;color:var(--text-2);align-self:center">— ambiguous evidence; needs a human to confirm.</span>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px">
+        <span class="pill pill-missing">Missing</span> <span style="font-size:13px;color:var(--text-2);align-self:center">— not present or not detected; turns into an action item.</span>
+      </div>
+      <p style="font-size:14px;color:var(--text-2);line-height:1.7">Each category scores <code style="background:rgba(0,0,0,.3);padding:1px 6px;border-radius:5px;font-size:13px;color:var(--mint)">passes / total × 100</code>. The overall UX score is the average of the four category scores. <strong style="color:var(--text)">70 is the pass threshold</strong> — anything below is "Not passed" and needs the missing items addressed before review.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// Scroll progress
+addEventListener('scroll',()=>{const t=document.documentElement.scrollTop,h=document.documentElement.scrollHeight-innerHeight;document.getElementById('scroll-bar').style.width=(t/h*100)+'%';});
+
+// ─── Demo data: 4 categories, 18 items ───
+const CATS=[
+  {key:'mindset',title:'Customer Mindset',items:[
+    {id:'cm1',title:'Customer goal is clear',desc:'The primary outcome a customer is here to achieve.',status:'pass'},
+    {id:'cm2',title:'Uses customer-friendly language',desc:'Labels and instructions avoid internal jargon; explain value in plain language.',status:'missing'},
+    {id:'cm3',title:'Trust and reassurance are visible',desc:'Signals that build confidence at key decision points.',status:'pass'},
+    {id:'cm4',title:'Customer friction is considered',desc:'Unnecessary steps, fields, and choices are removed.',status:'pass'}
+  ]},
+  {key:'ux',title:'UX',items:[
+    {id:'ux1',title:'Experience has clear structure',desc:'Information hierarchy supports the task at hand.',status:'pass'},
+    {id:'ux2',title:'Inputs have clear labels',desc:'Checks for labels, aria-labels, placeholders, or named fields that explain required customer input.',status:'review'},
+    {id:'ux3',title:'Journey works across screen sizes',desc:'Layout reflows; no clipping or trapped focus at small widths.',status:'pass'},
+    {id:'ux4',title:'Actions provide feedback',desc:'Every action shows progress, success, or failure clearly.',status:'pass'},
+    {id:'ux5',title:'Important actions are safe',desc:'Destructive or irreversible actions are confirmable or undoable.',status:'pass'}
+  ]},
+  {key:'ui',title:'UI',items:[
+    {id:'ui1',title:'Uses approved shared UI components',desc:'Checks against the approved shared UI component library.',status:'missing'},
+    {id:'ui2',title:'Visual hierarchy is scannable',desc:'Primary actions stand out; supporting content recedes.',status:'pass'},
+    {id:'ui3',title:'Spacing follows the design grid',desc:'Padding and margins use the spacing scale.',status:'pass'},
+    {id:'ui4',title:'Brand colours used correctly',desc:'Token palette only; no off-brand hex values.',status:'pass'},
+    {id:'ui5',title:'Component states implemented',desc:'Hover, focus, disabled, loading, error states all present.',status:'pass'}
+  ]},
+  {key:'copy',title:'Copy',items:[
+    {id:'cp1',title:'Headings explain the page purpose',desc:'A user understands what this screen is for at a glance.',status:'pass'},
+    {id:'cp2',title:'Primary CTA is clear',desc:'Action verbs ("Save assumptions"), not generic ("Submit").',status:'pass'},
+    {id:'cp3',title:'Error messages are actionable',desc:'Human, specific, and tell the user how to fix it.',status:'pass'},
+    {id:'cp4',title:'No internal jargon visible',desc:'No system codes, database field names, or org acronyms.',status:'pass'}
+  ]}
+];
+const FLAGS=[
+  {dim:'Customer Mindset',q:'Filter tabs show Filter No.1 through 7 — are these placeholder labels or intentional design?',why:'If real labels, customers can\'t understand what dimension they are filtering by without trial and error.'},
+  {dim:'UX',q:'After a user edits an assumption row, how do they know the change was saved?',why:'Without explicit confirmation, users in financial tools repeat actions, risking data integrity.'},
+  {dim:'UI',q:'Is there a clear visual difference between the search button and the primary action?',why:'Competing button weights make the next step ambiguous, slowing the user down.'}
+];
+const PASS_THRESHOLD=70;
+
+function statusOf(s){return s==='pass'?'pass':s==='missing'?'missing':'review'}
+function pillFor(s){return s==='pass'?'<span class="pill pill-pass">Pass</span>':s==='missing'?'<span class="pill pill-missing">Missing</span>':'<span class="pill pill-review">Review</span>'}
+function tickFor(s){if(s==='pass')return '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';return ''}
+
+function computeScores(){
+  const cat={};
+  CATS.forEach(c=>{
+    const total=c.items.length;
+    const passes=c.items.filter(i=>i.status==='pass').length;
+    cat[c.key]={passes,total,score:Math.round(passes/total*100)};
+  });
+  const overall=Math.round((cat.mindset.score+cat.ux.score+cat.ui.score+cat.copy.score)/4);
+  return {cat,overall};
+}
+
+function renderScoreReveal(){
+  const s=computeScores();
+  const passing=s.overall>=PASS_THRESHOLD;
+  const C=2*Math.PI*80;
+  const off=C*(1-s.overall/100);
+  function sub(label,key){
+    const c=s.cat[key];
+    return `
+      <div class="subscore">
+        <div class="subscore-lbl">${label}</div>
+        <div class="subscore-row">
+          <div class="subscore-num">${c.score}</div>
+          <span style="font-size:12px;color:var(--text-3);font-variant-numeric:tabular-nums">${c.passes}/${c.total}</span>
+        </div>
+        <div class="subscore-bar"><div class="subscore-fill" style="width:${c.score}%"></div></div>
+      </div>`;
+  }
+  document.getElementById('rscore').innerHTML=`
+    <div class="score-row">
+      <div class="score-main">
+        <div class="score-ring">
+          <svg width="200" height="200" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="80" stroke="rgba(255,255,255,.08)" stroke-width="11" fill="none"/>
+            <defs>
+              <linearGradient id="scoregrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#d8f3c8"/>
+                <stop offset="50%" stop-color="#c9d8ff"/>
+                <stop offset="100%" stop-color="#ffd5b8"/>
+              </linearGradient>
+            </defs>
+            <circle cx="100" cy="100" r="80" stroke="${passing?'url(#scoregrad)':'#ffc1a7'}" stroke-width="11" fill="none" stroke-linecap="round" stroke-dasharray="${C.toFixed(2)}" stroke-dashoffset="${C.toFixed(2)}" data-target-off="${off.toFixed(2)}"/>
+          </svg>
+          <div class="score-num-wrap">
+            <div class="score-num">${s.overall}</div>
+            <div class="score-out">out of 100</div>
+          </div>
+        </div>
+        <div class="score-status ${passing?'score-pass':'score-fail'}">${passing?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Passed':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Not passed'}</div>
+        <div class="score-thresh">Threshold: ${PASS_THRESHOLD} to pass</div>
+      </div>
+      <div class="subscores">
+        ${sub('Customer Mindset','mindset')}
+        ${sub('UX','ux')}
+        ${sub('UI','ui')}
+        ${sub('Copy','copy')}
+      </div>
+    </div>`;
+  // Animate ring after insertion
+  requestAnimationFrame(()=>{const c=document.querySelector('#rscore circle[data-target-off]');if(c)c.style.strokeDashoffset=c.dataset.targetOff;});
+}
+
+function renderReport(){
+  const name=document.getElementById('comp-name').value||'UI Screen';
+  document.getElementById('r-title').textContent=name;
+  document.getElementById('r-sub').textContent='Completed — '+new Date().toLocaleString();
+  document.getElementById('report-content').style.display='block';
+  document.getElementById('report-empty').style.display='none';
+  renderScoreReveal();
+  // Counts
+  let passes=0,missing=0,review=0;
+  CATS.forEach(c=>c.items.forEach(i=>{if(i.status==='pass')passes++;else if(i.status==='missing')missing++;else review++;}));
+  document.getElementById('n-pass').textContent=passes;
+  document.getElementById('n-missing').textContent=missing;
+  document.getElementById('n-review').textContent=review;
+  document.getElementById('n-flags').textContent=FLAGS.length;
+  // Summary
+  document.getElementById('r-summary').textContent='The '+name+' screen was audited across four areas. '+passes+' of '+(passes+missing+review)+' self-audit items passed. '+missing+' items are not present and turn into action items; '+review+' require human review. Customer Mindset has the lowest score — copy uses internal language that customers may not understand. Address the missing UI component reuse and the customer-friendly language item to lift the overall score before sending to design review.';
+  // Action items (missing items become actions)
+  const actions=[];
+  CATS.forEach(c=>c.items.forEach(i=>{if(i.status==='missing'){actions.push({cat:c.title,title:i.title,desc:i.desc});}}));
+  document.getElementById('t-actions').innerHTML=actions.length===0?'<div style="text-align:center;padding:40px;color:var(--text-3)">No action items — everything passes or is under review.</div>':actions.map((a,i)=>`<div class="issue-row"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><span class="pill pill-missing">Missing</span><span style="font-size:12px;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase">${a.cat}</span></div><div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:5px">${a.title}</div><div style="font-size:13px;color:var(--text-2);line-height:1.6">${a.desc}</div></div>`).join('');
+  // Flags
+  document.getElementById('t-flags').innerHTML=FLAGS.map(f=>`<div class="flag-card"><div style="font-size:11px;font-weight:600;color:var(--lavender);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">${f.dim}</div><div style="font-size:14px;color:var(--text);line-height:1.55;margin-bottom:4px">${f.q}</div><div style="font-size:12px;color:var(--text-3);line-height:1.55">${f.why}</div></div>`).join('');
+  // Jira
+  window._tk=actions.map((a,i)=>{const id='UX-'+String(i+1).padStart(3,'0');const s='[UX-AUDIT] '+a.title+' — '+a.cat;const d='Summary: '+a.desc+'\n\nComponent: '+name+'\nArea: '+a.cat+'\nStatus: Missing\n\nAcceptance criteria:\n[ ] '+a.title+' is implemented per design system spec\n\nLabels: design-qa, ux-audit, missing\nPriority: High';return{id:id,text:s+'\n\n'+d};});
+  document.getElementById('t-jira').innerHTML=window._tk.length===0?'<div style="text-align:center;padding:40px;color:var(--text-3)">No Jira tickets — no missing items.</div>':window._tk.map((t,i)=>`<div style="margin-bottom:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span class="pill pill-missing">Missing · ${t.id}</span><button class="btn-secondary" style="padding:6px 14px;font-size:12px" onclick="cpTk(this,${i})">Copy</button></div><div class="jira-blk">${t.text.replace(/</g,'&lt;')}</div></div>`).join('');
+  // Monday manual-review ticket
+  renderMondayTicket(name);
+  renderChecklist();
+}
+
+function buildMondayTicket(name){
+  const s=computeScores();
+  const passing=s.overall>=PASS_THRESHOLD;
+  const reviewItems=[];
+  const missingItems=[];
+  CATS.forEach(c=>c.items.forEach(i=>{
+    if(i.status==='review')reviewItems.push({cat:c.title,title:i.title,desc:i.desc});
+    if(i.status==='missing')missingItems.push({cat:c.title,title:i.title,desc:i.desc});
+  }));
+  const reviewAreas=Array.from(new Set(reviewItems.map(r=>r.cat)));
+  const tagAreas=reviewAreas.map(a=>a.toLowerCase().replace(/[^a-z]+/g,'-')).filter(Boolean);
+  const priority=reviewItems.length>=3?'High':reviewItems.length>=1?'Medium':'Low';
+  const dateStr=new Date().toISOString().split('T')[0];
+  const ctx=(document.getElementById('ctx-goal')?.value||'').trim();
+  const reqBy=document.getElementById('comp-name')?.dataset.user||'dev (please update)';
+
+  let t='';
+  t+='Board:       UX Reviews\n';
+  t+='Group:       Manual reviews\n\n';
+  t+='Item name:   Manual UX review — '+name+'\n\n';
+  t+='─── Columns ───\n';
+  t+='Status:      To review\n';
+  t+='Priority:    '+priority+'\n';
+  t+='Person:      <assign a designer>\n';
+  t+='Due date:    <set>\n';
+  t+='Score:       '+s.overall+'/100 ('+(passing?'Passed':'Not passed')+')\n';
+  t+='Tags:        ux-audit, manual-review'+(tagAreas.length?', '+tagAreas.join(', '):'')+'\n';
+  t+='Requested by:'+reqBy+'\n';
+  t+='Audit run:   '+dateStr+'\n\n';
+  t+='─── Update ───\n\n';
+  t+='Why this needs a manual review\n';
+  if(reviewItems.length){
+    t+='The auto-audit flagged '+reviewItems.length+' item'+(reviewItems.length>1?'s':'')+' as ambiguous — evidence exists in the file but a designer needs to confirm the intent matches.\n\n';
+  } else {
+    t+='The auto-audit passed all items, but the developer would like a designer to sanity-check the judgment calls below before sending to formal design review.\n\n';
+  }
+
+  if(reviewItems.length){
+    t+='Items for designer review\n';
+    reviewItems.forEach((r,i)=>{
+      t+=(i+1)+'. ['+r.cat+'] '+r.title+'\n';
+      t+='   '+r.desc+'\n\n';
+    });
+  }
+
+  if(missingItems.length){
+    t+='Missing items (already filed as Jira tickets — listed for context)\n';
+    missingItems.forEach((m,i)=>{t+='• ['+m.cat+'] '+m.title+'\n';});
+    t+='\n';
+  }
+
+  if(ctx){
+    t+='Customer context\n'+ctx+'\n\n';
+  }
+
+  t+='Mindset flags the audit raised (please consider when reviewing)\n';
+  FLAGS.forEach(f=>{t+='• ['+f.dim+'] '+f.q+'\n';});
+  t+='\nLink to full audit: <paste audit URL>';
+  return t;
+}
+function renderMondayTicket(name){
+  const txt=buildMondayTicket(name);
+  document.getElementById('monday-blk').textContent=txt;
+  const lines=txt.split('\n').length;
+  document.getElementById('monday-meta').textContent=lines+' lines · ready to paste';
+}
+function cpMonday(btn){
+  const txt=document.getElementById('monday-blk').textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const original=btn.textContent;
+    btn.textContent='Copied';
+    setTimeout(()=>{btn.textContent=original;},2000);
+  });
+}
+
+function renderChecklist(){
+  const grid=document.getElementById('cat-grid');
+  grid.innerHTML=CATS.map(c=>{
+    const passes=c.items.filter(i=>i.status==='pass').length;
+    return `<div class="cat-card">
+      <div class="cat-head">
+        <div class="cat-title">${c.title}</div>
+        <div class="cat-count">${passes}/${c.items.length}</div>
+      </div>
+      ${c.items.map(i=>`
+        <div class="cat-item">
+          <div class="cat-item-check ${i.status}">${tickFor(i.status)}</div>
+          <div class="cat-item-body">
+            <div class="cat-item-title">${i.title}</div>
+            <div class="cat-item-desc">${i.desc}</div>
+          </div>
+          <div class="cat-item-pill">${pillFor(i.status)}</div>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+// ─── Upload / files ───
+var uploadedFiles=[];
+function handleDragOver(e){e.preventDefault();document.getElementById('upload-zone').classList.add('dragover');}
+function handleDragLeave(e){document.getElementById('upload-zone').classList.remove('dragover');}
+function handleDrop(e){e.preventDefault();document.getElementById('upload-zone').classList.remove('dragover');handleFiles(e.dataTransfer.files);}
+function handleFiles(files){
+  if(!files||!files.length)return;
+  Array.from(files).forEach(function(f){
+    uploadedFiles.push(f);
+    if(f.type.indexOf('image/')===0){
+      var reader=new FileReader();var ci=uploadedFiles.length-1;
+      reader.onload=function(ev){addThumb(ev.target.result,f.name,ci,true);};
+      reader.readAsDataURL(f);
+    } else {
+      addThumb(null,f.name,uploadedFiles.length-1,false);
+    }
+  });
+  document.getElementById('upload-placeholder').style.display='none';
+  document.getElementById('upload-preview').style.display='block';
+  document.getElementById('upload-zone').classList.add('has-file');
+  setTimeout(function(){
+    var btn=document.getElementById('run-btn');
+    if(btn){btn.scrollIntoView({behavior:'smooth',block:'center'});btn.animate([{boxShadow:'0 0 0 0 rgba(149,239,209,0)'},{boxShadow:'0 0 0 10px rgba(149,239,209,.3)'},{boxShadow:'0 0 0 0 rgba(149,239,209,0)'}],{duration:1400,iterations:2});}
+  },350);
+}
+function addThumb(src,name,idx,isImg){
+  var grid=document.getElementById('preview-grid');
+  var wrap=document.createElement('div');
+  wrap.style.cssText='position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--border);aspect-ratio:4/3;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center';
+  if(isImg && src){
+    var img=document.createElement('img');img.src=src;img.style.cssText='width:100%;height:100%;object-fit:cover;display:block';wrap.appendChild(img);
+  } else {
+    var ic=document.createElement('div');ic.innerHTML='<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#a09590" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';wrap.appendChild(ic);
+  }
+  var btn=document.createElement('button');btn.textContent='×';
+  btn.style.cssText='position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.7);border:1px solid var(--border);cursor:pointer;color:#fff;font-size:14px;line-height:1';
+  btn.dataset.idx=idx;btn.addEventListener('click',function(e){e.stopPropagation();rmFile(parseInt(this.dataset.idx),wrap);});
+  var lbl=document.createElement('div');lbl.textContent=name;
+  lbl.style.cssText='position:absolute;bottom:0;left:0;right:0;padding:5px 7px;background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:11px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+  wrap.appendChild(btn);wrap.appendChild(lbl);grid.appendChild(wrap);
+}
+function rmFile(idx,el){
+  uploadedFiles.splice(idx,1);el.remove();
+  document.querySelectorAll('#preview-grid > div').forEach(function(w,i){var b=w.querySelector('button');if(b)b.dataset.idx=i;});
+  if(!uploadedFiles.length){
+    document.getElementById('upload-placeholder').style.display='block';
+    document.getElementById('upload-preview').style.display='none';
+    document.getElementById('upload-zone').classList.remove('has-file');
+    document.getElementById('file-input').value='';
+  }
+}
+
+function chk(){document.getElementById('run-btn').disabled=document.getElementById('comp-name').value.trim().length<3;}
+
+// ─── Audit run ───
+const LS=[[12,'Scanning file…','Reading interface signals…'],[28,'Checking Customer Mindset…','Is the customer goal clear?'],[44,'Evaluating UX…','Do inputs have clear labels?'],[60,'Inspecting UI…','Are shared components used?'],[76,'Auditing Copy…','Plain language for every user?'],[92,'Generating action items…','Finalising score…']];
+function showArea(id){['form-area','loading-area'].forEach(a=>{const el=document.getElementById(a);if(el)el.style.display=a===id?'block':'none';});}
+function runAudit(){
+  showArea('loading-area');
+  let i=0,pf=document.getElementById('pfill');
+  function step(){
+    pf.style.width=LS[i][0]+'%';
+    document.getElementById('lmsg').textContent=LS[i][1];
+    document.getElementById('lsub').textContent=LS[i][2];
+    if(i<LS.length-1){i++;setTimeout(step,560);}else setTimeout(finishAudit,700);
+  }
+  step();
+}
+function finishAudit(){
+  renderReport();
+  navTo('report',null);
+  document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.remove('active');if(b.textContent.trim().toLowerCase()==='report')b.classList.add('active');});
+}
+function loadSample(){runAudit();}
+function resetAudit(){
+  document.getElementById('report-content').style.display='none';
+  document.getElementById('report-empty').style.display='block';
+  navTo('upload',null);
+  document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.remove('active');if(b.textContent.trim().toLowerCase()==='upload')b.classList.add('active');});
+  showArea('form-area');
+  uploadedFiles=[];
+  document.getElementById('preview-grid').innerHTML='';
+  document.getElementById('upload-placeholder').style.display='block';
+  document.getElementById('upload-preview').style.display='none';
+  document.getElementById('upload-zone').classList.remove('has-file');
+  document.getElementById('file-input').value='';
+}
+function resetChecklist(){renderChecklist();}
+
+function swTab(tab,btn){
+  document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('t-actions').style.display=tab==='actions'?'block':'none';
+  document.getElementById('t-flags').style.display=tab==='flags'?'block':'none';
+  document.getElementById('t-jira').style.display=tab==='jira'?'block':'none';
+}
+function cpTk(btn,i){navigator.clipboard.writeText(window._tk[i].text).then(()=>{btn.textContent='Copied';setTimeout(()=>btn.textContent='Copy',2000);});}
+
+function navTo(key,btn){
+  if(btn){document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+  document.querySelectorAll('.nav-btn').forEach(function(b){if(b.textContent.trim().toLowerCase()===key)b.classList.add('active');});
+  document.querySelectorAll('.page-view').forEach(p=>p.classList.remove('active'));
+  const map={upload:'page-upload',checklist:'page-checklist',report:'page-report',dashboard:'page-dashboard',history:'page-history',guide:'page-guide'};
+  const el=document.getElementById(map[key]);if(el)el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Initial render of checklist with default statuses
+renderChecklist();
+chk();
+</script>
+</body>
+</html>

@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en" style="color-scheme:light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>UX-AUTPLT / Self-Audit Signal Scanner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#e8e3d4;
+  --cream-2:#ddd5c1;
+  --cream-3:#cdc4ad;
+  --ink:#1c1a14;
+  --ink-2:#5b5544;
+  --ink-3:#8a8472;
+  --line:rgba(28,26,20,.14);
+  --line-2:rgba(28,26,20,.22);
+  --red:#d63b1f;
+  --red-soft:rgba(214,59,31,.1);
+  --green:#1f7d3b;
+  --green-soft:rgba(31,125,59,.1);
+  --amber:#c68d1f;
+  --amber-soft:rgba(198,141,31,.12);
+}
+html,body{background:var(--cream);color:var(--ink)}
+body{
+  font-family:'IBM Plex Mono','SFMono-Regular',Menlo,monospace;
+  font-size:13px;font-weight:400;line-height:1.55;letter-spacing:0;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;min-height:100vh;
+}
+.sans{font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif}
+::selection{background:var(--ink);color:var(--cream)}
+
+/* Subtle paper grain */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background-image:radial-gradient(circle at 50% 50%, rgba(28,26,20,.02) 1px, transparent 1px);
+  background-size:3px 3px;
+}
+body > *{position:relative;z-index:1}
+
+/* Scroll bar */
+#scroll-bar{position:fixed;top:0;left:0;height:2px;background:var(--red);z-index:200;width:0;transition:width .1s}
+
+/* ─── Nav ─── */
+.topnav{position:sticky;top:0;z-index:100;background:var(--cream);border-bottom:1px solid var(--ink)}
+.topnav nav{max-width:1180px;margin:0 auto;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 0 2px var(--cream),0 0 0 3px var(--green)}
+.brand-name{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.nav-links{display:flex;gap:0}
+.nav-btn{padding:4px 12px;font-size:11px;font-weight:500;color:var(--ink);background:none;border:none;border-radius:0;cursor:pointer;font-family:inherit;letter-spacing:.08em;text-transform:uppercase;transition:background .1s,color .1s}
+.nav-btn:hover{background:var(--cream-2)}
+.nav-btn.active{background:var(--ink);color:var(--cream)}
+.nav-status{display:inline-flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-2);letter-spacing:.1em;text-transform:uppercase}
+.nav-status .led{width:6px;height:6px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@media(max-width:900px){.nav-links{display:none}}
+
+/* ─── Layout ─── */
+.page-wrap{max-width:1180px;margin:0 auto;padding:36px 24px 96px}
+.page-view{display:none}
+.page-view.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* ─── Eyebrow ─── */
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:600;color:var(--ink-2);letter-spacing:.18em;text-transform:uppercase;margin-bottom:18px}
+.eyebrow::before{content:'';width:18px;height:1px;background:var(--red)}
+
+/* ─── Hero typography ─── */
+.hero-title{font-family:'IBM Plex Mono',monospace;font-size:96px;font-weight:700;line-height:.95;letter-spacing:-.05em;text-transform:uppercase;color:var(--ink);margin-bottom:18px}
+.hero-title em{font-style:normal;color:var(--red);font-weight:700}
+.hero-sub{font-family:'IBM Plex Sans',sans-serif;font-size:16px;color:var(--ink-2);line-height:1.55;font-weight:400;max-width:560px;letter-spacing:0}
+
+/* ─── Surfaces ─── */
+.box{background:var(--cream);border:1px solid var(--ink);border-radius:0}
+.box-soft{background:var(--cream-2);border:1px solid var(--line-2);border-radius:0}
+.box-ink{background:var(--ink);color:var(--cream);border:1px solid var(--ink);border-radius:0}
+
+/* ─── Section header ─── */
+.sec-bar{display:flex;align-items:center;gap:12px;padding:8px 14px;background:var(--ink);color:var(--cream);font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+.sec-bar .num{color:var(--ink-3);font-weight:400}
+.sec-bar .right{margin-left:auto;color:var(--cream)}
+.sec-divider{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:600;color:var(--ink-2);letter-spacing:.14em;text-transform:uppercase;margin:24px 0 12px}
+.sec-divider::after{content:'';flex:1;height:1px;background:var(--line)}
+
+/* ─── Form fields ─── */
+.field-label{display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:600;color:var(--ink-2);margin-bottom:6px;letter-spacing:.12em;text-transform:uppercase}
+.field-input{width:100%;padding:11px 14px;border:1px solid var(--ink);border-radius:0;font-size:13px;font-family:'IBM Plex Mono',monospace;color:var(--ink);background:var(--cream);outline:none;transition:background .1s,box-shadow .1s;letter-spacing:0}
+.field-input::placeholder{color:var(--ink-3)}
+.field-input:focus{background:var(--cream-2);box-shadow:inset 0 0 0 1px var(--red)}
+textarea.field-input{resize:vertical;line-height:1.5}
+select.field-input{appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path fill="none" stroke="%231c1a14" stroke-width="1.5" d="M1 1.5l5 5 5-5"/></svg>');background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.field-hint{font-size:10px;color:var(--ink-3);margin-top:6px;letter-spacing:.06em}
+
+/* ─── Buttons (industrial blocks) ─── */
+.btn{
+  padding:11px 18px;border-radius:0;font-family:'IBM Plex Mono',monospace;
+  font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  transition:transform .08s,box-shadow .12s;border:1px solid var(--ink);
+}
+.btn-primary{background:var(--ink);color:var(--cream)}
+.btn-primary:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--red)}
+.btn-primary:active{transform:translate(0,0);box-shadow:0 0 0 var(--ink)}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-secondary{background:var(--cream);color:var(--ink)}
+.btn-secondary:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
+.btn-red{background:var(--red);color:var(--cream);border-color:var(--red)}
+.btn-red:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
+.btn-text{color:var(--ink);font-size:11px;font-weight:600;cursor:pointer;background:none;border:none;font-family:inherit;letter-spacing:.12em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;padding:0;border-bottom:1px solid var(--ink)}
+.btn-text:hover{color:var(--red);border-bottom-color:var(--red)}
+
+.run-btn{
+  width:100%;padding:16px;background:var(--ink);color:var(--cream);border:1px solid var(--ink);border-radius:0;
+  font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px;
+  transition:transform .08s,box-shadow .12s;
+}
+.run-btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--red)}
+.run-btn:active{transform:translate(0,0);box-shadow:0 0 0 var(--ink)}
+.run-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;background:var(--ink-3)}
+
+/* ─── Status pills (industrial labels) ─── */
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:0;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;border:1px solid var(--ink)}
+.pill-pass{background:var(--green);color:var(--cream);border-color:var(--green)}
+.pill-missing{background:var(--red);color:var(--cream);border-color:var(--red)}
+.pill-review{background:var(--amber);color:var(--ink);border-color:var(--amber)}
+.pill-neutral{background:var(--cream);color:var(--ink)}
+
+/* ─── Upload zone ─── */
+.upload-zone{border:1px dashed var(--ink);border-radius:0;padding:48px 28px;text-align:center;cursor:pointer;transition:background .12s,border-color .12s;background:var(--cream-2)}
+.upload-zone:hover{background:var(--cream-3);border-color:var(--red);border-style:solid}
+.upload-zone.dragover{background:var(--cream-3);border-color:var(--red);border-style:solid}
+.upload-zone.has-file{border-style:solid;border-color:var(--green);padding:22px}
+.upload-icon{width:48px;height:48px;background:var(--ink);color:var(--cream);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;border-radius:0}
+.upload-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:5px;letter-spacing:.08em;text-transform:uppercase}
+.upload-hint{font-size:11px;color:var(--ink-2);letter-spacing:.06em}
+
+/* ─── Readout panel (right side of hero) ─── */
+.readout{background:var(--ink);color:var(--cream);padding:0;display:flex;flex-direction:column;border-radius:0}
+.readout-head{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.12);font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+.readout-led{width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block;box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+.readout-grid{padding:14px;border-bottom:1px solid rgba(255,255,255,.12);display:grid;grid-template-columns:auto 1fr;column-gap:14px;row-gap:8px;font-size:11px;letter-spacing:.06em}
+.readout-grid dt{color:rgba(255,255,255,.5);text-transform:uppercase}
+.readout-grid dd{color:var(--cream);text-align:right;font-weight:500}
+.readout-gauge{padding:24px 18px;display:flex;flex-direction:column;align-items:center;gap:14px;border-bottom:1px solid rgba(255,255,255,.12)}
+.readout-foot{padding:0;display:flex;flex-direction:column}
+.readout-step{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.12);font-size:11px;letter-spacing:.04em}
+.readout-step:last-child{border-bottom:none}
+.readout-step .n{color:rgba(255,255,255,.4);font-weight:500}
+.readout-step .lbl{color:var(--cream);font-weight:500}
+.readout-step .arr{color:rgba(255,255,255,.4)}
+
+/* Gauge SVG */
+.gauge-wrap{position:relative;width:160px;height:160px}
+.gauge-wrap svg{position:absolute;inset:0}
+.gauge-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.gauge-text .num{font-family:'IBM Plex Mono',monospace;font-size:44px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.gauge-text .out{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-top:4px}
+.gauge-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.gauge-tag{font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7)}
+
+/* ─── Check cards ─── */
+.check-card{background:var(--cream);border:1px solid var(--ink);padding:12px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;transition:background .12s}
+.check-card:hover{background:var(--cream-2)}
+.check-card.checked{background:var(--cream-2);border-color:var(--green);border-left:4px solid var(--green);padding-left:11px}
+.check-card input[type=checkbox]{margin-top:2px;flex-shrink:0;accent-color:var(--ink);width:13px;height:13px;cursor:pointer}
+.check-card label{font-size:12px;font-family:'IBM Plex Sans',sans-serif;color:var(--ink-2);line-height:1.5;cursor:pointer}
+.check-card label strong{color:var(--ink);font-weight:600;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:3px}
+
+/* ─── Category cards (checklist) ─── */
+.cat-card{background:var(--cream);border:1px solid var(--ink);padding:0}
+.cat-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--ink);color:var(--cream);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.cat-head .ttl{font-weight:600}
+.cat-head .ct{color:rgba(255,255,255,.5);font-weight:400}
+.cat-body{padding:8px}
+.cat-item{padding:12px 14px;display:grid;grid-template-columns:24px 1fr auto;align-items:start;gap:12px;border:1px solid transparent;transition:background .12s}
+.cat-item+.cat-item{border-top:1px solid var(--line)}
+.cat-item-check{width:18px;height:18px;border:1.5px solid var(--ink-3);display:flex;align-items:center;justify-content:center;margin-top:1px}
+.cat-item-check.pass{background:var(--green);border-color:var(--green)}
+.cat-item-check.pass svg{stroke:var(--cream);fill:none;stroke-width:3;width:11px;height:11px}
+.cat-item-check.missing{background:var(--red);border-color:var(--red)}
+.cat-item-check.missing::before{content:'';width:8px;height:8px;background:var(--cream)}
+.cat-item-check.review{background:var(--amber);border-color:var(--amber)}
+.cat-item-check.review::before{content:'?';color:var(--ink);font-weight:700;font-size:11px;line-height:1}
+.cat-item-title{font-size:12px;font-weight:600;color:var(--ink);letter-spacing:.02em;text-transform:uppercase;margin-bottom:3px}
+.cat-item-desc{font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--ink-2);line-height:1.45;text-transform:none;letter-spacing:0}
+
+/* ─── Stat cards ─── */
+.stat{background:var(--cream);border:1px solid var(--ink);padding:16px 14px;text-align:left}
+.stat-num{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1;font-family:'IBM Plex Mono',monospace}
+.stat-lbl{font-size:9px;color:var(--ink-2);margin-top:8px;letter-spacing:.16em;text-transform:uppercase}
+
+/* ─── Issue/flag rows ─── */
+.row{background:var(--cream);border:1px solid var(--ink);padding:16px 18px;margin-bottom:10px}
+.flag-row{background:var(--cream);border:1px solid var(--ink);border-left:4px solid var(--amber);padding:14px 18px;margin-bottom:8px}
+
+/* ─── Block of code (jira/monday) ─── */
+.code-blk{font-family:'IBM Plex Mono',monospace;font-size:11px;white-space:pre-wrap;line-height:1.65;color:var(--ink);background:var(--cream-2);border:1px solid var(--ink);padding:16px 18px;letter-spacing:0;tab-size:2}
+
+/* ─── Tabs ─── */
+.tab-bar{display:flex;border-bottom:1px solid var(--ink);margin-bottom:18px;gap:0}
+.tab-btn{padding:8px 16px;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;color:var(--ink-2);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:'IBM Plex Mono',monospace;transition:color .12s,border-color .12s}
+.tab-btn:hover{color:var(--ink)}
+.tab-btn.active{color:var(--ink);border-bottom-color:var(--red)}
+
+/* ─── Spinner / progress ─── */
+.scan-bar{height:3px;background:var(--cream-3);border:1px solid var(--ink);position:relative;overflow:hidden}
+.scan-bar-fill{height:100%;background:var(--ink);transition:width .4s ease}
+.scan-grid{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-top:14px}
+
+/* ─── KPI dashboard ─── */
+.kpi{background:var(--cream);border:1px solid var(--ink);padding:20px}
+.kpi-lbl{font-size:10px;color:var(--ink-2);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px}
+.kpi-num{font-family:'IBM Plex Mono',monospace;font-size:40px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.kpi-foot{font-size:11px;color:var(--ink-2);margin-top:6px;letter-spacing:.04em}
+
+/* ─── Pattern card ─── */
+.pat{background:var(--cream);border:1px solid var(--ink);padding:14px 16px}
+
+/* ─── History rows ─── */
+.hist-row{display:grid;grid-template-columns:2.5fr 1fr 1.3fr 1fr;padding:12px 18px;gap:14px;border-bottom:1px solid var(--line);align-items:center;cursor:pointer;transition:background .1s}
+.hist-row:last-child{border-bottom:none}
+.hist-row:hover{background:var(--cream-2)}
+.hist-header-row{background:var(--ink);color:var(--cream)}
+.hist-header-row span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--cream)}
+
+/* ─── Score row (the reveal) ─── */
+.score-row{display:grid;grid-template-columns:auto 1fr;gap:0;background:var(--ink);color:var(--cream);border:1px solid var(--ink);margin-bottom:16px}
+.score-main{padding:32px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;border-right:1px solid rgba(255,255,255,.12);min-width:280px}
+.score-ring{position:relative;width:220px;height:220px}
+.score-ring svg{position:absolute;inset:0;overflow:visible}
+.score-ring circle{transition:stroke-dashoffset 1.3s cubic-bezier(.4,0,.2,1)}
+.score-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-num{font-family:'IBM Plex Mono',monospace;font-size:72px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--cream)}
+.score-out{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-top:6px}
+.score-status{padding:6px 16px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;border:1px solid currentColor}
+.score-pass{background:var(--green);color:var(--cream);border-color:var(--green)}
+.score-fail{background:var(--red);color:var(--cream);border-color:var(--red)}
+.score-thresh{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.14em;text-transform:uppercase}
+.subscores{padding:0;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr}
+.sub{padding:24px;border-bottom:1px solid rgba(255,255,255,.12);border-right:1px solid rgba(255,255,255,.12)}
+.sub:nth-child(2n){border-right:none}
+.sub:nth-last-child(-n+2){border-bottom:none}
+.sub-lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:12px}
+.sub-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.sub-num{font-family:'IBM Plex Mono',monospace;font-size:36px;font-weight:700;letter-spacing:-.025em;line-height:1;color:var(--cream)}
+.sub-frac{font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.5);font-variant-numeric:tabular-nums}
+.sub-bar{height:4px;background:rgba(255,255,255,.1);overflow:hidden}
+.sub-fill{height:100%;background:var(--cream);transition:width 1.3s cubic-bezier(.4,0,.2,1)}
+.sub-fill.fail{background:var(--red)}
+
+/* ─── Responsive ─── */
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:1fr !important}
+  .hero-title{font-size:48px}
+  .score-row{grid-template-columns:1fr}
+  .score-main{border-right:none;border-bottom:1px solid rgba(255,255,255,.12);min-width:0}
+  .three-col{grid-template-columns:1fr 1fr !important}
+}
+@media(max-width:600px){
+  .page-wrap{padding:24px 16px 80px}
+  .hero-title{font-size:38px}
+  .three-col{grid-template-columns:1fr !important}
+  .two-col{grid-template-columns:1fr !important}
+  .stats-row{grid-template-columns:repeat(2,1fr) !important}
+  .cat-grid{grid-template-columns:1fr !important}
+  .form-2col{grid-template-columns:1fr !important}
+  .subscores{grid-template-columns:1fr}
+  .sub{border-right:none;border-bottom:1px solid rgba(255,255,255,.12)}
+  .hist-row{grid-template-columns:1fr auto !important;padding:12px 14px !important}
+  .hist-row>*:nth-child(3),.hist-row>*:nth-child(4){display:none !important}
+  .hist-header-row{grid-template-columns:1fr auto !important}
+  .hist-header-row>*:nth-child(3),.hist-header-row>*:nth-child(4){display:none !important}
+}
+</style>
+</head>
+<body>
+<div id="scroll-bar"></div>
+
+<!-- NAV -->
+<header class="topnav">
+  <nav>
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-name">UX-AUTPLT / v1.0</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn active" onclick="navTo('upload',this)">Upload</button>
+      <button class="nav-btn" onclick="navTo('checklist',this)">Checklist</button>
+      <button class="nav-btn" onclick="navTo('report',this)">Report</button>
+      <button class="nav-btn" onclick="navTo('dashboard',this)">Dashboard</button>
+      <button class="nav-btn" onclick="navTo('history',this)">History</button>
+      <button class="nav-btn" onclick="navTo('guide',this)">Guide</button>
+    </div>
+    <div class="nav-status"><span class="led"></span>Agent ready</div>
+  </nav>
+</header>
+
+<!-- ══ UPLOAD PAGE ══ -->
+<div id="page-upload" class="page-view active">
+  <div class="page-wrap">
+
+    <!-- Hero -->
+    <div class="hero-grid" style="display:grid;grid-template-columns:1.4fr 1fr;gap:36px;align-items:start;margin-bottom:48px">
+      <div>
+        <span class="eyebrow">Incoming broadcast / self-check workspace</span>
+        <h1 class="hero-title">UX-QA,<br><em>ON-AUTPLT.</em></h1>
+        <p class="hero-sub">Auto-audit your UI in under a minute — so design review is for judgment calls, not nitpicks. Drop a file, run the scan, get a score and a punch list.</p>
+        <div style="display:flex;gap:10px;margin-top:28px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="document.getElementById('file-input').click()"><span>▶</span>Start audit</button>
+          <button class="btn btn-secondary" onclick="loadSample()">Run sample</button>
+        </div>
+        <div style="display:grid;grid-template-columns:auto 1fr auto;gap:14px;margin-top:36px;padding:14px 16px;background:var(--cream-2);border:1px solid var(--line-2);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)">
+          <span>UNIT-ID</span><span>UX-AUTPLT / 001-AX</span><span style="color:var(--green)">● ONLINE</span>
+        </div>
+      </div>
+
+      <!-- Readout panel (right) -->
+      <div class="readout">
+        <div class="readout-head">
+          <span><span class="readout-led"></span> Transmission panel</span>
+          <span>v1.0</span>
+        </div>
+        <dl class="readout-grid">
+          <dt>Channel</dt><dd>UX-QA / 4-band</dd>
+          <dt>Threshold</dt><dd>≥ 70 / 100</dd>
+          <dt>Last sample</dt><dd>84 / 100 — pass</dd>
+          <dt>Items checked</dt><dd>18</dd>
+        </dl>
+        <div class="readout-gauge">
+          <span class="gauge-tag">Example readout</span>
+          <div class="gauge-wrap">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="62" stroke="rgba(255,255,255,.12)" stroke-width="6" fill="none"/>
+              <circle cx="80" cy="80" r="62" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="butt" stroke-dasharray="389.56" stroke-dashoffset="62.33" transform="rotate(-90 80 80)"/>
+            </svg>
+            <div class="gauge-text">
+              <div class="num">84</div>
+              <div class="out">UX score</div>
+            </div>
+          </div>
+          <span class="gauge-label">Sample / Passed</span>
+        </div>
+        <div class="readout-foot">
+          <div class="readout-step"><span class="n">01</span><span class="lbl">Upload interface file</span><span class="arr">→</span></div>
+          <div class="readout-step"><span class="n">02</span><span class="lbl">Run self-check rules</span><span class="arr">→</span></div>
+          <div class="readout-step"><span class="n">03</span><span class="lbl">Review action items</span><span class="arr">→</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div id="form-area">
+      <div class="box">
+        <div class="sec-bar"><span class="num">§01</span><span>New audit</span><span class="right">FORM-A</span></div>
+        <div style="padding:24px">
+
+          <div style="margin-bottom:18px">
+            <label class="field-label"><span>Component / screen name</span><span>req</span></label>
+            <input class="field-input" id="comp-name" value="Entitlement — Assumption Management" oninput="chk()">
+          </div>
+          <div class="form-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+            <div>
+              <label class="field-label"><span>Audit focus</span><span>opt</span></label>
+              <select class="field-input" id="aud-focus">
+                <option value="full" selected>Full scan — all four bands</option>
+                <option value="flow">User flow and interaction</option>
+                <option value="a11y">Accessibility</option>
+                <option value="brand">HSBC brand compliance</option>
+                <option value="copy">Content and copy</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label"><span>Pass threshold</span><span>0–100</span></label>
+              <select class="field-input" id="thresh">
+                <option value="70" selected>70 (default)</option>
+                <option value="75">75</option>
+                <option value="80">80</option>
+                <option value="65">65</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-bottom:18px">
+            <label class="field-label"><span>What is the user trying to accomplish?</span><span>context</span></label>
+            <textarea class="field-input" id="ctx-goal" rows="3">The user (treasury analyst) wants to find and update specific assumption sets used in NII calculations before the next calculation run.</textarea>
+            <div class="field-hint">Write as "The user wants to…" — an outcome, not a feature name.</div>
+          </div>
+          <div class="form-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px">
+            <div><label class="field-label"><span>Previous screen</span></label><input class="field-input" value="NII Calculation results"></div>
+            <div><label class="field-label"><span>Next screen</span></label><input class="field-input" value="Edit assumption / back to NII"></div>
+          </div>
+
+          <!-- Upload zone -->
+          <div style="margin-bottom:0">
+            <label class="field-label"><span>Signal source / file</span><span>any format</span></label>
+            <div class="upload-zone" id="upload-zone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+              <input type="file" id="file-input" accept="image/*,.html,.css,.js,.jsx,.ts,.tsx,.vue,.md,.pdf" multiple style="display:none" onchange="handleFiles(this.files)">
+              <div id="upload-placeholder" onclick="document.getElementById('file-input').click()" style="cursor:pointer">
+                <div class="upload-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                <div class="upload-title">Drop file or click to upload</div>
+                <div class="upload-hint">Source · PDF · PNG · JPG · JPEG · multi-file OK</div>
+              </div>
+              <div id="upload-preview" style="display:none">
+                <div id="preview-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px"></div>
+                <button class="btn btn-secondary" onclick="document.getElementById('file-input').click()" style="margin:0 auto;display:inline-flex">+ Add</button>
+              </div>
+            </div>
+          </div>
+
+          <button class="run-btn" id="run-btn" onclick="runAudit()">
+            <span>▶</span>Run UX audit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="loading-area" style="display:none">
+      <div class="box">
+        <div class="sec-bar"><span class="num">§02</span><span>Signal scan in progress</span><span class="right" id="lpct">0%</span></div>
+        <div style="padding:48px 32px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);margin-bottom:6px" id="lmsg">Scanning file…</div>
+          <div style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--ink-2);margin-bottom:24px" id="lsub">Reading interface signals…</div>
+          <div class="scan-bar"><div class="scan-bar-fill" id="pfill" style="width:0%"></div></div>
+          <div class="scan-grid">
+            <span>CHANNEL: UX-QA</span>
+            <span style="text-align:center" id="lphase">Phase 01 of 06</span>
+            <span id="lframe">Frame ████░░░░░░</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REPORT PAGE ══ -->
+<div id="page-report" class="page-view">
+  <div class="page-wrap">
+    <div id="report-empty">
+      <span class="eyebrow">Audit report</span>
+      <h1 class="hero-title" style="font-size:56px">No signal.</h1>
+      <p class="hero-sub" style="margin-bottom:24px">Upload a file and run the audit to see your UX score.</p>
+      <button class="btn btn-primary" onclick="navTo('upload',null)">Go to upload</button>
+    </div>
+
+    <div id="report-content" style="display:none">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:24px">
+        <div>
+          <span class="eyebrow">Audit report</span>
+          <h1 class="hero-title" style="font-size:48px" id="r-title">Transmission received</h1>
+          <p style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)" id="r-sub"></p>
+        </div>
+        <button class="btn btn-secondary" onclick="resetAudit()">+ New audit</button>
+      </div>
+
+      <!-- Score reveal -->
+      <div id="rscore"></div>
+
+      <!-- Detail counts -->
+      <div class="stats-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--ink);border-top:none;margin-bottom:24px">
+        <div class="stat" style="border:none;border-right:1px solid var(--ink)"><div class="stat-num" style="color:var(--green)" id="n-pass">-</div><div class="stat-lbl">Passed</div></div>
+        <div class="stat" style="border:none;border-right:1px solid var(--ink)"><div class="stat-num" style="color:var(--red)" id="n-missing">-</div><div class="stat-lbl">Missing</div></div>
+        <div class="stat" style="border:none;border-right:1px solid var(--ink)"><div class="stat-num" style="color:var(--amber)" id="n-review">-</div><div class="stat-lbl">Review</div></div>
+        <div class="stat" style="border:none"><div class="stat-num" id="n-flags">-</div><div class="stat-lbl">Mindset flags</div></div>
+      </div>
+
+      <!-- Summary -->
+      <div class="box" style="margin-bottom:16px">
+        <div class="sec-bar"><span class="num">§03</span><span>Audit summary</span><span class="right">Read</span></div>
+        <p style="padding:22px 24px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.7;color:var(--ink-2)" id="r-summary"></p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="box" style="padding:24px;margin-bottom:16px">
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="swTab('actions',this)">Action items</button>
+          <button class="tab-btn" onclick="swTab('flags',this)">Mindset flags</button>
+          <button class="tab-btn" onclick="swTab('jira',this)">Jira tickets</button>
+        </div>
+        <div id="t-actions"></div>
+        <div id="t-flags" style="display:none"></div>
+        <div id="t-jira" style="display:none"></div>
+      </div>
+
+      <!-- Monday manual review -->
+      <div class="box" style="margin-bottom:16px">
+        <div class="sec-bar" style="background:var(--red);border-color:var(--red)"><span class="num">§04</span><span>Manual review request — Monday format</span><span class="right">Optional</span></div>
+        <div style="padding:24px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:18px">
+            <div style="flex:1;min-width:280px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--ink-2);line-height:1.6">
+              Need a human eye? If items are flagged as <span class="pill pill-review">Review</span> or you'd like a designer to confirm a judgment call, submit a Monday ticket. The audit pre-fills it.
+            </div>
+            <div style="display:flex;gap:8px;flex-shrink:0">
+              <button class="btn btn-secondary" id="monday-copy-btn" onclick="cpMonday(this)">Copy ticket</button>
+              <button class="btn btn-red" onclick="window.open('https://monday.com','_blank')">Open Monday →</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px">
+            <span>Monday.com format</span>
+            <div style="flex:1;height:1px;background:var(--line)"></div>
+            <span id="monday-meta"></span>
+          </div>
+          <div class="code-blk" id="monday-blk" style="max-height:340px;overflow:auto"></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:24px">
+        <button class="btn-text" onclick="navTo('checklist',null)">View full item-by-item checklist →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CHECKLIST PAGE ══ -->
+<div id="page-checklist" class="page-view">
+  <div class="page-wrap">
+    <div style="display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:36px">
+      <div>
+        <span class="eyebrow">Self-check checklist</span>
+        <h1 class="hero-title" style="font-size:56px">Audit criteria.</h1>
+      </div>
+      <button class="btn btn-secondary" onclick="resetChecklist()">Reset checks</button>
+    </div>
+    <div class="cat-grid" id="cat-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px"></div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD PAGE ══ -->
+<div id="page-dashboard" class="page-view">
+  <div class="page-wrap">
+    <div style="margin-bottom:40px">
+      <span class="eyebrow">Team intelligence</span>
+      <h1 class="hero-title" style="font-size:56px">Dashboard.</h1>
+      <p class="hero-sub">Defect patterns across the Apex platform — helping designers prioritise what to fix in the Design System.</p>
+    </div>
+    <div class="kpi-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--ink);margin-bottom:24px">
+      <div class="kpi" style="border:none;border-right:1px solid var(--ink)"><div class="kpi-lbl">Audits / month</div><div class="kpi-num">23</div><div class="kpi-foot" style="color:var(--green)">+8 vs last month</div></div>
+      <div class="kpi" style="border:none;border-right:1px solid var(--ink)"><div class="kpi-lbl">Misses caught</div><div class="kpi-num" style="color:var(--red)">14</div><div class="kpi-foot">Would have shipped</div></div>
+      <div class="kpi" style="border:none;border-right:1px solid var(--ink)"><div class="kpi-lbl">First-pass rate</div><div class="kpi-num" style="color:var(--green)">61%</div><div class="kpi-foot">Passing on first audit</div></div>
+      <div class="kpi" style="border:none"><div class="kpi-lbl">Designer hours saved</div><div class="kpi-num">~18h</div><div class="kpi-foot">QA handled by devs</div></div>
+    </div>
+    <div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
+      <div class="box">
+        <div class="sec-bar"><span class="num">§D1</span><span>Misses by area</span><span class="right">N=124</span></div>
+        <div style="padding:22px">
+          <div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;font-weight:600;letter-spacing:.02em;text-transform:uppercase"><span>Copy</span><span style="color:var(--ink-2)">42 · 25%</span></div><div style="height:6px;background:var(--cream-3);border:1px solid var(--ink);overflow:hidden"><div style="height:100%;background:var(--ink);width:100%"></div></div></div>
+          <div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;font-weight:600;letter-spacing:.02em;text-transform:uppercase"><span>UX</span><span style="color:var(--ink-2)">38 · 23%</span></div><div style="height:6px;background:var(--cream-3);border:1px solid var(--ink);overflow:hidden"><div style="height:100%;background:var(--ink);width:90%"></div></div></div>
+          <div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;font-weight:600;letter-spacing:.02em;text-transform:uppercase"><span>Customer Mindset</span><span style="color:var(--ink-2)">31 · 19%</span></div><div style="height:6px;background:var(--cream-3);border:1px solid var(--ink);overflow:hidden"><div style="height:100%;background:var(--ink);width:74%"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;font-weight:600;letter-spacing:.02em;text-transform:uppercase"><span>UI</span><span style="color:var(--ink-2)">24 · 14%</span></div><div style="height:6px;background:var(--cream-3);border:1px solid var(--ink);overflow:hidden"><div style="height:100%;background:var(--ink);width:57%"></div></div></div>
+        </div>
+      </div>
+      <div class="box">
+        <div class="sec-bar"><span class="num">§D2</span><span>Misses by module</span><span class="right">Sorted</span></div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr><th style="text-align:left;padding:10px 22px;font-size:10px;color:var(--ink-2);font-weight:600;letter-spacing:.14em;text-transform:uppercase;border-bottom:1px solid var(--ink)">Module</th><th style="text-align:center;padding:10px 4px;font-size:10px;color:var(--ink-2);font-weight:600;text-transform:uppercase;border-bottom:1px solid var(--ink)">Misses</th><th style="text-align:left;padding:10px 22px;font-size:10px;color:var(--ink-2);font-weight:600;letter-spacing:.14em;text-transform:uppercase;border-bottom:1px solid var(--ink)">Top miss</th></tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--line)"><td style="padding:12px 22px;font-weight:500;text-transform:uppercase;font-size:11px;letter-spacing:.04em">NII Calculation</td><td style="text-align:center;color:var(--red);font-weight:700;font-family:'IBM Plex Mono',monospace">7</td><td style="padding:12px 22px;color:var(--ink-2);font-family:'IBM Plex Sans',sans-serif">Missing empty states</td></tr>
+            <tr style="border-bottom:1px solid var(--line)"><td style="padding:12px 22px;font-weight:500;text-transform:uppercase;font-size:11px;letter-spacing:.04em">Entitlement</td><td style="text-align:center;color:var(--red);font-weight:700;font-family:'IBM Plex Mono',monospace">5</td><td style="padding:12px 22px;color:var(--ink-2);font-family:'IBM Plex Sans',sans-serif">Placeholder copy in filters</td></tr>
+            <tr style="border-bottom:1px solid var(--line)"><td style="padding:12px 22px;font-weight:500;text-transform:uppercase;font-size:11px;letter-spacing:.04em">Stress Testing</td><td style="text-align:center;color:var(--red);font-weight:700;font-family:'IBM Plex Mono',monospace">5</td><td style="padding:12px 22px;color:var(--ink-2);font-family:'IBM Plex Sans',sans-serif">No feedback after save</td></tr>
+            <tr style="border-bottom:1px solid var(--line)"><td style="padding:12px 22px;font-weight:500;text-transform:uppercase;font-size:11px;letter-spacing:.04em">Market Data</td><td style="text-align:center;color:var(--amber);font-weight:700;font-family:'IBM Plex Mono',monospace">4</td><td style="padding:12px 22px;color:var(--ink-2);font-family:'IBM Plex Sans',sans-serif">Generic CTA labels</td></tr>
+            <tr><td style="padding:12px 22px;font-weight:500;text-transform:uppercase;font-size:11px;letter-spacing:.04em">Recovery and Resolution</td><td style="text-align:center;color:var(--amber);font-weight:700;font-family:'IBM Plex Mono',monospace">3</td><td style="padding:12px 22px;color:var(--ink-2);font-family:'IBM Plex Sans',sans-serif">Contrast failures</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="box">
+      <div class="sec-bar"><span class="num">§D3</span><span>Recurring patterns — Design System action needed</span><span class="right">N=6</span></div>
+      <div style="padding:24px"><div class="three-col" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+        <div class="pat"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase">Generic CTA labels</span><span class="pill pill-missing">8 sc</span></div><div style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--ink-2);line-height:1.55;margin-bottom:12px">"Submit", "OK" instead of "Confirm payment" or "Save assumptions".</div><div style="font-size:11px;padding:8px 11px;background:var(--red-soft);color:var(--red);border:1px solid var(--red);letter-spacing:.02em">→ Add CTA writing guide to button spec</div></div>
+        <div class="pat"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase">Missing empty states</span><span class="pill pill-missing">7 sc</span></div><div style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--ink-2);line-height:1.55;margin-bottom:12px">Blank UI when search returns zero results or data fails to load.</div><div style="font-size:11px;padding:8px 11px;background:var(--red-soft);color:var(--red);border:1px solid var(--red);letter-spacing:.02em">→ Create standard empty state component</div></div>
+        <div class="pat"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase">No save confirmation</span><span class="pill pill-review">6 sc</span></div><div style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--ink-2);line-height:1.55;margin-bottom:12px">Forms completing without any toast — users unsure if action worked.</div><div style="font-size:11px;padding:8px 11px;background:var(--amber-soft);color:var(--amber);border:1px solid var(--amber);letter-spacing:.02em">→ Define standard toast pattern</div></div>
+        <div class="pat"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase">Low contrast headers</span><span class="pill pill-review">5 sc</span></div><div style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--ink-2);line-height:1.55;margin-bottom:12px">Table headers using ~#888 — below WCAG 4.5:1.</div><div style="font-size:11px;padding:8px 11px;background:var(--amber-soft);color:var(--amber);border:1px solid var(--amber);letter-spacing:.02em">→ Enforce min #444 in table spec</div></div>
+        <div class="pat"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase">Competing primary CTAs</span><span class="pill pill-neutral">4 sc</span></div><div style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--ink-2);line-height:1.55;margin-bottom:12px">Multiple filled buttons — users can't identify primary.</div><div style="font-size:11px;padding:8px 11px;background:var(--cream-2);color:var(--ink);border:1px solid var(--ink);letter-spacing:.02em">→ Document one-primary-CTA rule</div></div>
+        <div class="pat"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase">Jargon visible</span><span class="pill pill-neutral">3 sc</span></div><div style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--ink-2);line-height:1.55;margin-bottom:12px">"Auth failed: code 401" shown to end users.</div><div style="font-size:11px;padding:8px 11px;background:var(--cream-2);color:var(--ink);border:1px solid var(--ink);letter-spacing:.02em">→ Add plain-language error guide</div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HISTORY PAGE ══ -->
+<div id="page-history" class="page-view">
+  <div class="page-wrap">
+    <div style="margin-bottom:36px">
+      <span class="eyebrow">Audit log</span>
+      <h1 class="hero-title" style="font-size:56px">History.</h1>
+    </div>
+    <div class="box">
+      <div class="hist-row hist-header-row"><span>Component</span><span>Score</span><span>Misses</span><span>When</span></div>
+      <div class="hist-row"><div><div style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">Entitlement — Assumption Mgmt</div><div style="font-size:11px;color:var(--ink-3);margin-top:2px">dev.chen@hsbc.com</div></div><div style="font-weight:700;color:var(--green);font-size:18px;font-family:'IBM Plex Mono',monospace">84</div><div style="font-size:12px;color:var(--ink-2);font-family:'IBM Plex Sans',sans-serif">2 missing · 1 review</div><div style="font-size:11px;color:var(--ink-3)">Today 14:32</div></div>
+      <div class="hist-row"><div><div style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">Payment Confirmation Modal</div><div style="font-size:11px;color:var(--ink-3);margin-top:2px">dev.patel@hsbc.com</div></div><div style="font-weight:700;color:var(--green);font-size:18px;font-family:'IBM Plex Mono',monospace">92</div><div style="font-size:12px;color:var(--ink-2);font-family:'IBM Plex Sans',sans-serif">0 missing · 2 review</div><div style="font-size:11px;color:var(--ink-3)">Yesterday</div></div>
+      <div class="hist-row"><div><div style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">NII Calculation — Filter</div><div style="font-size:11px;color:var(--ink-3);margin-top:2px">dev.wang@hsbc.com</div></div><div style="font-weight:700;color:var(--red);font-size:18px;font-family:'IBM Plex Mono',monospace">58</div><div style="font-size:12px;color:var(--ink-2);font-family:'IBM Plex Sans',sans-serif">6 missing · 3 review</div><div style="font-size:11px;color:var(--ink-3)">Mon 7 Apr</div></div>
+      <div class="hist-row"><div><div style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">Market Data Viewer</div><div style="font-size:11px;color:var(--ink-3);margin-top:2px">dev.smith@hsbc.com</div></div><div style="font-weight:700;color:var(--amber);font-size:18px;font-family:'IBM Plex Mono',monospace">73</div><div style="font-size:12px;color:var(--ink-2);font-family:'IBM Plex Sans',sans-serif">3 missing · 2 review</div><div style="font-size:11px;color:var(--ink-3)">Fri 4 Apr</div></div>
+      <div class="hist-row"><div><div style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">Treasury Governance</div><div style="font-size:11px;color:var(--ink-3);margin-top:2px">dev.li@hsbc.com</div></div><div style="font-weight:700;color:var(--green);font-size:18px;font-family:'IBM Plex Mono',monospace">88</div><div style="font-size:12px;color:var(--ink-2);font-family:'IBM Plex Sans',sans-serif">1 missing · 1 review</div><div style="font-size:11px;color:var(--ink-3)">Thu 3 Apr</div></div>
+      <div class="hist-row"><div><div style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">Stress Testing — Builder</div><div style="font-size:11px;color:var(--ink-3);margin-top:2px">dev.chen@hsbc.com</div></div><div style="font-weight:700;color:var(--red);font-size:18px;font-family:'IBM Plex Mono',monospace">62</div><div style="font-size:12px;color:var(--ink-2);font-family:'IBM Plex Sans',sans-serif">5 missing · 2 review</div><div style="font-size:11px;color:var(--ink-3)">Tue 1 Apr</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GUIDE PAGE ══ -->
+<div id="page-guide" class="page-view">
+  <div class="page-wrap">
+    <div style="margin-bottom:40px;max-width:720px">
+      <span class="eyebrow">Operating manual</span>
+      <h1 class="hero-title" style="font-size:56px">3-step guide.</h1>
+    </div>
+    <div class="three-col" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px">
+      <div class="box" style="padding:24px"><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px">01 — Upload</div><h3 style="font-size:18px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px">Drop the source</h3><p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--ink-2);line-height:1.6">A screenshot, source file, or design file. The agent reads what's there — no live URL needed.</p></div>
+      <div class="box" style="padding:24px"><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px">02 — Scan</div><h3 style="font-size:18px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px">Run the audit</h3><p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--ink-2);line-height:1.6">The engine checks 18 self-audit items across four bands: Customer Mindset, UX, UI, Copy.</p></div>
+      <div class="box" style="padding:24px"><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px">03 — Decode</div><h3 style="font-size:18px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px">Review action items</h3><p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--ink-2);line-height:1.6">A UX score, a Pass / Not-pass verdict, and a punch list ready for PR or Jira.</p></div>
+    </div>
+    <div class="box">
+      <div class="sec-bar"><span class="num">§G1</span><span>Scoring protocol</span><span class="right">Read</span></div>
+      <div style="padding:24px;font-family:'IBM Plex Sans',sans-serif">
+        <p style="font-size:14px;color:var(--ink-2);line-height:1.7;margin-bottom:18px">Every audit item resolves to one of three states. Each band scores <code style="font-family:'IBM Plex Mono',monospace;background:var(--cream-2);padding:1px 6px;border:1px solid var(--line);font-size:13px">passes / total × 100</code>. Overall is the average of the four bands. 70 is the pass threshold.</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:14px"><span class="pill pill-pass" style="min-width:90px;justify-content:center">Pass</span><span style="font-size:14px;color:var(--ink-2)">Detected in the uploaded file.</span></div>
+          <div style="display:flex;align-items:center;gap:14px"><span class="pill pill-review" style="min-width:90px;justify-content:center">Review</span><span style="font-size:14px;color:var(--ink-2)">Ambiguous evidence; needs human confirmation.</span></div>
+          <div style="display:flex;align-items:center;gap:14px"><span class="pill pill-missing" style="min-width:90px;justify-content:center">Missing</span><span style="font-size:14px;color:var(--ink-2)">Not present; turns into an action item / Jira ticket.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Scroll progress
+addEventListener('scroll',()=>{const t=document.documentElement.scrollTop,h=document.documentElement.scrollHeight-innerHeight;document.getElementById('scroll-bar').style.width=(t/h*100)+'%';});
+
+// ─── Demo data: 4 categories, 18 items ───
+const CATS=[
+  {key:'mindset',title:'Customer Mindset',items:[
+    {id:'cm1',title:'Customer goal is clear',desc:'The primary outcome a customer is here to achieve.',status:'pass'},
+    {id:'cm2',title:'Uses customer-friendly language',desc:'Labels and instructions avoid internal jargon; explain value in plain language.',status:'missing'},
+    {id:'cm3',title:'Trust and reassurance are visible',desc:'Signals that build confidence at key decision points.',status:'pass'},
+    {id:'cm4',title:'Customer friction is considered',desc:'Unnecessary steps, fields, and choices are removed.',status:'pass'}
+  ]},
+  {key:'ux',title:'UX',items:[
+    {id:'ux1',title:'Experience has clear structure',desc:'Information hierarchy supports the task at hand.',status:'pass'},
+    {id:'ux2',title:'Inputs have clear labels',desc:'Checks for labels, aria-labels, placeholders, or named fields that explain required customer input.',status:'review'},
+    {id:'ux3',title:'Journey works across screen sizes',desc:'Layout reflows; no clipping or trapped focus at small widths.',status:'pass'},
+    {id:'ux4',title:'Actions provide feedback',desc:'Every action shows progress, success, or failure clearly.',status:'pass'},
+    {id:'ux5',title:'Important actions are safe',desc:'Destructive or irreversible actions are confirmable or undoable.',status:'pass'}
+  ]},
+  {key:'ui',title:'UI',items:[
+    {id:'ui1',title:'Uses approved shared UI components',desc:'Checks against the approved shared UI component library.',status:'missing'},
+    {id:'ui2',title:'Visual hierarchy is scannable',desc:'Primary actions stand out; supporting content recedes.',status:'pass'},
+    {id:'ui3',title:'Spacing follows the design grid',desc:'Padding and margins use the spacing scale.',status:'pass'},
+    {id:'ui4',title:'Brand colours used correctly',desc:'Token palette only; no off-brand hex values.',status:'pass'},
+    {id:'ui5',title:'Component states implemented',desc:'Hover, focus, disabled, loading, error states all present.',status:'pass'}
+  ]},
+  {key:'copy',title:'Copy',items:[
+    {id:'cp1',title:'Headings explain the page purpose',desc:'A user understands what this screen is for at a glance.',status:'pass'},
+    {id:'cp2',title:'Primary CTA is clear',desc:'Action verbs ("Save assumptions"), not generic ("Submit").',status:'pass'},
+    {id:'cp3',title:'Error messages are actionable',desc:'Human, specific, and tell the user how to fix it.',status:'pass'},
+    {id:'cp4',title:'No internal jargon visible',desc:'No system codes, database field names, or org acronyms.',status:'pass'}
+  ]}
+];
+const FLAGS=[
+  {dim:'Customer Mindset',q:'Filter tabs show Filter No.1 through 7 — are these placeholder labels or intentional design?',why:'If real labels, customers can\'t understand what dimension they are filtering by without trial and error.'},
+  {dim:'UX',q:'After a user edits an assumption row, how do they know the change was saved?',why:'Without explicit confirmation, users in financial tools repeat actions, risking data integrity.'},
+  {dim:'UI',q:'Is there a clear visual difference between the search button and the primary action?',why:'Competing button weights make the next step ambiguous, slowing the user down.'}
+];
+const PASS_THRESHOLD=70;
+
+function pillFor(s){return s==='pass'?'<span class="pill pill-pass">Pass</span>':s==='missing'?'<span class="pill pill-missing">Missing</span>':'<span class="pill pill-review">Review</span>'}
+function tickFor(s){if(s==='pass')return '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';return ''}
+
+function computeScores(){
+  const cat={};
+  CATS.forEach(c=>{
+    const total=c.items.length;
+    const passes=c.items.filter(i=>i.status==='pass').length;
+    cat[c.key]={passes,total,score:Math.round(passes/total*100)};
+  });
+  const overall=Math.round((cat.mindset.score+cat.ux.score+cat.ui.score+cat.copy.score)/4);
+  return {cat,overall};
+}
+
+function renderScoreReveal(){
+  const s=computeScores();
+  const passing=s.overall>=PASS_THRESHOLD;
+  const C=2*Math.PI*88;
+  const off=C*(1-s.overall/100);
+  function sub(label,key){
+    const c=s.cat[key];const passSub=c.score>=PASS_THRESHOLD;
+    return `<div class="sub">
+      <div class="sub-lbl">${label}</div>
+      <div class="sub-row">
+        <div class="sub-num">${c.score}</div>
+        <span class="sub-frac">${c.passes}/${c.total}</span>
+      </div>
+      <div class="sub-bar"><div class="sub-fill ${passSub?'':'fail'}" style="width:${c.score}%"></div></div>
+    </div>`;
+  }
+  document.getElementById('rscore').innerHTML=`
+    <div class="score-row">
+      <div class="score-main">
+        <div class="score-ring">
+          <svg width="220" height="220" viewBox="0 0 220 220">
+            <circle cx="110" cy="110" r="88" stroke="rgba(255,255,255,.12)" stroke-width="9" fill="none"/>
+            <circle cx="110" cy="110" r="88" stroke="${passing?'#ffffff':'#d63b1f'}" stroke-width="9" fill="none" stroke-linecap="butt" stroke-dasharray="${C.toFixed(2)}" stroke-dashoffset="${C.toFixed(2)}" data-target-off="${off.toFixed(2)}" transform="rotate(-90 110 110)"/>
+          </svg>
+          <div class="score-text">
+            <div class="score-num">${s.overall}</div>
+            <div class="score-out">UX score</div>
+          </div>
+        </div>
+        <div class="score-status ${passing?'score-pass':'score-fail'}">${passing?'● Passed':'● Not passed'}</div>
+        <div class="score-thresh">Threshold ≥ ${PASS_THRESHOLD}</div>
+      </div>
+      <div class="subscores">
+        ${sub('Customer Mindset','mindset')}
+        ${sub('UX','ux')}
+        ${sub('UI','ui')}
+        ${sub('Copy','copy')}
+      </div>
+    </div>`;
+  requestAnimationFrame(()=>{const c=document.querySelector('#rscore circle[data-target-off]');if(c)c.style.strokeDashoffset=c.dataset.targetOff;});
+}
+
+function renderReport(){
+  const name=document.getElementById('comp-name').value||'UI Screen';
+  document.getElementById('r-title').textContent=name;
+  document.getElementById('r-sub').textContent='Completed · '+new Date().toLocaleString();
+  document.getElementById('report-content').style.display='block';
+  document.getElementById('report-empty').style.display='none';
+  renderScoreReveal();
+  let passes=0,missing=0,review=0;
+  CATS.forEach(c=>c.items.forEach(i=>{if(i.status==='pass')passes++;else if(i.status==='missing')missing++;else review++;}));
+  document.getElementById('n-pass').textContent=passes;
+  document.getElementById('n-missing').textContent=missing;
+  document.getElementById('n-review').textContent=review;
+  document.getElementById('n-flags').textContent=FLAGS.length;
+  document.getElementById('r-summary').textContent='The '+name+' screen was audited across four bands. '+passes+' of '+(passes+missing+review)+' self-audit items passed. '+missing+' items are not present and turn into action items; '+review+' require human review. Customer Mindset has the lowest score — copy uses internal language that customers may not understand. Address the missing UI component reuse and the customer-friendly language item to lift the overall score before sending to design review.';
+  const actions=[];
+  CATS.forEach(c=>c.items.forEach(i=>{if(i.status==='missing'){actions.push({cat:c.title,title:i.title,desc:i.desc});}}));
+  document.getElementById('t-actions').innerHTML=actions.length===0?'<div style="text-align:center;padding:40px;color:var(--ink-3)">No action items — everything passes or is under review.</div>':actions.map(a=>`<div class="row"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><span class="pill pill-missing">Missing</span><span style="font-size:11px;color:var(--ink-3);letter-spacing:.12em;text-transform:uppercase">${a.cat}</span></div><div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">${a.title}</div><div style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--ink-2);line-height:1.6">${a.desc}</div></div>`).join('');
+  document.getElementById('t-flags').innerHTML=FLAGS.map(f=>`<div class="flag-row"><div style="font-size:11px;font-weight:700;color:var(--amber);letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px">${f.dim}</div><div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--ink);line-height:1.55;margin-bottom:4px">${f.q}</div><div style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--ink-3);line-height:1.55">${f.why}</div></div>`).join('');
+  window._tk=actions.map((a,i)=>{const id='UX-'+String(i+1).padStart(3,'0');const s='[UX-AUDIT] '+a.title+' — '+a.cat;const d='Summary: '+a.desc+'\n\nComponent: '+name+'\nArea: '+a.cat+'\nStatus: Missing\n\nAcceptance criteria:\n[ ] '+a.title+' is implemented per design system spec\n\nLabels: design-qa, ux-audit, missing\nPriority: High';return{id:id,text:s+'\n\n'+d};});
+  document.getElementById('t-jira').innerHTML=window._tk.length===0?'<div style="text-align:center;padding:40px;color:var(--ink-3)">No Jira tickets — no missing items.</div>':window._tk.map((t,i)=>`<div style="margin-bottom:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span class="pill pill-missing">Missing · ${t.id}</span><button class="btn btn-secondary" style="padding:6px 12px;font-size:10px" onclick="cpTk(this,${i})">Copy</button></div><div class="code-blk">${t.text.replace(/</g,'&lt;')}</div></div>`).join('');
+  renderMondayTicket(name);
+  renderChecklist();
+}
+
+function renderChecklist(){
+  const grid=document.getElementById('cat-grid');
+  grid.innerHTML=CATS.map(c=>{
+    const passes=c.items.filter(i=>i.status==='pass').length;
+    return `<div class="cat-card">
+      <div class="cat-head">
+        <span class="ttl">${c.title}</span>
+        <span class="ct">${passes}/${c.items.length}</span>
+      </div>
+      <div class="cat-body">
+        ${c.items.map(i=>`
+          <div class="cat-item">
+            <div class="cat-item-check ${i.status}">${tickFor(i.status)}</div>
+            <div>
+              <div class="cat-item-title">${i.title}</div>
+              <div class="cat-item-desc">${i.desc}</div>
+            </div>
+            <div>${pillFor(i.status)}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildMondayTicket(name){
+  const s=computeScores();
+  const passing=s.overall>=PASS_THRESHOLD;
+  const reviewItems=[],missingItems=[];
+  CATS.forEach(c=>c.items.forEach(i=>{
+    if(i.status==='review')reviewItems.push({cat:c.title,title:i.title,desc:i.desc});
+    if(i.status==='missing')missingItems.push({cat:c.title,title:i.title,desc:i.desc});
+  }));
+  const reviewAreas=Array.from(new Set(reviewItems.map(r=>r.cat)));
+  const tagAreas=reviewAreas.map(a=>a.toLowerCase().replace(/[^a-z]+/g,'-')).filter(Boolean);
+  const priority=reviewItems.length>=3?'High':reviewItems.length>=1?'Medium':'Low';
+  const dateStr=new Date().toISOString().split('T')[0];
+  const ctx=(document.getElementById('ctx-goal')?.value||'').trim();
+  let t='';
+  t+='Board:       UX Reviews\n';
+  t+='Group:       Manual reviews\n\n';
+  t+='Item name:   Manual UX review — '+name+'\n\n';
+  t+='─── Columns ───\n';
+  t+='Status:      To review\n';
+  t+='Priority:    '+priority+'\n';
+  t+='Person:      <assign a designer>\n';
+  t+='Due date:    <set>\n';
+  t+='Score:       '+s.overall+'/100 ('+(passing?'Passed':'Not passed')+')\n';
+  t+='Tags:        ux-audit, manual-review'+(tagAreas.length?', '+tagAreas.join(', '):'')+'\n';
+  t+='Requested by: dev (please update)\n';
+  t+='Audit run:   '+dateStr+'\n\n';
+  t+='─── Update ───\n\n';
+  t+='Why this needs a manual review\n';
+  if(reviewItems.length){
+    t+='The auto-audit flagged '+reviewItems.length+' item'+(reviewItems.length>1?'s':'')+' as ambiguous — evidence exists in the file but a designer needs to confirm the intent matches.\n\n';
+  } else {
+    t+='The auto-audit passed all items, but a designer sanity-check is requested on the judgment calls below.\n\n';
+  }
+  if(reviewItems.length){
+    t+='Items for designer review\n';
+    reviewItems.forEach((r,i)=>{
+      t+=(i+1)+'. ['+r.cat+'] '+r.title+'\n   '+r.desc+'\n\n';
+    });
+  }
+  if(missingItems.length){
+    t+='Missing items (filed as Jira tickets — listed for context)\n';
+    missingItems.forEach(m=>{t+='• ['+m.cat+'] '+m.title+'\n';});
+    t+='\n';
+  }
+  if(ctx){t+='Customer context\n'+ctx+'\n\n';}
+  t+='Mindset flags raised by the audit\n';
+  FLAGS.forEach(f=>{t+='• ['+f.dim+'] '+f.q+'\n';});
+  t+='\nLink to full audit: <paste audit URL>';
+  return t;
+}
+function renderMondayTicket(name){
+  const txt=buildMondayTicket(name);
+  document.getElementById('monday-blk').textContent=txt;
+  document.getElementById('monday-meta').textContent=txt.split('\n').length+' lines · ready to paste';
+}
+function cpMonday(btn){
+  navigator.clipboard.writeText(document.getElementById('monday-blk').textContent).then(()=>{
+    const o=btn.textContent;btn.textContent='Copied';setTimeout(()=>btn.textContent=o,2000);
+  });
+}
+
+// ─── Upload / files ───
+var uploadedFiles=[];
+function handleDragOver(e){e.preventDefault();document.getElementById('upload-zone').classList.add('dragover');}
+function handleDragLeave(e){document.getElementById('upload-zone').classList.remove('dragover');}
+function handleDrop(e){e.preventDefault();document.getElementById('upload-zone').classList.remove('dragover');handleFiles(e.dataTransfer.files);}
+function handleFiles(files){
+  if(!files||!files.length)return;
+  Array.from(files).forEach(function(f){
+    uploadedFiles.push(f);
+    if(f.type.indexOf('image/')===0){
+      var r=new FileReader();var ci=uploadedFiles.length-1;
+      r.onload=function(ev){addThumb(ev.target.result,f.name,ci,true);};
+      r.readAsDataURL(f);
+    } else {addThumb(null,f.name,uploadedFiles.length-1,false);}
+  });
+  document.getElementById('upload-placeholder').style.display='none';
+  document.getElementById('upload-preview').style.display='block';
+  document.getElementById('upload-zone').classList.add('has-file');
+  setTimeout(function(){
+    var btn=document.getElementById('run-btn');
+    if(btn){btn.scrollIntoView({behavior:'smooth',block:'center'});btn.animate([{boxShadow:'0 0 0 var(--red)'},{boxShadow:'6px 6px 0 var(--red)'},{boxShadow:'0 0 0 var(--red)'}],{duration:1200,iterations:2});}
+  },300);
+}
+function addThumb(src,name,idx,isImg){
+  var grid=document.getElementById('preview-grid');
+  var wrap=document.createElement('div');
+  wrap.style.cssText='position:relative;overflow:hidden;border:1px solid var(--ink);aspect-ratio:4/3;background:var(--cream-2);display:flex;align-items:center;justify-content:center';
+  if(isImg && src){var img=document.createElement('img');img.src=src;img.style.cssText='width:100%;height:100%;object-fit:cover;display:block';wrap.appendChild(img);}
+  else{var ic=document.createElement('div');ic.innerHTML='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1c1a14" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';wrap.appendChild(ic);}
+  var btn=document.createElement('button');btn.textContent='×';
+  btn.style.cssText='position:absolute;top:4px;right:4px;width:20px;height:20px;background:var(--ink);color:var(--cream);border:none;cursor:pointer;font-size:13px;line-height:1;font-family:inherit';
+  btn.dataset.idx=idx;btn.addEventListener('click',function(e){e.stopPropagation();rmFile(parseInt(this.dataset.idx),wrap);});
+  var lbl=document.createElement('div');lbl.textContent=name;
+  lbl.style.cssText='position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:var(--ink);font-size:10px;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:"IBM Plex Mono",monospace;letter-spacing:.04em';
+  wrap.appendChild(btn);wrap.appendChild(lbl);grid.appendChild(wrap);
+}
+function rmFile(idx,el){
+  uploadedFiles.splice(idx,1);el.remove();
+  document.querySelectorAll('#preview-grid > div').forEach(function(w,i){var b=w.querySelector('button');if(b)b.dataset.idx=i;});
+  if(!uploadedFiles.length){
+    document.getElementById('upload-placeholder').style.display='block';
+    document.getElementById('upload-preview').style.display='none';
+    document.getElementById('upload-zone').classList.remove('has-file');
+    document.getElementById('file-input').value='';
+  }
+}
+
+function chk(){document.getElementById('run-btn').disabled=document.getElementById('comp-name').value.trim().length<3;}
+
+// ─── Audit run ───
+const LS=[[12,'Scanning file…','Reading interface signals…','01','01 of 06'],[28,'Checking Customer Mindset…','Is the customer goal clear?','02','02 of 06'],[44,'Evaluating UX…','Do inputs have clear labels?','03','03 of 06'],[60,'Inspecting UI…','Are shared components used?','04','04 of 06'],[76,'Auditing Copy…','Plain language for every user?','05','05 of 06'],[96,'Generating action items…','Finalising score…','06','06 of 06']];
+function showArea(id){['form-area','loading-area'].forEach(a=>{const el=document.getElementById(a);if(el)el.style.display=a===id?'block':'none';});}
+function bars(pct){const n=Math.round(pct/10);return 'Frame '+'█'.repeat(n)+'░'.repeat(10-n);}
+function runAudit(){
+  showArea('loading-area');
+  let i=0,pf=document.getElementById('pfill');
+  function step(){
+    pf.style.width=LS[i][0]+'%';
+    document.getElementById('lmsg').textContent=LS[i][1];
+    document.getElementById('lsub').textContent=LS[i][2];
+    document.getElementById('lpct').textContent=LS[i][0]+'%';
+    document.getElementById('lphase').textContent='Phase '+LS[i][4];
+    document.getElementById('lframe').textContent=bars(LS[i][0]);
+    if(i<LS.length-1){i++;setTimeout(step,560);}else setTimeout(finishAudit,700);
+  }
+  step();
+}
+function finishAudit(){
+  renderReport();
+  navTo('report',null);
+  document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.remove('active');if(b.textContent.trim().toLowerCase()==='report')b.classList.add('active');});
+}
+function loadSample(){runAudit();}
+function resetAudit(){
+  document.getElementById('report-content').style.display='none';
+  document.getElementById('report-empty').style.display='block';
+  navTo('upload',null);
+  document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.remove('active');if(b.textContent.trim().toLowerCase()==='upload')b.classList.add('active');});
+  showArea('form-area');
+  uploadedFiles=[];
+  document.getElementById('preview-grid').innerHTML='';
+  document.getElementById('upload-placeholder').style.display='block';
+  document.getElementById('upload-preview').style.display='none';
+  document.getElementById('upload-zone').classList.remove('has-file');
+  document.getElementById('file-input').value='';
+}
+function resetChecklist(){renderChecklist();}
+
+function swTab(tab,btn){
+  document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('t-actions').style.display=tab==='actions'?'block':'none';
+  document.getElementById('t-flags').style.display=tab==='flags'?'block':'none';
+  document.getElementById('t-jira').style.display=tab==='jira'?'block':'none';
+}
+function cpTk(btn,i){navigator.clipboard.writeText(window._tk[i].text).then(()=>{btn.textContent='Copied';setTimeout(()=>btn.textContent='Copy',2000);});}
+
+function navTo(key,btn){
+  if(btn){document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+  document.querySelectorAll('.nav-btn').forEach(function(b){if(b.textContent.trim().toLowerCase()===key)b.classList.add('active');});
+  document.querySelectorAll('.page-view').forEach(p=>p.classList.remove('active'));
+  const map={upload:'page-upload',checklist:'page-checklist',report:'page-report',dashboard:'page-dashboard',history:'page-history',guide:'page-guide'};
+  const el=document.getElementById(map[key]);if(el)el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+renderChecklist();
+chk();
+</script>
+</body>
+</html>

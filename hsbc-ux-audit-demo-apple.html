@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en" style="color-scheme:light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>HSBC UX Audit Agent</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  background:#fff;color:#1d1d1f;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.47;
+  scroll-behavior:smooth;overflow-x:hidden;
+  letter-spacing:-0.01em;
+}
+/* Mono utility neutralised — kept class for compat, restyled to SF */
+.mono{font-family:inherit;letter-spacing:0;text-transform:none}
+
+/* Scroll bar */
+#scroll-bar{position:fixed;top:0;left:0;height:2px;background:#0071e3;z-index:200;width:0;transition:width .1s}
+
+/* ─── Nav ─── */
+.topnav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.72);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgba(0,0,0,.08)}
+.topnav nav{max-width:1024px;margin:0 auto;padding:0 22px;height:44px;display:flex;align-items:center;justify-content:space-between}
+.brand-mark{width:22px;height:22px;border-radius:5px;background:#db0011;display:flex;align-items:center;justify-content:center}
+.brand-name{font-size:13px;font-weight:600;color:#1d1d1f;letter-spacing:-.01em}
+.brand-sep{color:#86868b;font-size:12px}
+.brand-sub{font-size:12px;color:#86868b;font-weight:400}
+.nav-btn{padding:4px 10px;border-radius:8px;font-size:12px;font-weight:400;cursor:pointer;background:none;border:none;color:#1d1d1f;letter-spacing:-.005em;transition:opacity .15s,color .15s}
+.nav-btn:hover{opacity:.7}
+.nav-btn.active{font-weight:500}
+.pill-status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:980px;background:#f5f5f7;font-size:11px;font-weight:500;color:#1d1d1f;letter-spacing:-.005em}
+.pill-status .dot{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block}
+.pill-demo{font-size:11px;padding:3px 10px;border-radius:980px;background:#f5f5f7;color:#6e6e73;font-weight:500;letter-spacing:-.005em}
+
+/* ─── Layout ─── */
+.page-wrap{max-width:1024px;margin:0 auto;padding:64px 22px 96px}
+.page-view{display:none}
+.page-view.active{display:block;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ─── Eyebrow ─── */
+.eyebrow{display:inline-block;font-size:14px;font-weight:500;color:#0071e3;letter-spacing:-.005em;margin-bottom:8px}
+
+/* ─── Hero typography (apple.com inspired) ─── */
+.hero-title{font-size:64px;font-weight:600;line-height:1.05;letter-spacing:-.035em;color:#1d1d1f;margin-bottom:14px}
+.hero-title em{font-style:normal;color:#6e6e73;font-weight:600}
+.hero-sub{font-size:21px;color:#6e6e73;line-height:1.4;font-weight:400;letter-spacing:-.005em;max-width:640px}
+
+/* ─── Cards ─── */
+.card{background:#fff;border:1px solid #d2d2d7;border-radius:18px}
+.card-soft{background:#f5f5f7;border:none;border-radius:18px}
+
+/* ─── Section eyebrow (in-card) ─── */
+.sec-eyebrow{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:500;color:#86868b;letter-spacing:-.005em;margin-bottom:18px}
+.sec-eyebrow::after{content:'';flex:1;height:1px;background:rgba(0,0,0,.08)}
+.sec-div{font-size:12px;font-weight:500;color:#86868b;letter-spacing:-.005em;margin:24px 0 12px}
+
+/* ─── Form fields ─── */
+.field-label{display:block;font-size:12px;font-weight:500;color:#6e6e73;margin-bottom:7px;letter-spacing:-.005em}
+.field-input{width:100%;padding:11px 14px;border:1px solid #d2d2d7;border-radius:12px;font-size:15px;font-family:inherit;color:#1d1d1f;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;letter-spacing:-.005em}
+.field-input::placeholder{color:#86868b}
+.field-input:focus{border-color:#0071e3;box-shadow:0 0 0 4px rgba(0,113,227,.15)}
+textarea.field-input{resize:vertical;line-height:1.5}
+select.field-input{appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path fill="none" stroke="%236e6e73" stroke-width="1.5" d="M1 1.5l5 5 5-5"/></svg>');background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.field-hint{font-size:12px;color:#86868b;margin-top:5px;letter-spacing:-.005em}
+
+/* ─── Check cards ─── */
+.check-card{background:#fff;border:1px solid #d2d2d7;border-radius:12px;padding:13px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:10px}
+.check-card:hover{background:#fafafa;border-color:#86868b}
+.check-card.checked{background:#f0f7ff;border-color:#0071e3}
+.check-card input[type=checkbox]{margin-top:2px;flex-shrink:0;accent-color:#0071e3;width:14px;height:14px;cursor:pointer}
+.check-card label{font-size:13px;color:#6e6e73;line-height:1.45;cursor:pointer;letter-spacing:-.005em}
+.check-card label strong{color:#1d1d1f;font-weight:500}
+
+/* ─── Buttons ─── */
+.btn-primary{
+  padding:12px 22px;background:#0071e3;color:#fff;border:none;border-radius:980px;
+  font-size:15px;font-weight:400;cursor:pointer;font-family:inherit;letter-spacing:-.005em;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  transition:background .12s;
+}
+.btn-primary:hover{background:#0077ed}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-secondary{
+  padding:9px 18px;background:#fff;color:#1d1d1f;border:1px solid #d2d2d7;border-radius:980px;
+  font-size:13px;font-weight:400;cursor:pointer;font-family:inherit;letter-spacing:-.005em;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:background .12s,border-color .12s;
+}
+.btn-secondary:hover{background:#f5f5f7;border-color:#86868b}
+.btn-text{color:#0071e3;font-size:14px;font-weight:400;cursor:pointer;background:none;border:none;font-family:inherit;letter-spacing:-.005em;display:inline-flex;align-items:center;gap:3px}
+.btn-text:hover{text-decoration:underline}
+
+/* Run button (full width primary) */
+.run-btn{width:100%;padding:14px;background:#0071e3;color:#fff;border:none;border-radius:980px;font-size:16px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:24px;letter-spacing:-.005em;transition:background .12s}
+.run-btn:hover{background:#0077ed}
+.run-btn:disabled{opacity:.35;cursor:not-allowed;background:#0071e3}
+
+/* ─── Dimension cards ─── */
+.dim-card{background:#f5f5f7;border:none;border-radius:18px;padding:24px;transition:transform .25s ease}
+.dim-card:hover{transform:translateY(-2px)}
+.dim-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;background:#fff;border:1px solid rgba(0,0,0,.06)}
+.dim-icon svg{width:18px;height:18px;stroke:#1d1d1f;stroke-width:1.6;fill:none}
+.dim-title{font-size:15px;font-weight:600;color:#1d1d1f;margin-bottom:6px;letter-spacing:-.01em}
+.dim-desc{font-size:13px;color:#6e6e73;line-height:1.45;letter-spacing:-.005em}
+
+/* ─── Stat cards ─── */
+.stat-card{background:#f5f5f7;border:none;border-radius:14px;padding:18px 12px;text-align:center}
+.stat-num{font-size:28px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.stat-lbl{font-size:11px;color:#6e6e73;margin-top:6px;font-weight:500;letter-spacing:-.005em}
+
+/* ─── Issue rows ─── */
+.issue-row{background:#fff;border:1px solid #d2d2d7;border-radius:14px;padding:18px 20px;margin-bottom:10px;transition:border-color .15s}
+.issue-row:hover{border-color:#86868b}
+
+/* ─── Severity badges ─── */
+.bdg{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:500;letter-spacing:-.005em}
+.bp0{background:#ffe5e5;color:#c5050f}
+.bp1{background:#fff1de;color:#a8530a}
+.bp2{background:#e0efff;color:#0066cc}
+.bp3{background:#f5f5f7;color:#6e6e73}
+.dimb{font-size:11px;padding:3px 9px;border-radius:6px;background:#f5f5f7;color:#6e6e73;font-weight:500;letter-spacing:-.005em}
+
+/* ─── History table ─── */
+.hist-row{display:grid;grid-template-columns:2.5fr 1fr 1.3fr 1fr;padding:16px 22px;gap:14px;border-bottom:1px solid rgba(0,0,0,.06);align-items:center;cursor:pointer;transition:background .12s}
+.hist-row:last-child{border-bottom:none}
+.hist-row:hover{background:#fafafa}
+.hist-header-row{background:#fafafa}
+.hist-header-row span{font-size:12px;color:#86868b;font-weight:500;letter-spacing:-.005em}
+.hbdg{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:500;letter-spacing:-.005em}
+.hpass{background:#e0f7ea;color:#0a7a3e}
+.hcond{background:#fff7d4;color:#956b04}
+.hfail{background:#ffe5e5;color:#c5050f}
+
+/* ─── Tabs ─── */
+.tab-btn{padding:10px 18px;font-size:13px;font-weight:400;cursor:pointer;color:#6e6e73;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;letter-spacing:-.005em;transition:color .15s}
+.tab-btn:hover{color:#1d1d1f}
+.tab-btn.active{color:#0071e3;border-bottom-color:#0071e3;font-weight:500}
+
+/* ─── Flag cards ─── */
+.flag-card{background:#f5f5f7;border:none;border-left:3px solid #af52de;border-radius:0 12px 12px 0;padding:14px 18px;margin-bottom:8px}
+
+/* ─── Jira block ─── */
+.jira-blk{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;white-space:pre-wrap;line-height:1.7;color:#1d1d1f;background:#f5f5f7;padding:16px 18px;border-radius:12px}
+
+/* ─── Tips ─── */
+.live-tip{display:none;margin-top:7px;font-size:13px;color:#a8530a;padding:9px 14px;background:#fff7e6;border-radius:10px;border-left:3px solid #f59e0b;line-height:1.5}
+.live-tip.show{display:block}
+.chk-tip{display:none;margin-top:14px;padding:12px 16px;background:#fff7e6;border-radius:10px;border-left:3px solid #f59e0b;font-size:13px;color:#a8530a;line-height:1.6}
+.chk-tip.show{display:block}
+
+/* ─── KPI ─── */
+.kpi{background:#f5f5f7;border:none;border-radius:18px;padding:24px}
+.kpi-lbl{font-size:12px;color:#6e6e73;font-weight:500;letter-spacing:-.005em;margin-bottom:10px}
+.kpi-num{font-size:40px;font-weight:600;letter-spacing:-.025em;line-height:1;color:#1d1d1f}
+.kpi-foot{font-size:12px;color:#6e6e73;margin-top:8px;letter-spacing:-.005em}
+
+/* ─── Pattern card ─── */
+.pat-card{background:#fff;border:1px solid #d2d2d7;border-radius:14px;padding:18px;transition:border-color .15s}
+.pat-card:hover{border-color:#86868b}
+
+/* ─── Bar fill (subtle blue, no gradient) ─── */
+.bar-fill{height:4px;background:#0071e3;border-radius:2px}
+
+/* ─── Spinner ─── */
+.spinner{width:32px;height:32px;border:2px solid rgba(0,0,0,.08);border-top-color:#0071e3;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 18px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── Skip items ─── */
+.skip-item{padding:8px 14px;background:#fff7e6;border-left:3px solid #f59e0b;border-radius:0 10px 10px 0;font-size:12px;color:#a8530a;margin-bottom:6px;letter-spacing:-.005em}
+
+/* ─── Upload zone ─── */
+.upload-zone{border:1.5px dashed #d2d2d7;border-radius:14px;padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa}
+.upload-zone:hover{border-color:#0071e3;background:#f0f7ff}
+.upload-zone.dragover{border-color:#0071e3;background:#e8f2ff}
+.upload-zone.has-file{border-style:solid;border-color:#0071e3;background:#f0f7ff;padding:22px}
+#preview-grid img{display:block}
+
+/* ─── Summary box ─── */
+.summ-box{background:#f5f5f7;border:none;border-radius:14px;padding:16px 18px;font-size:14px;line-height:1.65;color:#1d1d1f;margin-bottom:22px;letter-spacing:-.005em}
+
+/* ─── Dark accent band (Apple-style dark section) ─── */
+.dark-band{background:#1d1d1f;color:#f5f5f7;border-radius:18px;padding:32px 36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;margin-bottom:40px;position:relative;overflow:hidden}
+.dark-band .eyebrow-dark{font-size:13px;color:#0a84ff;letter-spacing:-.005em;margin-bottom:8px;font-weight:500}
+.dark-band h3{font-size:20px;font-weight:600;color:#f5f5f7;margin-bottom:6px;letter-spacing:-.015em}
+.dark-band p{font-size:14px;color:#a1a1a6;line-height:1.5;max-width:480px;letter-spacing:-.005em}
+.dark-band .btn-on-dark{padding:10px 22px;background:#0071e3;color:#fff;border:none;border-radius:980px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:-.005em;transition:background .12s;white-space:nowrap}
+.dark-band .btn-on-dark:hover{background:#0077ed}
+
+/* ─── Result badge (status pill) ─── */
+.res-badge{display:inline-flex;align-items:center;padding:5px 14px;border-radius:980px;font-size:12px;font-weight:500;letter-spacing:-.005em}
+
+/* ─── Score row ─── */
+.score-row{display:flex;align-items:center;gap:28px;padding:28px;background:#f5f5f7;border-radius:18px;margin-bottom:14px;flex-wrap:wrap}
+.score-main{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:160px;flex-shrink:0}
+.score-ring{position:relative;width:140px;height:140px}
+.score-ring svg{transform:rotate(-90deg);overflow:visible}
+.score-ring circle{transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)}
+.score-num-wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-num{font-size:44px;font-weight:600;letter-spacing:-.025em;color:#1d1d1f;line-height:1}
+.score-out{font-size:12px;font-weight:500;color:#86868b;letter-spacing:-.005em;margin-top:3px}
+.score-status{margin-top:14px;padding:6px 16px;border-radius:980px;font-size:13px;font-weight:500;letter-spacing:-.005em;display:inline-flex;align-items:center;gap:6px}
+.score-pass{background:#d4f4dc;color:#0a7a3e}
+.score-fail{background:#ffd8d8;color:#c5050f}
+.score-thresh{font-size:12px;color:#86868b;letter-spacing:-.005em;margin-top:8px}
+.subscores{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;flex:1;min-width:280px}
+.subscore{background:#fff;border:1px solid #d2d2d7;border-radius:14px;padding:18px 16px}
+.subscore-lbl{font-size:12px;color:#6e6e73;font-weight:500;letter-spacing:-.005em;margin-bottom:10px}
+.subscore-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.subscore-num{font-size:32px;font-weight:600;letter-spacing:-.025em;line-height:1}
+.subscore-pill{font-size:11px;font-weight:500;padding:2px 8px;border-radius:980px;letter-spacing:-.005em}
+.subscore-bar{height:5px;background:rgba(0,0,0,.06);border-radius:3px;overflow:hidden}
+.subscore-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+@media(max-width:768px){
+  .score-row{padding:22px;gap:20px}
+  .subscores{grid-template-columns:1fr;min-width:0;width:100%}
+}
+
+/* ─── Sub bottom nav (mobile) ─── */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:1px solid rgba(0,0,0,.06);padding:8px 0 calc(8px + env(safe-area-inset-bottom));flex-direction:row;justify-content:space-around}
+.bnav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:4px 10px;border-radius:8px;min-width:56px;font-family:inherit;transition:all .15s}
+.bnav-btn svg{width:20px;height:20px;stroke:#86868b;fill:none;stroke-width:1.8;transition:stroke .15s}
+.bnav-btn span{font-size:10px;font-weight:500;color:#86868b;transition:color .15s;letter-spacing:-.005em}
+.bnav-btn.active svg{stroke:#0071e3}
+.bnav-btn.active span{color:#0071e3}
+
+/* ─── Responsive ─── */
+@media(max-width:1024px){
+  .dim-grid{grid-template-columns:repeat(3,1fr) !important}
+  .three-col{grid-template-columns:repeat(2,1fr) !important}
+}
+@media(max-width:768px){
+  .topnav nav{padding:0 16px !important;height:48px !important}
+  .nav-desktop{display:none !important}
+  .nav-mobile{display:flex !important}
+  .page-wrap{padding:36px 18px 100px !important}
+  .hero-title{font-size:40px !important;letter-spacing:-.025em !important}
+  .hero-sub{font-size:17px !important}
+  .card{padding:22px !important;border-radius:16px !important}
+  .chk-grid{grid-template-columns:1fr !important}
+  .form-2col{grid-template-columns:1fr !important}
+  .dim-grid{grid-template-columns:1fr 1fr !important}
+  .dim-card{padding:18px !important}
+  .stats-5col{grid-template-columns:repeat(3,1fr) !important}
+  .stat-card{padding:14px 8px !important}
+  .hist-row{grid-template-columns:1fr auto !important;padding:14px 16px !important}
+  .hist-row>*:nth-child(3),.hist-row>*:nth-child(4){display:none !important}
+  .hist-header-row{grid-template-columns:1fr auto !important;padding:12px 16px !important}
+  .hist-header-row>*:nth-child(3),.hist-header-row>*:nth-child(4){display:none !important}
+  .kpi-grid{grid-template-columns:1fr 1fr !important}
+  .two-col{grid-template-columns:1fr !important}
+  .three-col{grid-template-columns:1fr 1fr !important}
+  .dark-band{flex-direction:column !important;align-items:flex-start !important;padding:24px !important}
+  body{padding-bottom:64px}
+  .bottom-nav{display:flex !important}
+}
+@media(max-width:400px){
+  .dim-grid{grid-template-columns:1fr !important}
+  .kpi-grid{grid-template-columns:1fr !important}
+  .three-col{grid-template-columns:1fr !important}
+  .stats-5col{grid-template-columns:repeat(3,1fr) !important}
+  .hero-title{font-size:32px !important}
+}
+</style>
+</head>
+<body>
+<div id="scroll-bar"></div>
+
+<!-- NAV -->
+<header class="topnav">
+  <nav>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="brand-mark">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="#fff"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <span class="brand-name">HSBC Design Ops</span>
+      <span class="brand-sep">/</span>
+      <span class="brand-sub">UX Audit Agent</span>
+    </div>
+    <div class="nav-desktop" style="display:flex;gap:4px">
+      <button class="nav-btn active" onclick="navTo('audit',this)">Audit</button>
+      <button class="nav-btn" onclick="navTo('history',this)">History</button>
+      <button class="nav-btn" onclick="navTo('dashboard',this)">Dashboard</button>
+      <button class="nav-btn" onclick="navTo('settings',this)">Settings</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="pill-status"><span class="dot"></span>Active</div>
+      <span class="pill-demo">Demo</span>
+    </div>
+  </nav>
+</header>
+
+<!-- ══ AUDIT PAGE ══ -->
+<div id="page-audit" class="page-view active">
+  <div class="page-wrap">
+
+    <!-- Hero -->
+    <div style="max-width:720px;margin-bottom:56px">
+      <span class="eyebrow">Smarter design QA</span>
+      <h1 class="hero-title">UX Audit Agent.<br><em>Self-service design QA.</em></h1>
+      <p class="hero-sub">Audit any screen against HSBC standards, WCAG 2.2 AA, and user-centric principles — without waiting for a designer.</p>
+    </div>
+
+    <!-- FORM -->
+    <div id="form-area">
+      <div class="card" style="padding:36px;margin-bottom:24px">
+        <div class="sec-eyebrow">New audit</div>
+
+        <div style="margin-bottom:18px">
+          <label class="field-label">Component or screen name</label>
+          <input class="field-input" id="comp-name" value="Entitlement — Assumption Management" oninput="chk()">
+        </div>
+        <div class="form-2col chk-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+          <div>
+            <label class="field-label">Audit focus</label>
+            <select class="field-input" id="aud-focus">
+              <option value="full" selected>Full audit — all dimensions</option>
+              <option value="flow">User flow and interaction</option>
+              <option value="a11y">Accessibility</option>
+              <option value="brand">HSBC brand compliance</option>
+              <option value="copy">Content and copy</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Severity filter</label>
+            <select class="field-input" id="sev">
+              <option value="all" selected>All issues — P0 through P3</option>
+              <option value="p01">P0 and P1 only</option>
+              <option value="p0">P0 blockers only</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:18px">
+          <label class="field-label">What is the user trying to accomplish?</label>
+          <textarea class="field-input" id="ctx-goal" rows="3" oninput="goalHint()">The user (treasury analyst) wants to find and update specific assumption sets used in NII calculations before the next calculation run.</textarea>
+          <div class="live-tip" id="gtip"></div>
+          <div class="field-hint">Write as "The user wants to…" — an outcome, not a feature name.</div>
+        </div>
+        <div class="form-2col chk-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+          <div>
+            <label class="field-label">Previous screen</label>
+            <input class="field-input" id="ctx-from" value="NII Calculation results">
+          </div>
+          <div>
+            <label class="field-label">Next screen</label>
+            <input class="field-input" id="ctx-next" value="Edit assumption / back to NII">
+          </div>
+        </div>
+        <div style="margin-bottom:30px">
+          <label class="field-label">Edge cases and errors to consider</label>
+          <textarea class="field-input" id="ctx-err" rows="2">Search returns no results, assumption data fails to load, user edits wrong row, session times out during editing.</textarea>
+        </div>
+
+        <!-- UPLOAD ZONE -->
+        <div style="margin-bottom:30px">
+          <label class="field-label">Screenshot or design file</label>
+          <div class="upload-zone" id="upload-zone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+            <input type="file" id="file-input" accept="image/*" multiple style="display:none" onchange="handleFiles(this.files)">
+            <div id="upload-placeholder" onclick="document.getElementById('file-input').click()" style="cursor:pointer">
+              <div style="width:48px;height:48px;border-radius:12px;background:#fff;border:1px solid #d2d2d7;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0071e3" stroke-width="1.6"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <div style="font-size:15px;font-weight:500;color:#1d1d1f;margin-bottom:5px;letter-spacing:-.01em">Drop screenshots here or click to upload</div>
+              <div style="font-size:13px;color:#6e6e73;letter-spacing:-.005em">PNG, JPG, WebP · Multiple files supported</div>
+            </div>
+            <div id="upload-preview" style="display:none">
+              <div id="preview-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:12px"></div>
+              <button class="btn-secondary" onclick="document.getElementById('file-input').click()" style="margin:0 auto;display:inline-flex">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add more images
+              </button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
+            <div style="flex:1;height:1px;background:rgba(0,0,0,.08)"></div>
+            <span style="font-size:12px;color:#86868b;letter-spacing:-.005em">or</span>
+            <div style="flex:1;height:1px;background:rgba(0,0,0,.08)"></div>
+          </div>
+          <input class="field-input" id="url-input" placeholder="Paste a Figma URL, GitHub link, or live site URL…" style="margin-top:12px">
+        </div>
+
+        <!-- SELF CHECK -->
+        <div class="sec-eyebrow" style="margin-top:8px">Pre-flight self-check<span style="margin-left:auto;font-weight:400;color:#86868b;font-size:12px">tick only what you have genuinely verified</span></div>
+
+        <div class="sec-div">1) UX behaviour</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px" class="chk-grid" id="chk-ux">
+          <div class="check-card checked" onclick="tgl('b1',this)"><input type="checkbox" id="b1" checked onchange="updChk()"><label for="b1"><strong>Happy path</strong> — end-to-end, no dead ends.</label></div>
+          <div class="check-card" onclick="tgl('b2',this)"><input type="checkbox" id="b2" onchange="updChk()"><label for="b2"><strong>Error states</strong> — clear messages, user can recover.</label></div>
+          <div class="check-card" onclick="tgl('b3',this)"><input type="checkbox" id="b3" onchange="updChk()"><label for="b3"><strong>Loading states</strong> — progress shown, duplicates prevented.</label></div>
+          <div class="check-card" onclick="tgl('b4',this)"><input type="checkbox" id="b4" onchange="updChk()"><label for="b4"><strong>Empty states</strong> — helpful guidance, not a blank screen.</label></div>
+          <div class="check-card checked" onclick="tgl('b5',this)"><input type="checkbox" id="b5" checked onchange="updChk()"><label for="b5"><strong>Form validation</strong> — inline + on submit, focus to first error.</label></div>
+          <div class="check-card" onclick="tgl('b6',this)"><input type="checkbox" id="b6" onchange="updChk()"><label for="b6"><strong>Success feedback</strong> — confirmation shown after key actions.</label></div>
+          <div class="check-card" onclick="tgl('b7',this)"><input type="checkbox" id="b7" onchange="updChk()"><label for="b7"><strong>Destructive actions</strong> — confirmation step, can cancel.</label></div>
+          <div class="check-card" onclick="tgl('b8',this)"><input type="checkbox" id="b8" onchange="updChk()"><label for="b8"><strong>Edge cases</strong> — timeouts, partial data, duplicates, permissions.</label></div>
+        </div>
+
+        <div class="sec-div">2) Component UI</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px" class="chk-grid">
+          <div class="check-card checked" onclick="tgl('c1',this)"><input type="checkbox" id="c1" checked onchange="updChk()"><label for="c1"><strong>APEX reuse</strong> — library used, no custom rebuilds.</label></div>
+          <div class="check-card checked" onclick="tgl('c2',this)"><input type="checkbox" id="c2" checked onchange="updChk()"><label for="c2"><strong>Standards alignment</strong> — spacing, type, colour, icons.</label></div>
+          <div class="check-card checked" onclick="tgl('c3',this)"><input type="checkbox" id="c3" checked onchange="updChk()"><label for="c3"><strong>Design match</strong> — spec matched, deviations recorded.</label></div>
+          <div class="check-card" onclick="tgl('c4',this)"><input type="checkbox" id="c4" onchange="updChk()"><label for="c4"><strong>Tokens only</strong> — no hard-coded CSS values.</label></div>
+          <div class="check-card" onclick="tgl('c5',this)"><input type="checkbox" id="c5" onchange="updChk()"><label for="c5"><strong>Interaction states</strong> — all states per APEX guidance.</label></div>
+          <div class="check-card checked" onclick="tgl('c6',this)"><input type="checkbox" id="c6" checked onchange="updChk()"><label for="c6"><strong>Responsive</strong> — breakpoints, no clipping, touch targets.</label></div>
+          <div class="check-card" onclick="tgl('c7',this)"><input type="checkbox" id="c7" onchange="updChk()"><label for="c7"><strong>Accessibility</strong> — keyboard, focus, labels, contrast.</label></div>
+          <div class="check-card checked" onclick="tgl('c8',this)"><input type="checkbox" id="c8" checked onchange="updChk()"><label for="c8"><strong>Consistency</strong> — same components configured the same way.</label></div>
+        </div>
+
+        <div class="sec-div">3) Copy correctness</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" class="chk-grid">
+          <div class="check-card checked" onclick="tgl('p1',this)"><input type="checkbox" id="p1" checked onchange="updChk()"><label for="p1"><strong>Tone and voice</strong> — matches HSBC brand guidelines.</label></div>
+          <div class="check-card checked" onclick="tgl('p2',this)"><input type="checkbox" id="p2" checked onchange="updChk()"><label for="p2"><strong>Spelling and grammar</strong> — no typos, consistent style.</label></div>
+          <div class="check-card" onclick="tgl('p3',this)"><input type="checkbox" id="p3" onchange="updChk()"><label for="p3"><strong>Microcopy</strong> — specific CTAs, no "Submit" or "OK".</label></div>
+          <div class="check-card" onclick="tgl('p4',this)"><input type="checkbox" id="p4" onchange="updChk()"><label for="p4"><strong>Error messages</strong> — human, specific, actionable.</label></div>
+          <div class="check-card" onclick="tgl('p5',this)"><input type="checkbox" id="p5" onchange="updChk()"><label for="p5"><strong>Plain language</strong> — no jargon or system codes shown.</label></div>
+          <div class="check-card" onclick="tgl('p6',this)"><input type="checkbox" id="p6" onchange="updChk()"><label for="p6"><strong>Localisation-ready</strong> — no hard-coded strings.</label></div>
+          <div class="check-card" onclick="tgl('p7',this)" style="grid-column:span 2"><input type="checkbox" id="p7" onchange="updChk()"><label for="p7"><strong>Stakeholder approved</strong> — content signed off or flagged for review before QA/UAT.</label></div>
+        </div>
+
+        <div class="chk-tip" id="chk-tip"></div>
+        <button class="run-btn" id="run-btn" onclick="runAudit()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
+          Run audit
+        </button>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="loading-area" style="display:none">
+      <div class="card" style="padding:60px;text-align:center">
+        <div class="spinner"></div>
+        <div style="font-size:17px;font-weight:500;margin-bottom:6px;letter-spacing:-.01em" id="lmsg">Analysing screen…</div>
+        <div style="font-size:13px;color:#6e6e73;letter-spacing:-.005em" id="lsub">Checking HSBC brand compliance…</div>
+        <div style="width:260px;height:3px;background:rgba(0,0,0,.06);border-radius:2px;margin:18px auto 0;overflow:hidden">
+          <div id="pfill" style="height:3px;background:#0071e3;border-radius:2px;transition:width .45s ease"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="res-area" style="display:none">
+      <div class="card" style="padding:32px;margin-bottom:24px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px">
+          <div>
+            <h2 style="font-size:26px;font-weight:600;letter-spacing:-.02em;margin-bottom:4px" id="rtitle">Audit report</h2>
+            <div style="font-size:13px;color:#6e6e73;letter-spacing:-.005em" id="rsub"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <button class="btn-secondary" onclick="resetAudit()">+ New audit</button>
+          </div>
+        </div>
+
+        <!-- Score row -->
+        <div id="rscore"></div>
+
+        <!-- Detail counts (smaller, supporting) -->
+        <div class="stats-5col" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:22px">
+          <div class="stat-card"><div class="stat-num" style="color:#c5050f;font-size:22px" id="n0">-</div><div class="stat-lbl">P0</div></div>
+          <div class="stat-card"><div class="stat-num" style="color:#a8530a;font-size:22px" id="n1">-</div><div class="stat-lbl">P1</div></div>
+          <div class="stat-card"><div class="stat-num" style="color:#0066cc;font-size:22px" id="n2">-</div><div class="stat-lbl">P2</div></div>
+          <div class="stat-card"><div class="stat-num" style="color:#6e6e73;font-size:22px" id="n3">-</div><div class="stat-lbl">P3</div></div>
+          <div class="stat-card"><div class="stat-num" style="color:#af52de;font-size:22px" id="nf">-</div><div class="stat-lbl">Flags</div></div>
+        </div>
+        <div class="summ-box" id="rsumm"></div>
+        <div id="rskip" style="margin-bottom:18px"></div>
+        <div id="rflags" style="margin-bottom:22px"></div>
+        <div style="display:flex;border-bottom:1px solid rgba(0,0,0,.08);margin-bottom:18px">
+          <button class="tab-btn active" onclick="swTab('issues',this)">Issues table</button>
+          <button class="tab-btn" onclick="swTab('jira',this)">Jira tickets</button>
+        </div>
+        <div id="ti"></div>
+        <div id="tj" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- AUDIT DIMENSIONS -->
+    <div id="dims-section" style="margin-top:48px;margin-bottom:40px">
+      <div style="margin-bottom:22px">
+        <span class="eyebrow">The five dimensions</span>
+        <h2 style="font-size:32px;font-weight:600;letter-spacing:-.02em;line-height:1.15">What the engine checks.</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px" class="dim-grid">
+        <div class="dim-card">
+          <div class="dim-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="#1d1d1f" stroke="none"/></svg></div>
+          <div class="dim-title">Goal clarity</div>
+          <div class="dim-desc">Primary action hierarchy, first-time user orientation, visual flow.</div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <div class="dim-title">Error states</div>
+          <div class="dim-desc">Empty, loading, error, and timeout states — all failure paths.</div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="dim-title">Feedback</div>
+          <div class="dim-desc">Action confirmation, system status, loading indicators.</div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="14" x2="15" y2="14"/><line x1="9" y1="18" x2="13" y2="18"/></svg></div>
+          <div class="dim-title">Copy &amp; language</div>
+          <div class="dim-desc">Plain English labels, specific CTAs, no internal jargon.</div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+          <div class="dim-title">Brand &amp; WCAG</div>
+          <div class="dim-desc">Contrast ratios, colour usage, spacing grid, accessibility checks.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coming Soon dark band -->
+    <div class="dark-band">
+      <div>
+        <div class="eyebrow-dark">Coming soon</div>
+        <h3>Connect your GitHub Design System.</h3>
+        <p>Audit against your own component specs and tokens automatically — zero manual config.</p>
+      </div>
+      <button class="btn-on-dark">Connect Design System</button>
+    </div>
+
+    <!-- History strip -->
+    <div style="margin-bottom:8px">
+      <div style="display:flex;align-items:end;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <span class="eyebrow">Recent activity</span>
+          <h2 style="font-size:24px;font-weight:600;letter-spacing:-.015em">Recent audits.</h2>
+        </div>
+        <button class="btn-text" onclick="navTo('history',null)">View all →</button>
+      </div>
+      <div class="card" style="overflow:hidden;padding:0">
+        <div class="hist-row hist-header-row">
+          <span>Component</span><span>Result</span><span>Issues</span><span>When</span>
+        </div>
+        <div class="hist-row"><div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#f5f5f7;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div style="font-size:14px;letter-spacing:-.005em">Entitlement — Assumption Management</div><div style="font-size:12px;color:#86868b;margin-top:1px">dev.chen@hsbc.com</div></div></div><div><span class="hbdg hcond">Conditional</span></div><div style="font-size:13px;color:#6e6e73">3 P1 · 4 P2 · 2 P3</div><div style="font-size:12px;color:#86868b">Today 14:32</div></div>
+        <div class="hist-row"><div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#f5f5f7;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div><div style="font-size:14px;letter-spacing:-.005em">Payment Confirmation Modal</div><div style="font-size:12px;color:#86868b;margin-top:1px">dev.patel@hsbc.com</div></div></div><div><span class="hbdg hpass">Passed</span></div><div style="font-size:13px;color:#6e6e73">0 P1 · 2 P2 · 3 P3</div><div style="font-size:12px;color:#86868b">Yesterday</div></div>
+        <div class="hist-row"><div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#f5f5f7;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div><div style="font-size:14px;letter-spacing:-.005em">NII Calculation — Filter Panel</div><div style="font-size:12px;color:#86868b;margin-top:1px">dev.wang@hsbc.com</div></div></div><div><span class="hbdg hfail">Failed</span></div><div style="font-size:13px;color:#6e6e73">2 P0 · 5 P1 · 3 P2</div><div style="font-size:12px;color:#86868b">Mon 7 Apr</div></div>
+        <div class="hist-row"><div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#f5f5f7;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div style="font-size:14px;letter-spacing:-.005em">Market Data Viewer</div><div style="font-size:12px;color:#86868b;margin-top:1px">dev.smith@hsbc.com</div></div></div><div><span class="hbdg hcond">Conditional</span></div><div style="font-size:13px;color:#6e6e73">0 P0 · 4 P1 · 6 P2</div><div style="font-size:12px;color:#86868b">Fri 4 Apr</div></div>
+        <div class="hist-row"><div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#f5f5f7;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg></div><div><div style="font-size:14px;letter-spacing:-.005em">Treasury Governance Dashboard</div><div style="font-size:12px;color:#86868b;margin-top:1px">dev.li@hsbc.com</div></div></div><div><span class="hbdg hpass">Passed</span></div><div style="font-size:13px;color:#6e6e73">0 P1 · 1 P2 · 4 P3</div><div style="font-size:12px;color:#86868b">Thu 3 Apr</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HISTORY PAGE ══ -->
+<div id="page-history" class="page-view">
+  <div class="page-wrap">
+    <div style="margin-bottom:40px">
+      <span class="eyebrow">Audit log</span>
+      <h1 class="hero-title">History.</h1>
+    </div>
+    <div class="card" style="overflow:hidden;padding:0">
+      <div class="hist-row hist-header-row"><span>Component</span><span>Result</span><span>Issues</span><span>When</span></div>
+      <div class="hist-row"><div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#f5f5f7;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div style="font-size:14px">Entitlement — Assumption Management</div><div style="font-size:12px;color:#86868b">dev.chen@hsbc.com</div></div></div><div><span class="hbdg hcond">Conditional</span></div><div style="font-size:13px;color:#6e6e73">3 P1 · 4 P2 · 2 P3</div><div style="font-size:12px;color:#86868b">Today 14:32</div></div>
+      <div class="hist-row"><div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#f5f5f7;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div><div style="font-size:14px">Payment Confirmation Modal</div><div style="font-size:12px;color:#86868b">dev.patel@hsbc.com</div></div></div><div><span class="hbdg hpass">Passed</span></div><div style="font-size:13px;color:#6e6e73">0 P1 · 2 P2 · 3 P3</div><div style="font-size:12px;color:#86868b">Yesterday 11:15</div></div>
+      <div class="hist-row"><div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#f5f5f7;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div><div style="font-size:14px">NII Calculation — Filter Panel</div><div style="font-size:12px;color:#86868b">dev.wang@hsbc.com</div></div></div><div><span class="hbdg hfail">Failed</span></div><div style="font-size:13px;color:#6e6e73">2 P0 · 5 P1 · 3 P2</div><div style="font-size:12px;color:#86868b">Mon 7 Apr 09:44</div></div>
+      <div class="hist-row"><div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#f5f5f7;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div style="font-size:14px">Market Data Viewer</div><div style="font-size:12px;color:#86868b">dev.smith@hsbc.com</div></div></div><div><span class="hbdg hcond">Conditional</span></div><div style="font-size:13px;color:#6e6e73">0 P0 · 4 P1 · 6 P2</div><div style="font-size:12px;color:#86868b">Fri 4 Apr 16:20</div></div>
+      <div class="hist-row"><div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#f5f5f7;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"/></svg></div><div><div style="font-size:14px">Treasury Governance Dashboard</div><div style="font-size:12px;color:#86868b">dev.li@hsbc.com</div></div></div><div><span class="hbdg hpass">Passed</span></div><div style="font-size:13px;color:#6e6e73">0 P1 · 1 P2 · 4 P3</div><div style="font-size:12px;color:#86868b">Thu 3 Apr 10:05</div></div>
+      <div class="hist-row"><div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#f5f5f7;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4"/></svg></div><div><div style="font-size:14px">Recovery and Resolution — Data Upload</div><div style="font-size:12px;color:#86868b">dev.jones@hsbc.com</div></div></div><div><span class="hbdg hcond">Conditional</span></div><div style="font-size:13px;color:#6e6e73">0 P0 · 3 P1 · 5 P2</div><div style="font-size:12px;color:#86868b">Wed 2 Apr 14:11</div></div>
+      <div class="hist-row"><div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:8px;background:#f5f5f7;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div style="font-size:14px">Stress Testing — Scenario Builder</div><div style="font-size:12px;color:#86868b">dev.chen@hsbc.com</div></div></div><div><span class="hbdg hfail">Failed</span></div><div style="font-size:13px;color:#6e6e73">1 P0 · 4 P1 · 2 P2</div><div style="font-size:12px;color:#86868b">Tue 1 Apr 09:30</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD PAGE ══ -->
+<div id="page-dashboard" class="page-view">
+  <div class="page-wrap">
+    <div style="margin-bottom:48px">
+      <span class="eyebrow">Team intelligence</span>
+      <h1 class="hero-title">Design QA <em>dashboard.</em></h1>
+      <p class="hero-sub">Defect patterns across the Apex platform — helping designers prioritise what to fix in the Design System.</p>
+    </div>
+    <!-- KPIs -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px" class="kpi-grid">
+      <div class="kpi"><div class="kpi-lbl">Audits this month</div><div class="kpi-num">23</div><div class="kpi-foot" style="color:#0a7a3e">+8 vs last month</div></div>
+      <div class="kpi"><div class="kpi-lbl">P0/P1 caught pre-release</div><div class="kpi-num" style="color:#c5050f">14</div><div class="kpi-foot">Issues that would have shipped</div></div>
+      <div class="kpi"><div class="kpi-lbl">First-pass rate</div><div class="kpi-num" style="color:#0a7a3e">61%</div><div class="kpi-foot">Screens passing on first audit</div></div>
+      <div class="kpi"><div class="kpi-lbl">Designer hours saved</div><div class="kpi-num" style="color:#0066cc">~18h</div><div class="kpi-foot">QA reviews handled by devs</div></div>
+    </div>
+    <!-- Charts -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px" class="two-col">
+      <div class="card" style="padding:28px">
+        <div class="sec-eyebrow">Defects by dimension</div>
+        <div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:500;letter-spacing:-.005em">Copy &amp; language</span><span style="font-size:12px;color:#86868b">42 · 25%</span></div><div style="height:4px;background:rgba(0,0,0,.06);border-radius:2px;overflow:hidden;margin-bottom:5px"><div class="bar-fill" style="width:100%"></div></div><div style="font-size:12px;color:#86868b;letter-spacing:-.005em">Generic CTAs, technical labels, jargon in error messages</div></div>
+        <div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:500;letter-spacing:-.005em">Error states</span><span style="font-size:12px;color:#86868b">38 · 23%</span></div><div style="height:4px;background:rgba(0,0,0,.06);border-radius:2px;overflow:hidden;margin-bottom:5px"><div class="bar-fill" style="width:90%"></div></div><div style="font-size:12px;color:#86868b;letter-spacing:-.005em">Missing empty states, no loading indicators</div></div>
+        <div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:500;letter-spacing:-.005em">Feedback &amp; confirmation</span><span style="font-size:12px;color:#86868b">31 · 19%</span></div><div style="height:4px;background:rgba(0,0,0,.06);border-radius:2px;overflow:hidden;margin-bottom:5px"><div class="bar-fill" style="width:74%"></div></div><div style="font-size:12px;color:#86868b;letter-spacing:-.005em">No success toast, missing confirmation dialogs</div></div>
+        <div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:500;letter-spacing:-.005em">Goal clarity</span><span style="font-size:12px;color:#86868b">24 · 14%</span></div><div style="height:4px;background:rgba(0,0,0,.06);border-radius:2px;overflow:hidden;margin-bottom:5px"><div class="bar-fill" style="width:57%"></div></div><div style="font-size:12px;color:#86868b;letter-spacing:-.005em">Competing primary CTAs, unclear page purpose</div></div>
+        <div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:500;letter-spacing:-.005em">Visual / brand</span><span style="font-size:12px;color:#86868b">19 · 11%</span></div><div style="height:4px;background:rgba(0,0,0,.06);border-radius:2px;overflow:hidden;margin-bottom:5px"><div class="bar-fill" style="width:45%"></div></div><div style="font-size:12px;color:#86868b;letter-spacing:-.005em">Red used for errors, inconsistent spacing</div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:500;letter-spacing:-.005em">Accessibility</span><span style="font-size:12px;color:#86868b">15 · 9%</span></div><div style="height:4px;background:rgba(0,0,0,.06);border-radius:2px;overflow:hidden;margin-bottom:5px"><div class="bar-fill" style="width:36%"></div></div><div style="font-size:12px;color:#86868b;letter-spacing:-.005em">Low contrast table headers, missing focus indicators</div></div>
+      </div>
+      <div class="card" style="padding:28px">
+        <div class="sec-eyebrow">Defects by module</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="border-bottom:1px solid rgba(0,0,0,.08)"><th style="text-align:left;padding:8px 0;font-size:12px;font-weight:500;color:#86868b;letter-spacing:-.005em">Module</th><th style="text-align:center;padding:8px 4px;font-size:12px;font-weight:500;color:#86868b">P0/P1</th><th style="text-align:left;padding:8px 4px;font-size:12px;font-weight:500;color:#86868b;letter-spacing:-.005em">Top defect</th></tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid rgba(0,0,0,.05)"><td style="padding:13px 0;font-weight:500;letter-spacing:-.005em">NII Calculation</td><td style="text-align:center;color:#c5050f;font-weight:600">7</td><td style="padding:13px 4px;color:#6e6e73;letter-spacing:-.005em">Missing empty states</td></tr>
+            <tr style="border-bottom:1px solid rgba(0,0,0,.05)"><td style="padding:13px 0;font-weight:500;letter-spacing:-.005em">Entitlement</td><td style="text-align:center;color:#c5050f;font-weight:600">5</td><td style="padding:13px 4px;color:#6e6e73;letter-spacing:-.005em">Placeholder copy in filters</td></tr>
+            <tr style="border-bottom:1px solid rgba(0,0,0,.05)"><td style="padding:13px 0;font-weight:500;letter-spacing:-.005em">Stress Testing</td><td style="text-align:center;color:#c5050f;font-weight:600">5</td><td style="padding:13px 4px;color:#6e6e73;letter-spacing:-.005em">No feedback after save</td></tr>
+            <tr style="border-bottom:1px solid rgba(0,0,0,.05)"><td style="padding:13px 0;font-weight:500;letter-spacing:-.005em">Market Data</td><td style="text-align:center;color:#a8530a;font-weight:600">4</td><td style="padding:13px 4px;color:#6e6e73;letter-spacing:-.005em">Generic CTA labels</td></tr>
+            <tr style="border-bottom:1px solid rgba(0,0,0,.05)"><td style="padding:13px 0;font-weight:500;letter-spacing:-.005em">Recovery and Resolution</td><td style="text-align:center;color:#a8530a;font-weight:600">3</td><td style="padding:13px 4px;color:#6e6e73;letter-spacing:-.005em">Contrast failures in tables</td></tr>
+            <tr><td style="padding:13px 0;font-weight:500;letter-spacing:-.005em">Treasury Governance</td><td style="text-align:center;color:#86868b;font-weight:600">0</td><td style="padding:13px 4px;color:#6e6e73;letter-spacing:-.005em">Dense layouts on mobile</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Patterns -->
+    <div class="card" style="padding:28px">
+      <div class="sec-eyebrow">Recurring patterns — Design System action needed</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px" class="three-col">
+        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600;letter-spacing:-.01em">Generic CTA labels</span><span class="bdg bp0">8 screens</span></div><div style="font-size:13px;color:#6e6e73;line-height:1.55;margin-bottom:12px;letter-spacing:-.005em">"Submit", "OK" instead of "Confirm payment" or "Save assumptions".</div><div style="font-size:12px;padding:9px 12px;border-radius:8px;background:#fff1de;color:#a8530a;line-height:1.5;letter-spacing:-.005em">Add CTA writing guide to button component spec</div></div>
+        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600;letter-spacing:-.01em">Missing empty states</span><span class="bdg bp0">7 screens</span></div><div style="font-size:13px;color:#6e6e73;line-height:1.55;margin-bottom:12px;letter-spacing:-.005em">Blank UI when search returns zero results or data fails to load.</div><div style="font-size:12px;padding:9px 12px;border-radius:8px;background:#fff1de;color:#a8530a;line-height:1.5;letter-spacing:-.005em">Create standard empty state component with message slot</div></div>
+        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600;letter-spacing:-.01em">No save confirmation</span><span class="bdg bp1">6 screens</span></div><div style="font-size:13px;color:#6e6e73;line-height:1.55;margin-bottom:12px;letter-spacing:-.005em">Forms completing without any toast — users unsure if action worked.</div><div style="font-size:12px;padding:9px 12px;border-radius:8px;background:#fff1de;color:#a8530a;line-height:1.5;letter-spacing:-.005em">Define standard toast pattern in Design System</div></div>
+        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600;letter-spacing:-.01em">Low contrast headers</span><span class="bdg bp1">5 screens</span></div><div style="font-size:13px;color:#6e6e73;line-height:1.55;margin-bottom:12px;letter-spacing:-.005em">Table headers using ~#888 — below WCAG 4.5:1 across NII, Entitlement, Market Data.</div><div style="font-size:12px;padding:9px 12px;border-radius:8px;background:#fff1de;color:#a8530a;line-height:1.5;letter-spacing:-.005em">Update table spec to enforce min #444 for header text</div></div>
+        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600;letter-spacing:-.01em">Red used for errors</span><span class="bdg bp2">4 screens</span></div><div style="font-size:13px;color:#6e6e73;line-height:1.55;margin-bottom:12px;letter-spacing:-.005em">#DB0011 on error messages — conflicting with its use as the primary CTA colour.</div><div style="font-size:12px;padding:9px 12px;border-radius:8px;background:#e0efff;color:#0066cc;line-height:1.5;letter-spacing:-.005em">Add explicit error colour token and do/don't for red</div></div>
+        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600;letter-spacing:-.01em">Competing primary CTAs</span><span class="bdg bp2">4 screens</span></div><div style="font-size:13px;color:#6e6e73;line-height:1.55;margin-bottom:12px;letter-spacing:-.005em">Multiple filled red buttons — users can't identify the primary action.</div><div style="font-size:12px;padding:9px 12px;border-radius:8px;background:#e0efff;color:#0066cc;line-height:1.5;letter-spacing:-.005em">Document one-primary-CTA-per-screen rule in button guide</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SETTINGS PAGE ══ -->
+<div id="page-settings" class="page-view">
+  <div class="page-wrap">
+    <div style="margin-bottom:40px">
+      <span class="eyebrow">Configuration</span>
+      <h1 class="hero-title">Settings.</h1>
+    </div>
+    <div style="max-width:560px">
+      <div class="card" style="padding:28px;margin-bottom:14px">
+        <div style="font-size:15px;font-weight:600;margin-bottom:18px;letter-spacing:-.01em">AI endpoint</div>
+        <div style="margin-bottom:14px"><label class="field-label">Internal API URL</label><input class="field-input" value="https://azure-openai.internal.hsbc.com/v1/chat"><div class="field-hint">Azure OpenAI or internal gateway. Leave blank to use rule-based audit.</div></div>
+        <div><label class="field-label">API key</label><input class="field-input" type="password" value="hsbc-internal-key-xxxx"></div>
+      </div>
+      <div class="card" style="padding:28px;margin-bottom:14px">
+        <div style="font-size:15px;font-weight:600;margin-bottom:18px;letter-spacing:-.01em">Jira integration</div>
+        <div style="margin-bottom:14px"><label class="field-label">Jira base URL</label><input class="field-input" value="https://jira.hsbc.com"></div>
+        <div><label class="field-label">Project key</label><input class="field-input" value="UXQA"></div>
+      </div>
+      <div class="card" style="padding:28px;margin-bottom:22px">
+        <div style="font-size:15px;font-weight:600;margin-bottom:4px;letter-spacing:-.01em">GitHub — Design System</div>
+        <div style="font-size:13px;color:#6e6e73;margin-bottom:18px;letter-spacing:-.005em">Connect your repo to audit against your own component specs and tokens.</div>
+        <div style="margin-bottom:14px"><label class="field-label">Repository</label><input class="field-input" value="hsbc/apex-design-system"></div>
+        <div><label class="field-label">Personal access token (read-only)</label><input class="field-input" type="password" value="ghp_xxxxxxxxxxxx"><div class="field-hint">Read-only token used to sync component specs and design tokens.</div></div>
+      </div>
+      <button class="btn-primary" onclick="this.textContent='Saved';setTimeout(()=>this.textContent='Save settings',2000)">Save settings</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Scroll progress
+addEventListener('scroll',()=>{const t=document.documentElement.scrollTop,h=document.documentElement.scrollHeight-innerHeight;document.getElementById('scroll-bar').style.width=(t/h*100)+'%';});
+
+const DR={
+  rec:'CONDITIONAL PASS',
+  summary:'The Entitlement — Assumption Management screen was audited across five dimensions. The redesigned version shows clear improvement by removing the accessibility-failing gradient background and establishing cleaner visual hierarchy. Three issues require attention before release: filter tab labels use placeholder text providing no information to users, error and empty states are not confirmed as designed, and row-level action feedback is absent. The screen appropriately serves an expert internal audience at high data density, but copy and interaction patterns need targeted fixes.',
+  flags:[{dim:'Goal Clarity',q:'Can a new user identify the primary action within 3 seconds of opening this screen?',why:'Dense data tables with multiple controls make it hard to establish a clear action hierarchy at a glance.'},{dim:'Error States',q:'What does the user see when the search or filter returns zero results?',why:'Empty states are the most commonly skipped design — and the most damaging when missing in a data tool.'},{dim:'Feedback',q:'After a user edits an assumption row, how do they know the change was saved?',why:'Without explicit confirmation, users in financial tools repeat actions, risking data integrity.'},{dim:'Copy and Language',q:'The filter tabs show Filter No.1 through 7 — are these placeholder labels or intentional design?',why:'If real labels, users cannot understand what dimension they are filtering by without trial and error.'},{dim:'Flow Logic',q:'Is there a clear and safe path for a user who opens the wrong assumption record?',why:'In financial data management, accidental edits can have downstream consequences. An explicit cancel path is critical.'}],
+  issues:[{id:'UX-001',sev:'P1',dim:'Visual / Brand',heur:'WCAG 1.4.3',el:'Before version — gradient background',txt:'The gradient reduces text contrast below WCAG AA requirements.',rec:'Remove the decorative gradient. Use flat white or #F5F5F5.',eff:'S'},{id:'UX-002',sev:'P1',dim:'Copy and Language',heur:'Nielsen #2',el:'Filter tabs — Filter No.1 through No.7',txt:'Placeholder labels provide zero information about what dimension is being filtered.',rec:'Replace with real business dimension names. Confirm with product owner.',eff:'M'},{id:'UX-003',sev:'P1',dim:'Error States',heur:'Nielsen #9',el:'Search and filter — empty state',txt:'No empty state design confirmed. Users may see a blank table with no explanation.',rec:'Design: "No assumptions found. Try adjusting your filters." with Clear filters action.',eff:'M'},{id:'UX-004',sev:'P2',dim:'Accessibility',heur:'WCAG 1.4.3',el:'Table header text',txt:'Headers appear to use ~#888 grey — may fall below the 4.5:1 ratio for normal text.',rec:'Verify contrast. Increase to #444444 or darker if needed.',eff:'S'},{id:'UX-005',sev:'P2',dim:'Feedback',heur:'Nielsen #1',el:'Row action icons',txt:'Action icons provide no visible feedback. Users do not know if their action succeeded.',rec:'Add toast notifications. For destructive actions, add a confirmation dialog.',eff:'M'},{id:'UX-006',sev:'P2',dim:'Goal Clarity',heur:'Nielsen #8',el:'Search button visual weight',txt:'Black Search button competes with the primary CTA, making action hierarchy unclear.',rec:'Use secondary outline style for Search.',eff:'S'},{id:'UX-007',sev:'P2',dim:'Copy and Language',heur:'Nielsen #2',el:'Column headers Type No.1 through No.7',txt:'Sequential headers provide no semantic meaning, increasing cognitive load.',rec:'Replace with real column names. Add tooltips for abbreviations.',eff:'M'},{id:'UX-008',sev:'P3',dim:'Visual / Brand',heur:'HSBC Brand',el:'Before version — blue toggle',txt:'Blue toggle uses a colour outside the HSBC brand palette.',rec:'Replace with HSBC-compliant toggle.',eff:'S'},{id:'UX-009',sev:'P3',dim:'Flow Logic',heur:'Nielsen #3',el:'Table — pagination',txt:'Unclear whether the table supports pagination or infinite scroll.',rec:'Add pagination controls and total record count.',eff:'M'}]
+};
+
+const TIPS={b2:'Error states are the #1 source of P0 issues — missing empty, loading and failure states will be flagged.',b3:'Loading states prevent duplicate submissions, which in financial tools can cause data integrity issues.',b4:'Empty states without guidance leave users stranded — blank screens are flagged as P1.',b6:'Success feedback is missing from 6 screens in recent audits.',b7:'Destructive actions without confirmation are a P0 risk.',b8:'Edge cases like permissions and long values are most commonly skipped.',c4:'Hard-coded CSS values override tokens and break theming.',c5:'Interaction states must match APEX spec exactly.',c7:'Accessibility failures are WCAG AA violations — P1 or higher.',p3:'Generic CTAs like "Submit" or "OK" are the #1 copy defect across the Apex platform.',p4:'Vague error messages that do not tell users what to do are flagged as P1.',p5:'Internal jargon visible to users is a recurring issue across 5+ screens.',p6:'Hard-coded strings block localisation.',p7:'Unreviewed copy reaching QA/UAT causes late-stage rework.'};
+const LABELS={b1:'Happy path works end-to-end',b2:'Error states designed',b3:'Loading states shown',b4:'Empty states designed',b5:'Form validation in place',b6:'Success feedback exists',b7:'Destructive action confirmation',b8:'Edge cases handled',c1:'APEX components reused',c2:'APEX standards followed',c3:'Design spec matched',c4:'APEX tokens used',c5:'All interaction states correct',c6:'Responsive verified',c7:'Accessibility checked',c8:'Component consistency verified',p1:'Tone and voice correct',p2:'Spelling and grammar checked',p3:'Microcopy specific and action-oriented',p4:'Error messages actionable',p5:'No internal jargon visible',p6:'Localisation-ready',p7:'Copy stakeholder approved'};
+const ALL=['b1','b2','b3','b4','b5','b6','b7','b8','c1','c2','c3','c4','c5','c6','c7','c8','p1','p2','p3','p4','p5','p6','p7'];
+
+// File upload handling
+var uploadedFiles = [];
+function handleDragOver(e){e.preventDefault();document.getElementById('upload-zone').classList.add('dragover');}
+function handleDragLeave(e){document.getElementById('upload-zone').classList.remove('dragover');}
+function handleDrop(e){e.preventDefault();document.getElementById('upload-zone').classList.remove('dragover');handleFiles(e.dataTransfer.files);}
+function handleFiles(files){
+  if(!files||!files.length)return;
+  Array.from(files).filter(function(f){return f.type.indexOf('image/')===0;}).forEach(function(f){
+    uploadedFiles.push(f);
+    var reader=new FileReader();
+    var ci=uploadedFiles.length-1;
+    reader.onload=function(ev){addThumb(ev.target.result,f.name,ci);};
+    reader.readAsDataURL(f);
+  });
+  document.getElementById('upload-placeholder').style.display='none';
+  document.getElementById('upload-preview').style.display='block';
+  document.getElementById('upload-zone').classList.add('has-file');
+  // After upload, gently scroll the Run button into view so the next step is obvious.
+  setTimeout(function(){
+    var btn=document.getElementById('run-btn');
+    if(btn){btn.scrollIntoView({behavior:'smooth',block:'center'});btn.animate([{boxShadow:'0 0 0 0 rgba(0,113,227,0)'},{boxShadow:'0 0 0 8px rgba(0,113,227,.25)'},{boxShadow:'0 0 0 0 rgba(0,113,227,0)'}],{duration:1400,iterations:2});}
+  },350);
+}
+function addThumb(src,name,idx){
+  var grid=document.getElementById('preview-grid');
+  var wrap=document.createElement('div');
+  wrap.style.cssText='position:relative;border-radius:10px;overflow:hidden;border:1px solid #d2d2d7;aspect-ratio:4/3;background:#f5f5f7';
+  var img=document.createElement('img');
+  img.src=src;
+  img.style.cssText='width:100%;height:100%;object-fit:cover;display:block';
+  var btn=document.createElement('button');
+  btn.textContent='×';
+  btn.style.cssText='position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.55);border:none;cursor:pointer;color:#fff;font-size:14px;font-weight:500;line-height:1';
+  btn.dataset.idx=idx;
+  btn.addEventListener('click',function(e){e.stopPropagation();rmFile(parseInt(this.dataset.idx),wrap);});
+  var lbl=document.createElement('div');
+  lbl.textContent=name;
+  lbl.style.cssText='position:absolute;bottom:0;left:0;right:0;padding:5px 7px;background:linear-gradient(transparent,rgba(0,0,0,.5));font-size:11px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+  wrap.appendChild(img);wrap.appendChild(btn);wrap.appendChild(lbl);
+  grid.appendChild(wrap);
+}
+function rmFile(idx,el){
+  uploadedFiles.splice(idx,1);
+  el.remove();
+  document.querySelectorAll('#preview-grid > div').forEach(function(w,i){var b=w.querySelector('button');if(b)b.dataset.idx=i;});
+  if(!uploadedFiles.length){
+    document.getElementById('upload-placeholder').style.display='block';
+    document.getElementById('upload-preview').style.display='none';
+    document.getElementById('upload-zone').classList.remove('has-file');
+    document.getElementById('file-input').value='';
+  }
+}
+
+function tgl(id,card){const cb=document.getElementById(id);cb.checked=!cb.checked;card.classList.toggle('checked',cb.checked);updChk();}
+function chk(){document.getElementById('run-btn').disabled=document.getElementById('comp-name').value.trim().length<3;}
+function updChk(){const u=ALL.filter(id=>!document.getElementById(id).checked);const t=document.getElementById('chk-tip');if(!u.length){t.textContent='All items confirmed. The engine will still verify each independently.';t.classList.add('show');}else{const f=u.find(id=>TIPS[id]);if(f){t.textContent=TIPS[f];t.classList.add('show');}else t.classList.remove('show');}}
+function goalHint(){const v=document.getElementById('ctx-goal').value.trim(),t=document.getElementById('gtip');if(v.length<3){t.classList.remove('show');return;}if(['submit','click','button','feature'].some(k=>v.toLowerCase().includes(k))){t.textContent='Sounds like a feature. Try: "The user wants to…" focused on their outcome.';t.classList.add('show');}else t.classList.remove('show');}
+const LS=[[10,'Analysing visual layout…','Checking HSBC brand compliance…'],[28,'Checking user goal clarity…','Is the primary action obvious?'],[44,'Evaluating error states…','What happens when things go wrong?'],[60,'Reviewing flow logic…','Does this screen fit the journey?'],[74,'Checking feedback mechanisms…','Does the user know when actions succeed?'],[88,'Auditing copy and language…','Plain English for every user?'],[96,'Generating mindset flags and tickets…','Finalising report…']];
+function showArea(id){['form-area','loading-area','res-area'].forEach(a=>{const el=document.getElementById(a);if(el)el.style.display=a===id?'block':'none';});const dims=document.getElementById('dims-section');const coming=dims?.nextElementSibling;if(dims)dims.style.display=id==='form-area'?'block':'none';if(coming&&coming.classList.contains('dark-band'))coming.style.display=id==='form-area'?'flex':'none';}
+function runAudit(){showArea('loading-area');let i=0,pf=document.getElementById('pfill');function step(){pf.style.width=LS[i][0]+'%';document.getElementById('lmsg').textContent=LS[i][1];document.getElementById('lsub').textContent=LS[i][2];if(i<LS.length-1){i++;setTimeout(step,560);}else setTimeout(renderResults,700);}step();}
+// ─── Scoring ───
+// Map each issue dimension to one of three categories
+const CAT_MAP={'Goal Clarity':'ux','Error States':'ux','Feedback':'ux','Flow Logic':'ux','Visual / Brand':'ui','Accessibility':'ui','Copy and Language':'copy'};
+const DEDUCT={P0:20,P1:10,P2:4,P3:1};
+const PASS_THRESHOLD=70;
+function computeScores(){
+  const cat={ux:100,ui:100,copy:100};
+  DR.issues.forEach(iss=>{const c=CAT_MAP[iss.dim]||'ux';cat[c]=Math.max(0,cat[c]-(DEDUCT[iss.sev]||0));});
+  const overall=Math.round((cat.ux+cat.ui+cat.copy)/3);
+  return {ux:cat.ux,ui:cat.ui,copy:cat.copy,overall};
+}
+function scoreColor(n){return n>=PASS_THRESHOLD?'#0a7a3e':'#c5050f'}
+function renderScoreRow(s){
+  const C=2*Math.PI*60;// circumference for r=60
+  const off=C*(1-s.overall/100);
+  const passing=s.overall>=PASS_THRESHOLD;
+  function sub(lbl,n){
+    const passSub=n>=PASS_THRESHOLD;
+    return '<div class="subscore"><div class="subscore-lbl">'+lbl+'</div><div class="subscore-row"><div class="subscore-num" style="color:'+(passSub?'#1d1d1f':'#c5050f')+'">'+n+'</div><span class="subscore-pill" style="background:'+(passSub?'#d4f4dc':'#ffd8d8')+';color:'+(passSub?'#0a7a3e':'#c5050f')+'">'+(passSub?'Pass':'Fail')+'</span></div><div class="subscore-bar"><div class="subscore-fill" style="width:'+n+'%;background:'+(passSub?'#0a7a3e':'#c5050f')+'"></div></div></div>';
+  }
+  return '<div class="score-row">'
+    +'<div class="score-main">'
+    +'<div class="score-ring">'
+    +'<svg width="140" height="140" viewBox="0 0 140 140">'
+    +'<circle cx="70" cy="70" r="60" stroke="rgba(0,0,0,.08)" stroke-width="9" fill="none"/>'
+    +'<circle cx="70" cy="70" r="60" stroke="'+scoreColor(s.overall)+'" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="'+C.toFixed(2)+'" stroke-dashoffset="'+C.toFixed(2)+'" data-target-off="'+off.toFixed(2)+'"/>'
+    +'</svg>'
+    +'<div class="score-num-wrap"><div class="score-num" style="color:'+scoreColor(s.overall)+'">'+s.overall+'</div><div class="score-out">out of 100</div></div>'
+    +'</div>'
+    +'<div class="score-status '+(passing?'score-pass':'score-fail')+'">'+(passing?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Passed':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Not passed')+'</div>'
+    +'<div class="score-thresh">Threshold: '+PASS_THRESHOLD+' to pass</div>'
+    +'</div>'
+    +'<div class="subscores">'+sub('UX behaviour',s.ux)+sub('UI',s.ui)+sub('Copy',s.copy)+'</div>'
+    +'</div>';
+}
+
+function renderResults(){
+  showArea('res-area');
+  const name=document.getElementById('comp-name').value||'UI Screen';
+  document.getElementById('rtitle').textContent=name;
+  document.getElementById('rsub').textContent='Completed — Rule-based + AI analysis';
+  // Score row
+  const scores=computeScores();
+  document.getElementById('rscore').innerHTML=renderScoreRow(scores);
+  // Animate the ring fill after insertion
+  requestAnimationFrame(()=>{const c=document.querySelector('#rscore circle[data-target-off]');if(c)c.style.strokeDashoffset=c.dataset.targetOff;});
+  const cnt={P0:0,P1:0,P2:0,P3:0};DR.issues.forEach(i=>cnt[i.sev]=(cnt[i.sev]||0)+1);
+  ['P0','P1','P2','P3'].forEach((s,i)=>document.getElementById('n'+i).textContent=cnt[s]);
+  document.getElementById('nf').textContent=DR.flags.length;
+  document.getElementById('rsumm').textContent=DR.summary;
+  const sk=ALL.filter(id=>!document.getElementById(id).checked).map(id=>LABELS[id]||id);
+  document.getElementById('rskip').innerHTML=sk.length?'<div style="font-size:12px;font-weight:500;color:#86868b;letter-spacing:-.005em;margin-bottom:10px">Self-check items not confirmed</div>'+sk.map(s=>'<div class="skip-item">'+s+'</div>').join(''):'';
+  document.getElementById('rflags').innerHTML='<div style="font-size:12px;font-weight:500;color:#86868b;letter-spacing:-.005em;margin-bottom:10px">User-centric mindset flags</div>'+DR.flags.map(f=>'<div class="flag-card"><div style="font-size:11px;font-weight:600;color:#af52de;letter-spacing:-.005em;margin-bottom:5px">'+f.dim+'</div><div style="font-size:14px;color:#1d1d1f;line-height:1.5;margin-bottom:4px;letter-spacing:-.005em">'+f.q+'</div><div style="font-size:12px;color:#6e6e73;line-height:1.5;letter-spacing:-.005em">'+f.why+'</div></div>').join('');
+  document.getElementById('ti').innerHTML=DR.issues.map(iss=>'<div class="issue-row"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px"><span class="bdg b'+iss.sev.toLowerCase()+'">'+iss.sev+'</span><span class="dimb">'+iss.dim+'</span><span style="font-size:12px;color:#86868b;letter-spacing:-.005em">'+iss.heur+'</span><span style="margin-left:auto;font-size:12px;color:#86868b;letter-spacing:-.005em">Effort '+iss.eff+'</span></div><div style="font-size:14px;font-weight:500;color:#1d1d1f;margin-bottom:5px;letter-spacing:-.005em">'+iss.el+'</div><div style="font-size:14px;color:#6e6e73;margin-bottom:10px;line-height:1.55;letter-spacing:-.005em">'+iss.txt+'</div><div style="font-size:13px;color:#1d1d1f;padding:11px 14px;background:#f5f5f7;border-radius:10px;line-height:1.55;letter-spacing:-.005em">→ '+iss.rec+'</div></div>').join('');
+  const p01=DR.issues.filter(i=>i.sev==='P0'||i.sev==='P1');
+  window._tk=p01.map(iss=>{const s='[UX-AUDIT] '+iss.el+' — '+iss.sev+' '+iss.dim;const d='Summary: '+iss.txt+'\n\nComponent: '+name+'\nSeverity: '+iss.sev+'\nDimension: '+iss.dim+'\nReference: '+iss.heur+'\n\nAcceptance criteria:\n[ ] '+iss.rec+'\n\nEffort: '+iss.eff+'\nLabels: design-qa, ux-audit, '+iss.sev.toLowerCase()+'\nPriority: '+(iss.sev==='P0'?'Highest':'High');return{id:iss.id,sev:iss.sev,text:s+'\n\n'+d};});
+  document.getElementById('tj').innerHTML=!p01.length?'<div style="text-align:center;padding:36px;color:#86868b;font-size:14px;letter-spacing:-.005em">No P0/P1 issues — no Jira tickets needed.</div>':window._tk.map((t,i)=>'<div style="margin-bottom:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span class="bdg b'+t.sev.toLowerCase()+'">'+t.sev+' · '+t.id+'</span><button class="btn-secondary" style="padding:6px 14px;font-size:12px" onclick="cpTk(this,'+i+')">Copy</button></div><div class="jira-blk">'+t.text.replace(/</g,'&lt;')+'</div></div>').join('');
+}
+function swTab(tab,btn){document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.getElementById('ti').style.display=tab==='issues'?'block':'none';document.getElementById('tj').style.display=tab==='jira'?'block':'none';}
+function cpTk(btn,i){navigator.clipboard.writeText(window._tk[i].text).then(()=>{btn.textContent='Copied';setTimeout(()=>btn.textContent='Copy',2000);});}
+function resetAudit(){showArea('form-area');window.scrollTo({top:0,behavior:'smooth'});}
+function navTo(key,btn){
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(function(b){if(b.textContent.trim().toLowerCase()===key)b.classList.add('active');});
+  document.querySelectorAll('.bnav-btn').forEach(function(b){b.classList.remove('active');});
+  var bnav=document.getElementById('bnav-'+key);if(bnav)bnav.classList.add('active');
+  document.querySelectorAll('.page-view').forEach(p=>p.classList.remove('active'));
+  const map={audit:'page-audit',history:'page-history',dashboard:'page-dashboard',settings:'page-settings'};
+  const el=document.getElementById(map[key]);if(el)el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+chk();updChk();
+</script>
+
+<!-- Mobile bottom nav -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="bnav-btn active" id="bnav-audit" onclick="navTo('audit',null)">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <span>Audit</span>
+  </button>
+  <button class="bnav-btn" id="bnav-history" onclick="navTo('history',null)">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span>History</span>
+  </button>
+  <button class="bnav-btn" id="bnav-dashboard" onclick="navTo('dashboard',null)">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    <span>Dashboard</span>
+  </button>
+  <button class="bnav-btn" id="bnav-settings" onclick="navTo('settings',null)">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span>Settings</span>
+  </button>
+</nav>
+</body>
+</html>
