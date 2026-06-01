@@ -28,6 +28,18 @@
   --lavender-soft:rgba(203,184,255,.14);
   --grad:linear-gradient(135deg,#d8f3c8 0%,#c9d8ff 45%,#ffd5b8 100%);
   --grad-soft:linear-gradient(135deg,rgba(216,243,200,.85) 0%,rgba(201,216,255,.8) 45%,rgba(255,213,184,.85) 100%);
+  /* SVG-usable stop colors (separate so we can theme them) */
+  --grad-1:#d8f3c8;
+  --grad-2:#c9d8ff;
+  --grad-3:#ffd5b8;
+  /* In dark mode, pass / fail / spectrum all resolve to the original cosmic
+     pastel gradient — keeps the "feel" you liked. Light mode overrides them
+     below to convey real pass/fail meaning. */
+  --grad-pass-fill:linear-gradient(135deg,#d8f3c8 0%,#c9d8ff 45%,#ffd5b8 100%);
+  --grad-fail-fill:linear-gradient(135deg,#d8f3c8 0%,#c9d8ff 45%,#ffd5b8 100%);
+  --grad-pass-1:#d8f3c8; --grad-pass-2:#c9d8ff; --grad-pass-3:#ffd5b8;
+  --grad-fail-1:#d8f3c8; --grad-fail-2:#c9d8ff; --grad-fail-3:#ffd5b8;
+  --grad-spectrum:linear-gradient(135deg,#d8f3c8 0%,#c9d8ff 45%,#ffd5b8 100%);
 }
 body{
   font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
@@ -37,7 +49,12 @@ body{
   line-height:1.55;letter-spacing:-.005em;
   overflow-x:hidden;
   position:relative;
+  transition:background-color .35s ease,color .35s ease;
 }
+/* Theme toggle button */
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:999px;background:var(--surface);border:1px solid var(--border);cursor:pointer;padding:0;color:var(--text);transition:background .15s,border-color .15s,color .15s}
+.theme-toggle:hover{background:var(--surface-2);border-color:var(--border-strong)}
+.theme-toggle svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.8;fill:none}
 /* Cosmic background + starfield */
 body::before{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
@@ -64,6 +81,222 @@ body::after{
   background-repeat:repeat;
 }
 body > *{position:relative;z-index:1}
+
+/* ─── Light mode overrides ─── */
+body.light{
+  --bg:#f7f3e9;
+  --surface:#ffffff;
+  --surface-2:#fbf8ef;
+  --border:rgba(28,26,20,.16);
+  --border-strong:rgba(28,26,20,.28);
+  --text:#161410;
+  --text-2:#3e3829;       /* darker for AA contrast */
+  --text-3:#6e695c;       /* darker tertiary so labels are readable */
+  --mint:#0b7556;
+  --mint-soft:rgba(11,117,86,.14);
+  --coral:#c5311c;
+  --coral-soft:rgba(197,49,28,.12);
+  --amber:#8a5f08;
+  --amber-soft:rgba(138,95,8,.14);
+  --lavender:#4f3b9c;
+  --lavender-soft:rgba(79,59,156,.12);
+  --red:#db0011;          /* HSBC red */
+  --red-soft:rgba(219,0,17,.12);
+  /* Light-mode gradient — Coral wash for decorative non-metric uses */
+  --grad:linear-gradient(135deg,#ffb088 0%,#f76770 50%,#db0011 100%);
+  --grad-soft:linear-gradient(135deg,#ffb088 0%,#f76770 50%,#db0011 100%);
+  --grad-1:#ffb088;
+  --grad-2:#f76770;
+  --grad-3:#db0011;
+  /* Pass / fail (light mode = deep, brand-aware) */
+  --grad-pass-fill:linear-gradient(135deg,#7dd1a8 0%,#34c283 50%,#0b7556 100%);
+  --grad-fail-fill:linear-gradient(135deg,#ffb088 0%,#f76770 50%,#db0011 100%);
+  --grad-pass-1:#7dd1a8; --grad-pass-2:#34c283; --grad-pass-3:#0b7556;
+  --grad-fail-1:#ffb088; --grad-fail-2:#f76770; --grad-fail-3:#db0011;
+  /* Spectrum: HSBC red → amber → deep green */
+  --grad-spectrum:linear-gradient(135deg,#db0011 0%,#f5a623 50%,#0b7556 100%);
+}
+/* Cosmic backdrop becomes a subtle warm wash; starfield off */
+body.light::before{
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(219,0,17,.05), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 20%, rgba(255,213,184,.08), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 15% 80%, rgba(11,117,86,.04), transparent 70%);
+}
+body.light::after{display:none}
+
+/* Nav */
+body.light .topnav{background:rgba(247,243,233,.85);border-bottom:1px solid var(--border)}
+body.light #scroll-bar{background:linear-gradient(90deg,#0b7556,#5a44a8,#db0011)}
+body.light .nav-btn{color:var(--text-2)}
+body.light .nav-btn:hover{color:var(--text);background:rgba(28,26,20,.04)}
+body.light .nav-btn.active{color:#fff;background:var(--red)}
+
+/* Brand mark — HSBC red */
+body.light .brand-mark{background:var(--red-soft);border-color:rgba(219,0,17,.3)}
+body.light .brand-mark svg{stroke:var(--red)}
+
+/* Theme toggle button */
+body.light .theme-toggle{background:#fff;border-color:var(--border)}
+body.light .theme-toggle:hover{background:#fbf8ef;border-color:var(--border-strong)}
+body.light .nav-menu-btn{background:#fff;border-color:var(--border)}
+
+/* Form inputs — use background-color (NOT background shorthand) so select chevron's repeat/position is preserved */
+body.light .field-input{background-color:#fff;border-color:var(--border);color:var(--text)}
+body.light .field-input::placeholder{color:var(--text-3)}
+body.light .field-input:focus{border-color:var(--red);box-shadow:0 0 0 4px rgba(219,0,17,.08);background-color:#fff}
+/* Explicitly re-declare chevron for select with repeat/position so it stays a single icon */
+body.light select.field-input{
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path fill="none" stroke="%233e3829" stroke-width="1.5" d="M1 1.5l5 5 5-5"/></svg>');
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+}
+body.light .filter-bar,body.light .hist-filter-bar{background-color:#fff;border-color:var(--border)}
+body.light .filter-bar select,body.light .hist-filter-bar select{
+  background-color:#fff;border-color:var(--border);color:var(--text);
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path fill="none" stroke="%233e3829" stroke-width="1.5" d="M1 1.5l5 5 5-5"/></svg>');
+  background-repeat:no-repeat;background-position:right 10px center;
+}
+
+/* Upload zone */
+body.light .upload-zone{background:#fbf8ef;border-color:var(--border-strong)}
+body.light .upload-zone:hover{background:rgba(219,0,17,.03);border-color:var(--red)}
+body.light .upload-zone.dragover{background:rgba(219,0,17,.06);border-color:var(--red)}
+body.light .upload-zone.has-file{background:rgba(11,117,86,.05);border-color:rgba(11,117,86,.4)}
+body.light .upload-icon{background:var(--grad-soft)}
+
+/* Side panel + readout grid (used to be dark) */
+body.light .side-panel{background:#fff;border-color:var(--border);box-shadow:0 1px 3px rgba(28,26,20,.04)}
+body.light .side-gauge{background:#fbf8ef;border:1px solid var(--border)}
+body.light .gauge-svg-wrap svg{filter:drop-shadow(0 0 12px rgba(11,117,86,.12))}
+body.light .gauge-svg-text .num{color:var(--text)}
+body.light .gauge-svg-text .out,body.light .gauge-foot .lbl{color:var(--text-3)}
+body.light .gauge-example-tag{background:#fbf8ef;color:var(--text-3);border-color:var(--border)}
+body.light .readout{background:#fff;color:var(--text);border:1px solid var(--border);box-shadow:0 1px 3px rgba(28,26,20,.04)}
+body.light .readout-head{color:var(--text-2);border-bottom-color:var(--border)}
+body.light .readout-grid dt{color:var(--text-3)}
+body.light .readout-grid dd{color:var(--text)}
+body.light .readout-step{border-bottom-color:var(--border)}
+body.light .readout-step .n{color:var(--text-3)}
+body.light .readout-step .lbl{color:var(--text)}
+body.light .gauge-tag,body.light .gauge-label{color:var(--text-3)}
+body.light .readout-led{background:var(--red);box-shadow:0 0 8px var(--red)}
+
+/* SOLID WHITE CARDS — visible against cream bg */
+body.light .check-card,
+body.light .cat-card,body.light .cat-item,
+body.light .stat-card,body.light .row,body.light .issue-row,body.light .flag-card,body.light .summ-box,
+body.light .kpi,body.light .pat-card,body.light .pat,
+body.light .port-kpi,body.light .dom-card,body.light .dom-snap,body.light .dom-area,body.light .dom-comp-row,
+body.light .iss-row,body.light .lens-row,
+body.light .hist-dom-block,body.light .hist-comp-row{
+  background:#fff;
+  border-color:var(--border);
+  box-shadow:0 1px 2px rgba(28,26,20,.05);
+}
+body.light .hist-dom-head{background:#fbf8ef;border-bottom-color:var(--border)}
+body.light .lens-tabs{background:#fbf8ef;border-bottom-color:var(--border)}
+body.light .lens-tab{color:var(--text-2)}
+body.light .lens-tab:hover{color:var(--text)}
+body.light .lens-tab.active{color:var(--red);border-bottom-color:var(--red)}
+body.light .lens-tab .count{background:rgba(28,26,20,.06);color:var(--text-2)}
+body.light .lens-tab.active .count{background:var(--red-soft);color:var(--red)}
+
+/* Tab buttons on report page */
+body.light .tab-btn{color:var(--text-2)}
+body.light .tab-btn:hover{color:var(--text)}
+body.light .tab-btn.active{color:var(--red);border-bottom-color:var(--red)}
+
+/* Hover states for cards */
+body.light .check-card:hover{background:#fbf8ef}
+body.light .check-card.checked{background:rgba(11,117,86,.08);border-color:rgba(11,117,86,.4)}
+body.light .dom-card:hover{border-color:var(--red);box-shadow:0 3px 8px rgba(28,26,20,.08)}
+
+/* Progress bar tracks */
+body.light .sub-bar,body.light .subscore-bar{background:rgba(28,26,20,.08)}
+body.light .dom-area .bar{background:rgba(28,26,20,.08)}
+
+/* Code blocks */
+body.light .jira-blk,body.light .code-blk{background:#fbf8ef;color:var(--text);border:1px solid var(--border)}
+
+/* Section eyebrows + dividers — red accent */
+body.light .eyebrow{color:var(--red)}
+body.light .eyebrow::before{background:var(--red)}
+body.light .sec-eyebrow::after{background:var(--border)}
+
+/* Score reveal — light mode: white card on cream, deep gradient ring pops */
+body.light .score-row{background:#fff;color:var(--text);border-color:var(--border);box-shadow:0 4px 28px rgba(28,26,20,.08)}
+body.light .score-row::before{background:radial-gradient(circle at 30% 30%, rgba(219,0,17,.06), transparent 60%)}
+body.light .score-row .subscore{background:#fbf8ef;border-color:var(--border);box-shadow:none}
+body.light .score-row .subscore-lbl{color:var(--text-3)}
+body.light .score-row .subscore-num{color:var(--text)}
+body.light .score-row .subscore-row span{color:var(--text-3) !important}
+body.light .score-row .subscore-bar{background:rgba(28,26,20,.08)}
+body.light .score-row .score-num{color:var(--text)}
+body.light .score-row .score-out,body.light .score-row .score-thresh{color:var(--text-3)}
+/* Empty ring track — make visible on white (overrides hardcoded inline stroke="rgba(255,255,255,..)") */
+body.light .score-ring svg circle:nth-of-type(1){stroke:rgba(28,26,20,.1)}
+body.light .gauge-svg-wrap svg circle:nth-of-type(1){stroke:rgba(28,26,20,.1)}
+/* Subtler drop-shadow halo */
+body.light .score-ring svg{filter:drop-shadow(0 0 14px rgba(219,0,17,.1))}
+body.light .gauge-svg-wrap svg{filter:drop-shadow(0 0 10px rgba(219,0,17,.08))}
+
+/* Modal */
+body.light .dom-modal{background:rgba(247,243,233,.78);backdrop-filter:saturate(180%) blur(16px);-webkit-backdrop-filter:saturate(180%) blur(16px)}
+body.light .dom-modal-content{background:#fff;border-color:var(--border);box-shadow:0 24px 80px rgba(28,26,20,.18)}
+
+/* Drawer */
+body.light .nav-drawer{background:rgba(247,243,233,.96)}
+body.light .nav-drawer-item{background:#fff;color:var(--text);border-color:var(--border)}
+body.light .nav-drawer-item:hover,body.light .nav-drawer-item.active{background:#fbf8ef;border-color:var(--red);color:var(--red)}
+
+/* Cursor spotlight uses multiply in light mode for a soft tinted shadow */
+body.light .mouse-spotlight{mix-blend-mode:multiply;background:radial-gradient(circle,rgba(219,0,17,.06) 0%,rgba(255,213,184,.08) 30%,transparent 65%)}
+body.light .spot-target::before{background:radial-gradient(circle 260px at var(--mx,50%) var(--my,50%),rgba(219,0,17,.04) 0%,rgba(11,117,86,.025) 24%,transparent 62%)}
+
+/* Primary CTAs — gradient now ends in HSBC red, white text */
+body.light .run-btn,body.light .btn-primary{
+  background:linear-gradient(135deg,#ffd5b8 0%,#f7a690 45%,#db0011 100%);
+  color:#fff;
+  box-shadow:0 4px 14px rgba(219,0,17,.18);
+}
+body.light .run-btn:hover,body.light .btn-primary:hover{box-shadow:0 6px 22px rgba(219,0,17,.28)}
+body.light .btn-secondary{background:#fff;color:var(--text);border-color:var(--border-strong)}
+body.light .btn-secondary:hover{background:#fbf8ef;border-color:var(--text-2)}
+body.light .btn-text{color:var(--red)}
+
+/* Risk pills + flags — full HSBC red */
+body.light .pill-missing{background:var(--red);color:#fff;border-color:var(--red)}
+body.light .risk-flag{background:var(--red);color:#fff;border-color:var(--red)}
+body.light .dom-card .ok-flag{background:var(--mint-soft);color:var(--mint);border-color:rgba(11,117,86,.3)}
+body.light .dom-health.bad .score{color:var(--red)}
+body.light .dom-card-stats{border-top-color:var(--border)}
+
+/* Risk-critical domain marker dot */
+body.light .dom-card-title span[style*="--coral"]{color:var(--red) !important}
+
+/* Pill / status colors */
+body.light .pill-pass{background:var(--mint);color:#fff;border-color:var(--mint)}
+body.light .pill-review{background:var(--amber);color:#fff;border-color:var(--amber)}
+body.light .pill-status{background:var(--mint-soft);color:var(--mint);border-color:rgba(11,117,86,.3)}
+body.light .pill-mint-dot{background:var(--mint);box-shadow:0 0 6px var(--mint)}
+
+/* Severity colors used inline on stat-num — override for visibility */
+body.light .stat-num[style*="var(--coral)"]{color:var(--red) !important}
+body.light .kpi-num[style*="var(--coral)"],body.light .port-kpi .num[style*="var(--coral)"]{color:var(--red) !important}
+
+/* Reset-my-audits button */
+body.light .filter-bar button{background:#fff;border-color:var(--border);color:var(--text-2)}
+body.light .filter-bar button:hover{background:#fbf8ef;border-color:var(--red);color:var(--red)}
+
+/* History sparkline color follows block health */
+body.light .hist-dom-block.bad .spark{color:var(--red)}
+
+/* Theme toggle icon visibility */
+body.light .theme-icon-sun{display:none}
+body.light .theme-icon-moon{display:inline-block}
+body:not(.light) .theme-icon-sun{display:inline-block}
+body:not(.light) .theme-icon-moon{display:none}
 
 .mono{font-family:inherit;letter-spacing:0;text-transform:none}
 
@@ -163,7 +396,7 @@ body > *{position:relative;z-index:1}
 
 /* ─── Hero typography ─── */
 .hero-title{font-size:68px;font-weight:800;line-height:1.02;letter-spacing:-.04em;color:var(--text);margin-bottom:20px}
-.hero-title em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+.hero-title em{font-style:normal;background:var(--grad-spectrum);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
 .hero-sub{font-size:16px;color:var(--text-2);line-height:1.65;font-weight:400;max-width:520px;letter-spacing:0}
 
 /* ─── Cards (glassy) ─── */
@@ -355,9 +588,43 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
 .dom-pills{display:flex;gap:5px;flex-wrap:wrap}
 .dom-pills .dp{font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--text-2);letter-spacing:.02em;border:1px solid var(--border)}
 
+/* ─── Domain detail modal ─── */
+.dom-modal{position:fixed;inset:0;background:rgba(8,6,14,.78);backdrop-filter:saturate(180%) blur(16px);-webkit-backdrop-filter:saturate(180%) blur(16px);z-index:250;display:none;justify-content:center;align-items:flex-start;padding:48px 24px;overflow-y:auto;animation:drawerFade .25s ease}
+.dom-modal.open{display:flex}
+.dom-modal-content{background:var(--surface);border:1px solid var(--border);border-radius:24px;max-width:980px;width:100%;padding:32px;display:flex;flex-direction:column;gap:22px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 24px 80px rgba(0,0,0,.5)}
+.dom-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding-bottom:22px;border-bottom:1px solid var(--border)}
+.dom-modal-head .lhs{flex:1;min-width:0}
+.dom-modal-eyebrow{font-size:11px;color:var(--mint);letter-spacing:.18em;text-transform:uppercase;font-weight:600;margin-bottom:8px;display:inline-block}
+.dom-modal-title{font-size:28px;font-weight:700;letter-spacing:-.025em;line-height:1.1;color:var(--text);margin-bottom:6px}
+.dom-modal-desc{font-size:14px;color:var(--text-2);line-height:1.55}
+.dom-modal-snap{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.dom-snap{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:14px;padding:14px 14px}
+.dom-snap .lbl{font-size:10px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:8px}
+.dom-snap .num{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.dom-snap .foot{font-size:11px;color:var(--text-3);margin-top:4px}
+.dom-area-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.dom-area{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:14px;padding:14px}
+.dom-area .lbl{font-size:11px;color:var(--text-3);letter-spacing:.06em;font-weight:600;margin-bottom:8px;text-transform:uppercase}
+.dom-area .bar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-bottom:8px}
+.dom-area .bar .fill{height:100%;background:var(--grad);border-radius:3px;transition:width .8s ease}
+.dom-area .meta{font-size:11px;color:var(--text-2);font-variant-numeric:tabular-nums}
+.dom-comp-row{display:grid;grid-template-columns:1fr auto auto auto;gap:14px;padding:12px 16px;background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:12px;align-items:center;font-size:13px;margin-bottom:6px}
+.dom-comp-row:last-child{margin-bottom:0}
+.dom-comp-row .name{color:var(--text);font-weight:500}
+.dom-comp-row .sub{font-size:11px;color:var(--text-3)}
+.dom-comp-row .score-pill{font-family:inherit;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.06);min-width:38px;text-align:center}
+.dom-comp-row .score-pill.good{color:var(--mint);background:var(--mint-soft)}
+.dom-comp-row .score-pill.warn{color:var(--amber);background:var(--amber-soft)}
+.dom-comp-row .score-pill.bad{color:var(--coral);background:var(--coral-soft)}
+.dom-comp-row .miss-count{font-size:11px;color:var(--text-3);letter-spacing:.04em}
+.dom-empty-msg{text-align:center;padding:40px 20px;color:var(--text-3);font-size:13px}
+
 @media(max-width:900px){
   .port-kpi-grid{grid-template-columns:1fr 1fr}
   .dom-grid{grid-template-columns:1fr 1fr}
+  .dom-modal-snap,.dom-area-grid{grid-template-columns:1fr 1fr}
+  .dom-comp-row{grid-template-columns:1fr auto;gap:8px}
+  .dom-comp-row .sub,.dom-comp-row .miss-count{display:none}
 }
 @media(max-width:600px){
   .dom-grid{grid-template-columns:1fr}
@@ -372,6 +639,45 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
 .hist-row:hover{background:rgba(255,255,255,.03)}
 .hist-header-row{background:rgba(0,0,0,.2)}
 .hist-header-row span{font-size:11px;color:var(--text-3);font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+
+/* ─── History — by domain ─── */
+.hist-dom-block{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:18px;padding:0;margin-bottom:14px;overflow:hidden}
+.hist-dom-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;flex-wrap:wrap;border-bottom:1px solid var(--border);background:rgba(0,0,0,.15)}
+.hist-dom-lhs{display:flex;align-items:center;gap:14px;flex:1;min-width:0}
+.hist-dom-title{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.005em}
+.hist-dom-meta{font-size:11px;color:var(--text-3);letter-spacing:.06em;margin-top:2px}
+.hist-dom-score{display:flex;align-items:baseline;gap:4px;font-variant-numeric:tabular-nums}
+.hist-dom-score .num{font-size:28px;font-weight:700;letter-spacing:-.025em;line-height:1}
+.hist-dom-score .out{font-size:10px;color:var(--text-3);letter-spacing:.06em}
+.hist-dom-score.good .num{color:var(--mint)}
+.hist-dom-score.warn .num{color:var(--amber)}
+.hist-dom-score.bad .num{color:var(--coral)}
+.hist-dom-trend{font-size:12px;color:var(--text-2);display:inline-flex;align-items:center;gap:4px;letter-spacing:-.005em}
+.hist-dom-trend.up{color:var(--mint)}
+.hist-dom-trend.down{color:var(--coral)}
+.hist-dom-trend.flat{color:var(--text-3)}
+.spark{display:inline-block;height:28px;color:var(--text-2)}
+.hist-dom-block.good .spark{color:var(--mint)}
+.hist-dom-block.warn .spark{color:var(--amber)}
+.hist-dom-block.bad .spark{color:var(--coral)}
+.hist-comp-row{display:grid;grid-template-columns:1.6fr auto auto auto;gap:14px;padding:13px 22px;align-items:center;font-size:13px;border-bottom:1px solid var(--border)}
+.hist-comp-row:last-child{border-bottom:none}
+.hist-comp-row .name{color:var(--text);font-weight:500;letter-spacing:-.005em}
+.hist-comp-row .sub{font-size:11px;color:var(--text-3);margin-top:2px}
+.hist-comp-row .score{font-family:inherit;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;padding:3px 10px;border-radius:999px;min-width:38px;text-align:center}
+.hist-comp-row .score.good{color:var(--mint);background:var(--mint-soft)}
+.hist-comp-row .score.warn{color:var(--amber);background:var(--amber-soft)}
+.hist-comp-row .score.bad{color:var(--coral);background:var(--coral-soft)}
+.hist-comp-row .misses{font-size:11px;color:var(--text-3);letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.hist-comp-row .date{font-size:11px;color:var(--text-3);letter-spacing:.04em}
+.hist-filter-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 16px;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:16px;margin-bottom:18px}
+.hist-filter-bar select{padding:7px 28px 7px 12px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:999px;color:var(--text);font-family:inherit;font-size:13px;outline:none;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path fill="none" stroke="%23a09590" stroke-width="1.5" d="M1 1.5l5 5 5-5"/></svg>');background-repeat:no-repeat;background-position:right 10px center;cursor:pointer}
+
+@media(max-width:700px){
+  .hist-dom-head{flex-direction:column;align-items:flex-start;gap:10px}
+  .hist-comp-row{grid-template-columns:1fr auto;gap:8px}
+  .hist-comp-row .misses,.hist-comp-row .date{display:none}
+}
 
 /* ─── Score row (the big reveal) ─── */
 .score-row{display:flex;align-items:center;gap:32px;padding:32px;background:var(--surface);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:28px;margin-bottom:18px;flex-wrap:wrap;position:relative;overflow:hidden}
@@ -393,7 +699,12 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
 .subscore-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
 .subscore-num{font-size:30px;font-weight:700;letter-spacing:-.025em;line-height:1;color:var(--text);font-variant-numeric:tabular-nums}
 .subscore-bar{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
-.subscore-fill{height:100%;border-radius:3px;background:var(--grad);transition:width 1.4s cubic-bezier(.4,0,.2,1)}
+.subscore-fill{height:100%;border-radius:3px;background:var(--grad-fail-fill);transition:width 1.4s cubic-bezier(.4,0,.2,1)}
+.subscore-fill.pass{background:var(--grad-pass-fill)}
+/* Score ring halo — dark mode stays the original cosmic mint glow regardless
+   of pass/fail (keeps the vibe). Light mode swaps green / red for clarity. */
+body.light .score-ring.pass svg{filter:drop-shadow(0 0 14px rgba(11,117,86,.18))}
+body.light .score-ring.fail svg{filter:drop-shadow(0 0 14px rgba(219,0,17,.16))}
 
 @media(max-width:768px){
   .topnav{padding:6px 12px}
@@ -451,6 +762,10 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
     </div>
     <div style="display:flex;align-items:center;gap:8px">
       <span class="pill-status"><span class="pill-mint-dot"></span>Agent ready</span>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light / dark mode" title="Toggle light / dark mode">
+        <svg class="theme-icon-sun" viewBox="0 0 24 24" style="display:inline-block"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="theme-icon-moon" viewBox="0 0 24 24" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
       <button class="nav-menu-btn" onclick="openNav()" aria-label="Open menu">
         <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
@@ -479,7 +794,13 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
   </div>
   <div class="nav-drawer-foot">
     <span class="pill-status"><span class="pill-mint-dot"></span>Agent ready</span>
-    <span>v1.0</span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light / dark mode">
+        <svg class="theme-icon-sun" viewBox="0 0 24 24" style="display:inline-block"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="theme-icon-moon" viewBox="0 0 24 24" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <span>v1.0</span>
+    </div>
   </div>
 </div>
 
@@ -509,9 +830,9 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
             <svg width="180" height="180" viewBox="0 0 180 180">
               <defs>
                 <linearGradient id="sidegrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#d8f3c8"/>
-                  <stop offset="50%" stop-color="#c9d8ff"/>
-                  <stop offset="100%" stop-color="#ffd5b8"/>
+                  <stop offset="0%" stop-color="var(--grad-pass-1,#d8f3c8)"/>
+                  <stop offset="50%" stop-color="var(--grad-pass-2,#86efac)"/>
+                  <stop offset="100%" stop-color="var(--grad-pass-3,#4ade80)"/>
                 </linearGradient>
               </defs>
               <circle cx="90" cy="90" r="70" stroke="rgba(255,255,255,.07)" stroke-width="9" fill="none"/>
@@ -765,6 +1086,7 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
       <select id="flt-year"><option value="">All years</option><option value="2026" selected>2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select>
       <select id="flt-pillar"><option value="">All pillars</option><option value="IRRBB">IRRBB</option><option value="Forecasting">Forecasting</option><option value="Stress Testing">Stress Testing</option><option value="Capital">Capital</option><option value="Treasury Risk">Treasury Risk</option><option value="R&R">R&amp;R</option><option value="TRSC">TRSC</option><option value="Liquidity">Liquidity</option><option value="Market Treasury">Market Treasury</option></select>
       <span style="margin-left:auto;font-size:11px;color:var(--text-3);letter-spacing:.04em">Mirrors the Apex strategic map filters</span>
+      <button onclick="resetSavedAudits()" title="Clear audits you've run; mock seed data stays" style="padding:6px 12px;background:transparent;border:1px solid var(--border);border-radius:999px;color:var(--text-2);font-family:inherit;font-size:11px;letter-spacing:.04em;cursor:pointer">↻ Reset my audits</button>
     </div>
 
     <!-- Portfolio KPIs -->
@@ -796,22 +1118,22 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
   </div>
 </div>
 
-<!-- ══ HISTORY PAGE ══ -->
+<!-- ══ HISTORY PAGE (by domain) ══ -->
 <div id="page-history" class="page-view">
   <div class="page-wrap">
-    <div style="margin-bottom:40px">
+    <div style="margin-bottom:30px">
       <span class="eyebrow">Audit log</span>
-      <h1 class="hero-title">History.</h1>
+      <h1 class="hero-title">History <em>by domain.</em></h1>
+      <p class="hero-sub">Trend of each domain's UX score over time. Spot which domains are improving, which are slipping, and which haven't been touched.</p>
     </div>
-    <div class="card" style="overflow:hidden;padding:0">
-      <div class="hist-row hist-header-row"><span>Component</span><span>Score</span><span>Misses</span><span>When</span></div>
-      <div class="hist-row"><div><div style="font-size:14px;font-weight:500">Entitlement — Assumption Management</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">dev.chen@hsbc.com</div></div><div style="font-weight:600;color:var(--mint)">84</div><div style="font-size:13px;color:var(--text-2)">2 missing · 1 review</div><div style="font-size:12px;color:var(--text-3)">Today 14:32</div></div>
-      <div class="hist-row"><div><div style="font-size:14px;font-weight:500">Payment Confirmation Modal</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">dev.patel@hsbc.com</div></div><div style="font-weight:600;color:var(--mint)">92</div><div style="font-size:13px;color:var(--text-2)">0 missing · 2 review</div><div style="font-size:12px;color:var(--text-3)">Yesterday 11:15</div></div>
-      <div class="hist-row"><div><div style="font-size:14px;font-weight:500">NII Calculation — Filter Panel</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">dev.wang@hsbc.com</div></div><div style="font-weight:600;color:var(--coral)">58</div><div style="font-size:13px;color:var(--text-2)">6 missing · 3 review</div><div style="font-size:12px;color:var(--text-3)">Mon 7 Apr</div></div>
-      <div class="hist-row"><div><div style="font-size:14px;font-weight:500">Market Data Viewer</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">dev.smith@hsbc.com</div></div><div style="font-weight:600;color:var(--amber)">73</div><div style="font-size:13px;color:var(--text-2)">3 missing · 2 review</div><div style="font-size:12px;color:var(--text-3)">Fri 4 Apr</div></div>
-      <div class="hist-row"><div><div style="font-size:14px;font-weight:500">Treasury Governance Dashboard</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">dev.li@hsbc.com</div></div><div style="font-weight:600;color:var(--mint)">88</div><div style="font-size:13px;color:var(--text-2)">1 missing · 1 review</div><div style="font-size:12px;color:var(--text-3)">Thu 3 Apr</div></div>
-      <div class="hist-row"><div><div style="font-size:14px;font-weight:500">Stress Testing — Scenario Builder</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">dev.chen@hsbc.com</div></div><div style="font-weight:600;color:var(--coral)">62</div><div style="font-size:13px;color:var(--text-2)">5 missing · 2 review</div><div style="font-size:12px;color:var(--text-3)">Tue 1 Apr</div></div>
+    <div class="hist-filter-bar">
+      <span style="font-size:11px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;font-weight:600">Filter</span>
+      <select id="hist-team"><option value="">All teams</option><option value="Delivery">Delivery</option><option value="Platform">Platform</option><option value="Customer Success">Customer Success</option></select>
+      <select id="hist-year"><option value="">All years</option><option value="2026" selected>2026</option><option value="2027">2027</option><option value="2028">2028</option></select>
+      <select id="hist-domain"><option value="">All domains</option></select>
+      <span style="margin-left:auto;font-size:11px;color:var(--text-3);letter-spacing:.04em" id="hist-summary"></span>
     </div>
+    <div id="hist-list"></div>
   </div>
 </div>
 
@@ -844,7 +1166,35 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
   </div>
 </div>
 
+<!-- Domain detail modal -->
+<div class="dom-modal" id="dom-modal" role="dialog" aria-label="Domain detail" onclick="if(event.target===this)closeDomModal()">
+  <div class="dom-modal-content" id="dom-modal-content"></div>
+</div>
+
 <script>
+// ─── Theme (light / dark) ───
+const THEME_KEY='ux-autopilot-theme';
+function setTheme(t){
+  if(t==='light') document.body.classList.add('light');
+  else document.body.classList.remove('light');
+  try{localStorage.setItem(THEME_KEY,t);}catch(e){}
+  // Update color-scheme so native scrollbars / form controls match
+  document.documentElement.style.colorScheme = t==='light'?'light':'dark';
+}
+function toggleTheme(){
+  var current=document.body.classList.contains('light')?'light':'dark';
+  setTheme(current==='light'?'dark':'light');
+}
+// Initialise: saved preference > system preference > default dark
+(function(){
+  try{
+    var saved=localStorage.getItem(THEME_KEY);
+    if(saved==='light'||saved==='dark'){setTheme(saved);return;}
+  }catch(e){}
+  if(window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches){setTheme('light');return;}
+  setTheme('dark');
+})();
+
 // Scroll progress
 addEventListener('scroll',()=>{const t=document.documentElement.scrollTop,h=document.documentElement.scrollHeight-innerHeight;document.getElementById('scroll-bar').style.width=(t/h*100)+'%';});
 
@@ -951,29 +1301,29 @@ const DOMAINS=[
 
 // 23 audits across the active domains
 const DOMAIN_AUDITS=[
-  {comp:'Entitlement — Assumption Management',dom:'analysis',pil:'IRRBB',score:84,missing:2,review:1,owner:'dev.chen',team:'Delivery',year:'2026',topMiss:'Customer-friendly language'},
-  {comp:'NII Calculation — Filter Panel',dom:'analysis',pil:'IRRBB',score:58,missing:6,review:3,owner:'dev.wang',team:'Delivery',year:'2026',topMiss:'Missing empty states'},
-  {comp:'MP Prepayment Model',dom:'analysis',pil:'Forecasting',score:72,missing:3,review:2,owner:'dev.li',team:'Delivery',year:'2026',topMiss:'Generic CTA labels'},
-  {comp:'Stress Testing — Scenario Builder',dom:'analysis',pil:'Stress Testing',score:62,missing:5,review:2,owner:'dev.chen',team:'Delivery',year:'2026',topMiss:'No save confirmation'},
-  {comp:'Intraday Nostro Funding Dashboard',dom:'nrt',pil:'Market Treasury',score:79,missing:2,review:2,owner:'dev.smith',team:'Delivery',year:'2026',topMiss:'Action feedback'},
-  {comp:'Client Deposit Monitoring',dom:'nrt',pil:'Liquidity',score:88,missing:1,review:1,owner:'dev.patel',team:'Delivery',year:'2026',topMiss:'Empty state'},
-  {comp:'Kyoto Dashboard Enhancement',dom:'mi',pil:'Liquidity',score:76,missing:3,review:2,owner:'dev.smith',team:'Delivery',year:'2026',topMiss:'No save confirmation'},
-  {comp:'CIB Dashboard',dom:'mi',pil:'Liquidity',score:81,missing:2,review:1,owner:'dev.li',team:'Delivery',year:'2026',topMiss:'Generic CTA labels'},
-  {comp:'Treasury Governance Dashboard',dom:'mi',pil:'TRSC',score:88,missing:1,review:1,owner:'dev.li',team:'Delivery',year:'2026',topMiss:'Low contrast headers'},
-  {comp:'SDI Migration UI',dom:'tda',pil:'Capital',score:68,missing:4,review:2,owner:'dev.jones',team:'Platform',year:'2026',topMiss:'Low contrast headers'},
-  {comp:'ROTE & EP Dashboard',dom:'tda',pil:'Capital',score:73,missing:2,review:3,owner:'dev.jones',team:'Platform',year:'2026',topMiss:'No save confirmation'},
-  {comp:'NII Metrics Sharing',dom:'ddc',pil:'IRRBB',score:85,missing:1,review:2,owner:'dev.chen',team:'Delivery',year:'2026',topMiss:'Generic CTA labels'},
-  {comp:'RWA/ECL Metrics Sharing',dom:'ddc',pil:'Forecasting',score:82,missing:2,review:1,owner:'dev.wang',team:'Delivery',year:'2026',topMiss:'Empty state'},
-  {comp:'Liquidity Premium Regional Rollout',dom:'tooling',pil:'Liquidity',score:74,missing:3,review:2,owner:'dev.patel',team:'Delivery',year:'2026',topMiss:'No save confirmation'},
-  {comp:'Structural Hedge Report — Georgia Refactor',dom:'tooling',pil:'IRRBB',score:77,missing:2,review:2,owner:'dev.wang',team:'Delivery',year:'2026',topMiss:'Generic CTA labels'},
-  {comp:'R&R Data Upload',dom:'tooling',pil:'R&R',score:71,missing:3,review:2,owner:'dev.jones',team:'Platform',year:'2026',topMiss:'Missing empty states'},
-  {comp:'NTMR/FSA17/CART Report',dom:'reg',pil:'IRRBB',score:65,missing:5,review:1,owner:'dev.patel',team:'Delivery',year:'2026',topMiss:'Customer-friendly language'},
-  {comp:'Asset Encumbrance Report',dom:'reg',pil:'Liquidity',score:71,missing:3,review:1,owner:'dev.li',team:'Delivery',year:'2026',topMiss:'Approved UI components'},
-  {comp:'LCR/NSFR Report',dom:'reg',pil:'Liquidity',score:69,missing:4,review:2,owner:'dev.smith',team:'Delivery',year:'2026',topMiss:'Approved UI components'},
-  {comp:'A/B Testing UI',dom:'rod',pil:'',score:88,missing:1,review:0,owner:'dev.smith',team:'Platform',year:'2026',topMiss:'Action feedback'},
-  {comp:'Apex Configuration Center',dom:'rod',pil:'',score:92,missing:0,review:2,owner:'dev.jones',team:'Platform',year:'2026',topMiss:'Inputs have clear labels'},
-  {comp:'Canary Releases Dashboard',dom:'rod',pil:'',score:86,missing:1,review:1,owner:'dev.jones',team:'Platform',year:'2026',topMiss:'Loading state'},
-  {comp:'Feature-rich Data Grid Web Component',dom:'bbdp',pil:'',score:90,missing:1,review:1,owner:'dev.chen',team:'Platform',year:'2026',topMiss:'Inputs have clear labels'}
+  {comp:'Entitlement — Assumption Management',dom:'analysis',pil:'IRRBB',score:84,missing:2,review:1,owner:'dev.chen',team:'Delivery',year:'2026',date:'2026-05-28',topMiss:'Customer-friendly language'},
+  {comp:'NII Calculation — Filter Panel',dom:'analysis',pil:'IRRBB',score:58,missing:6,review:3,owner:'dev.wang',team:'Delivery',year:'2026',date:'2026-04-07',topMiss:'Missing empty states'},
+  {comp:'MP Prepayment Model',dom:'analysis',pil:'Forecasting',score:72,missing:3,review:2,owner:'dev.li',team:'Delivery',year:'2026',date:'2026-05-14',topMiss:'Generic CTA labels'},
+  {comp:'Stress Testing — Scenario Builder',dom:'analysis',pil:'Stress Testing',score:62,missing:5,review:2,owner:'dev.chen',team:'Delivery',year:'2026',date:'2026-04-01',topMiss:'No save confirmation'},
+  {comp:'Intraday Nostro Funding Dashboard',dom:'nrt',pil:'Market Treasury',score:79,missing:2,review:2,owner:'dev.smith',team:'Delivery',year:'2026',date:'2026-05-28',topMiss:'Action feedback'},
+  {comp:'Client Deposit Monitoring',dom:'nrt',pil:'Liquidity',score:88,missing:1,review:1,owner:'dev.patel',team:'Delivery',year:'2026',date:'2026-05-20',topMiss:'Empty state'},
+  {comp:'Kyoto Dashboard Enhancement',dom:'mi',pil:'Liquidity',score:76,missing:3,review:2,owner:'dev.smith',team:'Delivery',year:'2026',date:'2026-05-26',topMiss:'No save confirmation'},
+  {comp:'CIB Dashboard',dom:'mi',pil:'Liquidity',score:81,missing:2,review:1,owner:'dev.li',team:'Delivery',year:'2026',date:'2026-05-15',topMiss:'Generic CTA labels'},
+  {comp:'Treasury Governance Dashboard',dom:'mi',pil:'TRSC',score:88,missing:1,review:1,owner:'dev.li',team:'Delivery',year:'2026',date:'2026-04-03',topMiss:'Low contrast headers'},
+  {comp:'SDI Migration UI',dom:'tda',pil:'Capital',score:68,missing:4,review:2,owner:'dev.jones',team:'Platform',year:'2026',date:'2026-05-18',topMiss:'Low contrast headers'},
+  {comp:'ROTE & EP Dashboard',dom:'tda',pil:'Capital',score:73,missing:2,review:3,owner:'dev.jones',team:'Platform',year:'2026',date:'2026-05-10',topMiss:'No save confirmation'},
+  {comp:'NII Metrics Sharing',dom:'ddc',pil:'IRRBB',score:85,missing:1,review:2,owner:'dev.chen',team:'Delivery',year:'2026',date:'2026-05-22',topMiss:'Generic CTA labels'},
+  {comp:'RWA/ECL Metrics Sharing',dom:'ddc',pil:'Forecasting',score:82,missing:2,review:1,owner:'dev.wang',team:'Delivery',year:'2026',date:'2026-05-12',topMiss:'Empty state'},
+  {comp:'Liquidity Premium Regional Rollout',dom:'tooling',pil:'Liquidity',score:74,missing:3,review:2,owner:'dev.patel',team:'Delivery',year:'2026',date:'2026-05-25',topMiss:'No save confirmation'},
+  {comp:'Structural Hedge Report — Georgia Refactor',dom:'tooling',pil:'IRRBB',score:77,missing:2,review:2,owner:'dev.wang',team:'Delivery',year:'2026',date:'2026-05-08',topMiss:'Generic CTA labels'},
+  {comp:'R&R Data Upload',dom:'tooling',pil:'R&R',score:71,missing:3,review:2,owner:'dev.jones',team:'Platform',year:'2026',date:'2026-04-02',topMiss:'Missing empty states'},
+  {comp:'NTMR/FSA17/CART Report',dom:'reg',pil:'IRRBB',score:65,missing:5,review:1,owner:'dev.patel',team:'Delivery',year:'2026',date:'2026-05-19',topMiss:'Customer-friendly language'},
+  {comp:'Asset Encumbrance Report',dom:'reg',pil:'Liquidity',score:71,missing:3,review:1,owner:'dev.li',team:'Delivery',year:'2026',date:'2026-05-05',topMiss:'Approved UI components'},
+  {comp:'LCR/NSFR Report',dom:'reg',pil:'Liquidity',score:69,missing:4,review:2,owner:'dev.smith',team:'Delivery',year:'2026',date:'2026-04-11',topMiss:'Approved UI components'},
+  {comp:'A/B Testing UI',dom:'rod',pil:'',score:88,missing:1,review:0,owner:'dev.smith',team:'Platform',year:'2026',date:'2026-05-21',topMiss:'Action feedback'},
+  {comp:'Apex Configuration Center',dom:'rod',pil:'',score:92,missing:0,review:2,owner:'dev.jones',team:'Platform',year:'2026',date:'2026-05-13',topMiss:'Inputs have clear labels'},
+  {comp:'Canary Releases Dashboard',dom:'rod',pil:'',score:86,missing:1,review:1,owner:'dev.jones',team:'Platform',year:'2026',date:'2026-04-29',topMiss:'Loading state'},
+  {comp:'Feature-rich Data Grid Web Component',dom:'bbdp',pil:'',score:90,missing:1,review:1,owner:'dev.chen',team:'Platform',year:'2026',date:'2026-05-17',topMiss:'Inputs have clear labels'}
 ];
 
 // Common patterns (issues repeated across multiple components / domains)
@@ -1025,6 +1375,7 @@ function renderScoreReveal(){
   const off=C*(1-s.overall/100);
   function sub(label,key){
     const c=s.cat[key];
+    const passSub=c.score>=PASS_THRESHOLD;
     return `
       <div class="subscore">
         <div class="subscore-lbl">${label}</div>
@@ -1032,23 +1383,28 @@ function renderScoreReveal(){
           <div class="subscore-num">${c.score}</div>
           <span style="font-size:12px;color:var(--text-3);font-variant-numeric:tabular-nums">${c.passes}/${c.total}</span>
         </div>
-        <div class="subscore-bar"><div class="subscore-fill" style="width:${c.score}%"></div></div>
+        <div class="subscore-bar"><div class="subscore-fill ${passSub?'pass':''}" style="width:${c.score}%"></div></div>
       </div>`;
   }
   document.getElementById('rscore').innerHTML=`
     <div class="score-row">
       <div class="score-main">
-        <div class="score-ring">
+        <div class="score-ring ${passing?'pass':'fail'}">
           <svg width="200" height="200" viewBox="0 0 200 200">
             <circle cx="100" cy="100" r="80" stroke="rgba(255,255,255,.08)" stroke-width="11" fill="none"/>
             <defs>
-              <linearGradient id="scoregrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#d8f3c8"/>
-                <stop offset="50%" stop-color="#c9d8ff"/>
-                <stop offset="100%" stop-color="#ffd5b8"/>
+              <linearGradient id="scoregrad-pass" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--grad-pass-1,#d8f3c8)"/>
+                <stop offset="50%" stop-color="var(--grad-pass-2,#86efac)"/>
+                <stop offset="100%" stop-color="var(--grad-pass-3,#4ade80)"/>
+              </linearGradient>
+              <linearGradient id="scoregrad-fail" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--grad-fail-1,#ffd5b8)"/>
+                <stop offset="50%" stop-color="var(--grad-fail-2,#fca5a5)"/>
+                <stop offset="100%" stop-color="var(--grad-fail-3,#f87171)"/>
               </linearGradient>
             </defs>
-            <circle cx="100" cy="100" r="80" stroke="${passing?'url(#scoregrad)':'#ffc1a7'}" stroke-width="11" fill="none" stroke-linecap="round" stroke-dasharray="${C.toFixed(2)}" stroke-dashoffset="${C.toFixed(2)}" data-target-off="${off.toFixed(2)}"/>
+            <circle cx="100" cy="100" r="80" stroke="${passing?'url(#scoregrad-pass)':'url(#scoregrad-fail)'}" stroke-width="11" fill="none" stroke-linecap="round" stroke-dasharray="${C.toFixed(2)}" stroke-dashoffset="${C.toFixed(2)}" data-target-off="${off.toFixed(2)}"/>
           </svg>
           <div class="score-num-wrap">
             <div class="score-num">${s.overall}</div>
@@ -1097,6 +1453,33 @@ function renderReport(){
   // Monday manual-review ticket
   renderMondayTicket(name);
   renderChecklist();
+  // Persist this audit to localStorage so it flows into Dashboard + History
+  try{
+    const domTitle=document.getElementById('biz-domain')?.value||'';
+    const domKey=domainKeyFromTitle(domTitle);
+    if(domKey){
+      const scoreObj=computeScores();
+      const today=new Date();
+      const auditRec={
+        comp:name,
+        dom:domKey,
+        pil:document.getElementById('biz-pillar')?.value||'',
+        score:scoreObj.overall,
+        missing:missing,
+        review:review,
+        owner:'you@hsbc.com',
+        team:'Delivery',
+        year:String(today.getFullYear()),
+        date:today.toISOString().slice(0,10),
+        topMiss:(actions[0]?.title)||'—',
+        savedAt:today.toISOString()
+      };
+      saveAudit(auditRec);
+      // Re-render dashboard + history if they exist so changes appear next time
+      if(typeof renderDashboard==='function') renderDashboard();
+      if(typeof renderHistory==='function') renderHistory();
+    }
+  }catch(e){console.warn('Could not persist audit:',e);}
 }
 
 function buildMondayTicket(name){
@@ -1314,6 +1697,22 @@ function closeNav(){
 }
 function navToM(key){closeNav();setTimeout(function(){navTo(key,null);},120);}
 
+// ─── localStorage persistence ───
+const LS_KEY='ux-autopilot-audits-v1';
+function loadSavedAudits(){
+  try{var raw=localStorage.getItem(LS_KEY);return raw?JSON.parse(raw):[];}catch(e){return [];}
+}
+function saveAudit(audit){
+  try{var arr=loadSavedAudits();arr.push(audit);localStorage.setItem(LS_KEY,JSON.stringify(arr));}catch(e){}
+}
+function resetSavedAudits(){
+  try{localStorage.removeItem(LS_KEY);}catch(e){}
+  renderDashboard();renderHistory();
+  alert('Your audits have been cleared. Mock seed data remains.');
+}
+function allAudits(){return DOMAIN_AUDITS.concat(loadSavedAudits());}
+function domainKeyFromTitle(title){var d=DOMAINS.find(function(x){return x.title===title;});return d?d.key:null;}
+
 // ─── Portfolio Dashboard ───
 function getFilters(){
   return {
@@ -1324,7 +1723,7 @@ function getFilters(){
 }
 function filteredAudits(){
   var f=getFilters();
-  return DOMAIN_AUDITS.filter(function(a){
+  return allAudits().filter(function(a){
     if(f.team && a.team!==f.team) return false;
     if(f.year && a.year!==f.year) return false;
     if(f.pillar && a.pil!==f.pillar) return false;
@@ -1388,9 +1787,113 @@ function renderDomainGrid(audits){
         (s.topMiss?'<span style="margin-left:auto;font-size:10px;color:var(--text-3)">Top: '+s.topMiss+'</span>':'')+
         '</div>';
     }
-    return '<div class="dom-card spot-target'+(s.count===0?' empty':'')+'" data-dom="'+D.key+'">'+head+desc+flag+stats+'</div>';
+    return '<div class="dom-card spot-target'+(s.count===0?' empty':'')+'" data-dom="'+D.key+'" onclick="openDomModal(\''+D.key+'\')">'+head+desc+flag+stats+'</div>';
   }).join('');
 }
+
+// ─── Domain detail modal ───
+function openDomModal(domKey){
+  var D=DOMAINS.find(function(x){return x.key===domKey;});
+  if(!D)return;
+  var audits=allAudits().filter(function(a){return a.dom===domKey;});
+  // Sort newest first
+  audits.sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+  var s=domainStats(domKey, audits);
+  var dRisks=RISKS.filter(function(R){return R.dom===domKey;});
+  var dOpps=OPPORTUNITIES.filter(function(O){return O.domains.indexOf(domKey)!==-1;});
+
+  // Issue breakdown — count missing per the 4 areas (rough heuristic from topMiss tags)
+  var areaTags={
+    'Customer Mindset':['friendly','jargon','reassur','friction','customer'],
+    'UX':['empty','feedback','label','state','journey','navigation'],
+    'UI':['UI','component','hierarchy','contrast','grid','responsive','spacing'],
+    'Copy':['CTA','copy','message','language','heading','typo']
+  };
+  function areaForMiss(t){
+    if(!t)return null;
+    var low=t.toLowerCase();
+    for(var k in areaTags){
+      if(areaTags[k].some(function(w){return low.indexOf(w.toLowerCase())!==-1;})) return k;
+    }
+    return null;
+  }
+  var areaCounts={'Customer Mindset':0,'UX':0,'UI':0,'Copy':0};
+  audits.forEach(function(a){var ar=areaForMiss(a.topMiss);if(ar)areaCounts[ar]+=a.missing;});
+  var maxArea=Math.max.apply(null,Object.values(areaCounts))||1;
+
+  // Build content
+  var html='';
+  html+='<div class="dom-modal-head">';
+  html+='<div class="lhs"><span class="dom-modal-eyebrow">Domain detail'+(D.riskCritical?' · risk-critical':'')+'</span>';
+  html+='<div class="dom-modal-title">'+D.title+'</div>';
+  html+='<div class="dom-modal-desc">'+D.desc+'</div></div>';
+  html+='<button class="nav-menu-btn" style="display:inline-flex;flex-shrink:0" onclick="closeDomModal()" aria-label="Close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+  html+='</div>';
+
+  // Snapshot row
+  var hc=healthClass(s.avg);
+  var sCol=s.avg==null?'var(--text-3)':s.avg>=80?'var(--mint)':s.avg>=70?'var(--amber)':'var(--coral)';
+  html+='<div class="dom-modal-snap">';
+  html+='<div class="dom-snap"><div class="lbl">UX score</div><div class="num" style="color:'+sCol+'">'+(s.avg!=null?s.avg:'—')+'</div><div class="foot">'+(s.count?'avg across '+s.count+' audits':'no audits yet')+'</div></div>';
+  html+='<div class="dom-snap"><div class="lbl">Missing items</div><div class="num" style="color:var(--coral)">'+s.missing+'</div><div class="foot">action items</div></div>';
+  html+='<div class="dom-snap"><div class="lbl">Review items</div><div class="num" style="color:var(--amber)">'+s.review+'</div><div class="foot">human review needed</div></div>';
+  html+='<div class="dom-snap"><div class="lbl">Risks</div><div class="num" style="color:var(--coral)">'+dRisks.length+'</div><div class="foot">'+(D.riskCritical?'risk-critical domain':'auto-flagged')+'</div></div>';
+  html+='</div>';
+
+  // Audited components
+  html+='<div><div class="sec-eyebrow" style="margin-bottom:14px">Audited components ('+audits.length+')</div>';
+  if(audits.length===0){
+    html+='<div class="dom-empty-msg">No audits run in this domain yet.</div>';
+  } else {
+    html+=audits.map(function(a){
+      var sc=a.score>=80?'good':a.score>=70?'warn':'bad';
+      return '<div class="dom-comp-row"><div><div class="name">'+a.comp+'</div><div class="sub">'+(a.pil||'—')+' · '+a.owner+' · '+(a.date||'')+'</div></div><div class="score-pill '+sc+'">'+a.score+'</div><div class="miss-count">'+a.missing+' missing</div><div class="miss-count">'+a.review+' review</div></div>';
+    }).join('');
+  }
+  html+='</div>';
+
+  // Issue breakdown
+  if(audits.length>0){
+    html+='<div><div class="sec-eyebrow" style="margin-bottom:14px">Issue breakdown — where misses concentrate</div>';
+    html+='<div class="dom-area-grid">';
+    ['Customer Mindset','UX','UI','Copy'].forEach(function(area){
+      var c=areaCounts[area];
+      var pct=Math.round((c/maxArea)*100);
+      html+='<div class="dom-area"><div class="lbl">'+area+'</div><div class="bar"><div class="fill" style="width:'+pct+'%"></div></div><div class="meta">'+c+' missing items</div></div>';
+    });
+    html+='</div></div>';
+  }
+
+  // Domain-specific risks
+  if(dRisks.length){
+    html+='<div><div class="sec-eyebrow" style="margin-bottom:14px;color:var(--coral)">Risks in this domain</div>';
+    html+=dRisks.map(function(R){
+      var sevColor=R.sev==='P0'?'var(--coral)':'var(--amber)';
+      var sevBg=R.sev==='P0'?'var(--coral-soft)':'var(--amber-soft)';
+      return '<div class="iss-row" style="border-left:3px solid '+sevColor+'"><div class="head"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="pill" style="background:'+sevBg+';color:'+sevColor+';border:1px solid '+sevColor+'">'+R.sev+' · '+R.id+'</span><div class="title">'+R.title+'</div></div><span class="meta">'+R.owner+'</span></div><div class="why"><strong style="color:var(--text)">Why it matters:</strong> '+R.why+'</div><div class="impact-row"><span><span class="k">Component</span>'+R.comp+'</span></div></div>';
+    }).join('');
+    html+='</div>';
+  }
+
+  // Domain-related opportunities
+  if(dOpps.length){
+    html+='<div><div class="sec-eyebrow" style="margin-bottom:14px;color:var(--lavender)">Opportunities affecting this domain</div>';
+    html+=dOpps.map(function(O){
+      return '<div class="iss-row" style="border-left:3px solid var(--lavender)"><div class="head"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="pill" style="background:var(--lavender-soft);color:var(--lavender);border:1px solid rgba(203,184,255,.25)">'+O.id+' · Opportunity</span><div class="title">'+O.title+'</div></div><span class="meta">'+O.owner+'</span></div><div class="why"><strong style="color:var(--text)">Impact:</strong> '+O.impact+'</div><div class="impact-row"><span><span class="k">Effort</span>'+O.effort+'</span><span><span class="k">Resolves</span>'+O.count+' components</span></div></div>';
+    }).join('');
+    html+='</div>';
+  }
+
+  document.getElementById('dom-modal-content').innerHTML=html;
+  document.getElementById('dom-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeDomModal(){
+  document.getElementById('dom-modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+// ESC closes modal
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDomModal();});
 function renderLenses(audits){
   // Common Issues: filter patterns by which domains are in scope
   var visibleDoms={};audits.forEach(function(a){visibleDoms[a.dom]=true;});
@@ -1471,9 +1974,105 @@ function swLens(key,btn){
   if(el) el.addEventListener('change', renderDashboard);
 });
 
+// ─── History by domain ───
+function sparklineSVG(scores, w, h){
+  if(!scores.length) return '';
+  if(scores.length===1){return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'"><circle cx="'+w/2+'" cy="'+h/2+'" r="2.5" fill="currentColor"/></svg>';}
+  var min=Math.min.apply(null,scores)-3, max=Math.max.apply(null,scores)+3;
+  var range=Math.max(max-min,1);
+  var step=w/(scores.length-1);
+  var pts=scores.map(function(s,i){
+    var x=i*step;
+    var y=h - ((s-min)/range)*h;
+    return x.toFixed(1)+','+y.toFixed(1);
+  });
+  var first=pts[0].split(',');
+  var last=pts[pts.length-1].split(',');
+  return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'">'+
+    '<polyline points="'+pts.join(' ')+'" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>'+
+    '<circle cx="'+first[0]+'" cy="'+first[1]+'" r="2" fill="currentColor" opacity="0.5"/>'+
+    '<circle cx="'+last[0]+'" cy="'+last[1]+'" r="2.5" fill="currentColor"/>'+
+    '</svg>';
+}
+function histFilters(){
+  return {
+    team:document.getElementById('hist-team')?.value||'',
+    year:document.getElementById('hist-year')?.value||'',
+    domain:document.getElementById('hist-domain')?.value||''
+  };
+}
+function renderHistory(){
+  // Populate domain filter once
+  var domSel=document.getElementById('hist-domain');
+  if(domSel && domSel.options.length<=1){
+    DOMAINS.forEach(function(D){
+      var o=document.createElement('option');o.value=D.key;o.textContent=D.title;domSel.appendChild(o);
+    });
+  }
+  var f=histFilters();
+  var audits=allAudits().filter(function(a){
+    if(f.team && a.team!==f.team) return false;
+    if(f.year && a.year!==f.year) return false;
+    if(f.domain && a.dom!==f.domain) return false;
+    return true;
+  });
+  // Group by domain
+  var grouped={};
+  audits.forEach(function(a){(grouped[a.dom]=grouped[a.dom]||[]).push(a);});
+  // Sort each group by date ascending for sparkline; show recents at top of list
+  Object.keys(grouped).forEach(function(k){
+    grouped[k].sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
+  });
+
+  var domsWithAudits=DOMAINS.filter(function(D){return grouped[D.key] && grouped[D.key].length;});
+  // Summary
+  var totalAudits=audits.length;
+  document.getElementById('hist-summary').textContent=totalAudits+' audits across '+domsWithAudits.length+' domains';
+
+  var html=domsWithAudits.map(function(D){
+    var rows=grouped[D.key];
+    var scores=rows.map(function(r){return r.score;});
+    var avg=Math.round(scores.reduce(function(s,x){return s+x;},0)/scores.length);
+    var first=scores[0], last=scores[scores.length-1];
+    var delta=last-first;
+    var trendClass=delta>0?'up':delta<0?'down':'flat';
+    var trendArr=delta>0?'↑':delta<0?'↓':'→';
+    var hc=healthClass(avg);
+    // Recent first for listing
+    var recent=rows.slice().reverse();
+    var blockHTML='<div class="hist-dom-block '+hc+'">'+
+      '<div class="hist-dom-head">'+
+      '<div class="hist-dom-lhs">'+
+      '<div><div class="hist-dom-title">'+D.title+'</div><div class="hist-dom-meta">'+rows.length+' audits · latest '+(rows[rows.length-1].date||'')+'</div></div>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">'+
+      '<span class="spark">'+sparklineSVG(scores, 110, 28)+'</span>'+
+      '<span class="hist-dom-trend '+trendClass+'">'+trendArr+' '+(delta>0?'+':'')+delta+' since first</span>'+
+      '<span class="hist-dom-score '+hc+'"><span class="num">'+avg+'</span><span class="out">/100 avg</span></span>'+
+      '</div></div>';
+    blockHTML+=recent.map(function(r){
+      var sc=r.score>=80?'good':r.score>=70?'warn':'bad';
+      return '<div class="hist-comp-row"><div><div class="name">'+r.comp+'</div><div class="sub">'+(r.pil||'—')+' · '+r.owner+'</div></div><div class="score '+sc+'">'+r.score+'</div><div class="misses">'+r.missing+'m · '+r.review+'r</div><div class="date">'+(r.date||'')+'</div></div>';
+    }).join('');
+    blockHTML+='</div>';
+    return blockHTML;
+  }).join('');
+
+  if(!html){
+    html='<div style="text-align:center;padding:60px 20px;color:var(--text-3);font-size:14px">No audits match the current filter.</div>';
+  }
+  document.getElementById('hist-list').innerHTML=html;
+}
+
+['hist-team','hist-year','hist-domain'].forEach(function(id){
+  var el=document.getElementById(id);
+  if(el) el.addEventListener('change', renderHistory);
+});
+
 // Initial render of checklist with default statuses
 renderChecklist();
 renderDashboard();
+renderHistory();
 chk();
 </script>
 </body>
