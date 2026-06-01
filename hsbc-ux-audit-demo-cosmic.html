@@ -293,6 +293,79 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
 /* ─── Pattern card ─── */
 .pat-card{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:16px;padding:18px}
 
+/* ─── Portfolio Dashboard ─── */
+.filter-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 16px;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:16px;margin-bottom:24px}
+.filter-bar .flt-lbl{font-size:11px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-right:4px}
+.filter-bar select{padding:7px 28px 7px 12px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:999px;color:var(--text);font-family:inherit;font-size:13px;outline:none;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path fill="none" stroke="%23a09590" stroke-width="1.5" d="M1 1.5l5 5 5-5"/></svg>');background-repeat:no-repeat;background-position:right 10px center;cursor:pointer}
+.filter-bar select:hover{border-color:var(--border-strong)}
+
+/* Portfolio KPIs */
+.port-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.port-kpi{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:16px;padding:18px 18px}
+.port-kpi .lbl{font-size:11px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:10px}
+.port-kpi .num{font-size:34px;font-weight:700;letter-spacing:-.025em;line-height:1;color:var(--text);font-variant-numeric:tabular-nums}
+.port-kpi .foot{font-size:11px;color:var(--text-2);margin-top:6px}
+
+/* Domain card grid */
+.dom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px}
+.dom-card{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:16px;padding:18px 18px;display:flex;flex-direction:column;gap:10px;min-height:170px;transition:border-color .15s,background .15s;cursor:pointer}
+.dom-card:hover{border-color:rgba(149,239,209,.25);background:rgba(0,0,0,.32)}
+.dom-card.empty{opacity:.55}
+.dom-card-head{display:flex;justify-content:space-between;align-items:start;gap:10px}
+.dom-card-title{font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.005em;line-height:1.25}
+.dom-card-desc{font-size:11.5px;color:var(--text-3);line-height:1.5;letter-spacing:0;flex-shrink:0}
+.dom-health{display:inline-flex;align-items:baseline;gap:3px;flex-shrink:0;font-variant-numeric:tabular-nums}
+.dom-health .score{font-family:inherit;font-size:22px;font-weight:700;letter-spacing:-.025em;line-height:1}
+.dom-health .out{font-size:10px;color:var(--text-3);letter-spacing:.06em}
+.dom-health.good .score{color:var(--mint)}
+.dom-health.warn .score{color:var(--amber)}
+.dom-health.bad .score{color:var(--coral)}
+.dom-health.none .score{color:var(--text-3);font-size:14px;font-weight:500}
+.dom-card-stats{display:flex;gap:14px;font-size:11px;color:var(--text-2);margin-top:auto;padding-top:8px;border-top:1px solid var(--border);align-items:center;flex-wrap:wrap}
+.dom-card-stats span{display:inline-flex;align-items:center;gap:4px}
+.dom-card-stats .label{color:var(--text-3);letter-spacing:.04em;font-size:10px;text-transform:uppercase}
+.dom-card .risk-flag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:600;background:var(--coral-soft);color:var(--coral);border:1px solid rgba(255,193,167,.25);letter-spacing:.04em;text-transform:uppercase;align-self:flex-start;margin-top:2px}
+.dom-card .ok-flag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:600;background:var(--mint-soft);color:var(--mint);border:1px solid rgba(149,239,209,.25);letter-spacing:.04em;text-transform:uppercase;align-self:flex-start;margin-top:2px}
+
+/* Lens tabs (Common Issues / Risks / Opportunities) */
+.lens-row{background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:16px;padding:0;overflow:hidden}
+.lens-tabs{display:flex;border-bottom:1px solid var(--border);background:rgba(0,0,0,.25)}
+.lens-tab{padding:14px 22px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text-2);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;letter-spacing:-.005em;display:inline-flex;align-items:center;gap:8px;transition:color .15s,border-color .15s}
+.lens-tab:hover{color:var(--text)}
+.lens-tab.active{color:var(--mint);border-bottom-color:var(--mint)}
+.lens-tab .count{font-size:11px;color:var(--text-3);padding:1px 7px;border-radius:999px;background:rgba(255,255,255,.06);font-weight:600;letter-spacing:0}
+.lens-tab.active .count{background:var(--mint-soft);color:var(--mint)}
+.lens-body{padding:18px}
+.lens-empty{text-align:center;padding:40px;color:var(--text-3);font-size:13px}
+
+/* Issue / risk / opp row */
+.iss-row{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:10px}
+.iss-row .head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.iss-row .title{font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.005em}
+.iss-row .meta{font-size:11px;color:var(--text-3);letter-spacing:.04em}
+.iss-row .desc{font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:10px}
+.iss-row .why{font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:10px}
+.iss-row .fix{font-size:12px;padding:9px 12px;border-radius:10px;line-height:1.5;letter-spacing:-.005em}
+.iss-row .fix.high{background:var(--coral-soft);color:var(--coral)}
+.iss-row .fix.med{background:var(--amber-soft);color:var(--amber)}
+.iss-row .fix.low{background:rgba(255,255,255,.04);color:var(--text-2)}
+.iss-row .impact-row{display:flex;gap:14px;font-size:11px;color:var(--text-2);margin-top:8px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border)}
+.iss-row .impact-row span{display:inline-flex;gap:5px;align-items:center}
+.iss-row .impact-row .k{color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;font-size:10px}
+.dom-pills{display:flex;gap:5px;flex-wrap:wrap}
+.dom-pills .dp{font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--text-2);letter-spacing:.02em;border:1px solid var(--border)}
+
+@media(max-width:900px){
+  .port-kpi-grid{grid-template-columns:1fr 1fr}
+  .dom-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .dom-grid{grid-template-columns:1fr}
+  .filter-bar{padding:12px}
+  .filter-bar select{flex:1;min-width:0}
+  .lens-tab{padding:12px 14px;font-size:12px}
+}
+
 /* ─── History rows ─── */
 .hist-row{display:grid;grid-template-columns:2.5fr 1fr 1.3fr 1fr;padding:16px 22px;gap:14px;border-bottom:1px solid var(--border);align-items:center;cursor:pointer;transition:background .12s}
 .hist-row:last-child{border-bottom:none}
@@ -471,6 +544,42 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
         </div>
         <div class="form-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
           <div>
+            <label class="field-label">Business domain <span style="color:var(--coral);font-weight:600">*</span></label>
+            <select class="field-input" id="biz-domain">
+              <option value="" disabled>Select a domain…</option>
+              <option value="Analysis & Calculation" selected>Analysis &amp; Calculation</option>
+              <option value="Near real time">Near real time</option>
+              <option value="Management information">Management information</option>
+              <option value="Treasury data asset">Treasury data asset</option>
+              <option value="Data discovery & clean up">Data discovery &amp; clean up</option>
+              <option value="Tooling">Tooling</option>
+              <option value="Regulatory reporting">Regulatory reporting</option>
+              <option value="Release on demand">Release on demand</option>
+              <option value="Build better digital product">Build better digital product</option>
+              <option value="Support large user traffic">Support large user traffic</option>
+              <option value="Data Insight and Trackability">Data Insight and Trackability</option>
+              <option value="Resilience and Reliable Platform">Resilience and Reliable Platform</option>
+              <option value="Coverage and adoption">Coverage and adoption</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Pillar <span style="color:var(--text-3)">(optional)</span></label>
+            <select class="field-input" id="biz-pillar">
+              <option value="" selected>—</option>
+              <option value="IRRBB">IRRBB</option>
+              <option value="Forecasting">Forecasting</option>
+              <option value="Stress Testing">Stress Testing</option>
+              <option value="Capital">Capital</option>
+              <option value="Treasury Risk">Treasury Risk</option>
+              <option value="R&R">R&amp;R</option>
+              <option value="TRSC">TRSC</option>
+              <option value="Liquidity">Liquidity</option>
+              <option value="Market Treasury">Market Treasury</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+          <div>
             <label class="field-label">Audit focus</label>
             <select class="field-input" id="aud-focus">
               <option value="full" selected>Full audit — all four areas</option>
@@ -640,51 +749,48 @@ select.field-input{appearance:none;-webkit-appearance:none;background-image:url(
   </div>
 </div>
 
-<!-- ══ DASHBOARD PAGE ══ -->
+<!-- ══ DASHBOARD PAGE (Portfolio governance) ══ -->
 <div id="page-dashboard" class="page-view">
   <div class="page-wrap">
-    <div style="margin-bottom:48px">
-      <span class="eyebrow">Team intelligence</span>
-      <h1 class="hero-title">Design QA <em>dashboard.</em></h1>
-      <p class="hero-sub">Defect patterns across the Apex platform — helping designers prioritise what to fix in the Design System.</p>
+    <div style="margin-bottom:36px">
+      <span class="eyebrow">Portfolio governance</span>
+      <h1 class="hero-title">Design QA <em>by domain.</em></h1>
+      <p class="hero-sub">Roll-up of every audit by business domain — see which domains are healthy, where the risks are concentrating, and what cross-cutting opportunities the design system should pick up.</p>
     </div>
-    <div class="kpi-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px">
-      <div class="kpi"><div class="kpi-lbl">Audits this month</div><div class="kpi-num">23</div><div class="kpi-foot" style="color:var(--mint)">+8 vs last month</div></div>
-      <div class="kpi"><div class="kpi-lbl">Missing items caught</div><div class="kpi-num" style="color:var(--coral)">14</div><div class="kpi-foot">Issues that would have shipped</div></div>
-      <div class="kpi"><div class="kpi-lbl">First-pass rate</div><div class="kpi-num" style="color:var(--mint)">61%</div><div class="kpi-foot">Screens passing on first audit</div></div>
-      <div class="kpi"><div class="kpi-lbl">Designer hours saved</div><div class="kpi-num" style="color:var(--lavender)">~18h</div><div class="kpi-foot">QA reviews handled by devs</div></div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <span class="flt-lbl">Filter</span>
+      <select id="flt-team"><option value="">All teams</option><option value="Delivery">Delivery</option><option value="Platform">Platform</option><option value="Customer Success">Customer Success</option></select>
+      <select id="flt-year"><option value="">All years</option><option value="2026" selected>2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select>
+      <select id="flt-pillar"><option value="">All pillars</option><option value="IRRBB">IRRBB</option><option value="Forecasting">Forecasting</option><option value="Stress Testing">Stress Testing</option><option value="Capital">Capital</option><option value="Treasury Risk">Treasury Risk</option><option value="R&R">R&amp;R</option><option value="TRSC">TRSC</option><option value="Liquidity">Liquidity</option><option value="Market Treasury">Market Treasury</option></select>
+      <span style="margin-left:auto;font-size:11px;color:var(--text-3);letter-spacing:.04em">Mirrors the Apex strategic map filters</span>
     </div>
-    <div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px">
-      <div class="card" style="padding:28px">
-        <div class="sec-eyebrow">Misses by area</div>
-        <div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:500">Copy</span><span style="color:var(--text-3)">42 · 25%</span></div><div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--grad);width:100%;border-radius:3px"></div></div></div>
-        <div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:500">UX</span><span style="color:var(--text-3)">38 · 23%</span></div><div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--grad);width:90%;border-radius:3px"></div></div></div>
-        <div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:500">Customer Mindset</span><span style="color:var(--text-3)">31 · 19%</span></div><div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--grad);width:74%;border-radius:3px"></div></div></div>
-        <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:500">UI</span><span style="color:var(--text-3)">24 · 14%</span></div><div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--grad);width:57%;border-radius:3px"></div></div></div>
+
+    <!-- Portfolio KPIs -->
+    <div class="port-kpi-grid" id="port-kpis"></div>
+
+    <!-- Domain grid -->
+    <div style="display:flex;align-items:end;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap">
+      <div>
+        <span class="eyebrow" style="margin-bottom:6px">13 active domains</span>
+        <h2 style="font-size:22px;font-weight:600;letter-spacing:-.015em">Health by domain.</h2>
       </div>
-      <div class="card" style="padding:28px">
-        <div class="sec-eyebrow">Misses by module</div>
-        <table style="width:100%;border-collapse:collapse;font-size:13px">
-          <thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:10px 0;font-size:11px;color:var(--text-3);font-weight:600;letter-spacing:.1em;text-transform:uppercase">Module</th><th style="text-align:center;padding:10px 4px;font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase">Misses</th><th style="text-align:left;padding:10px 4px;font-size:11px;color:var(--text-3);font-weight:600;letter-spacing:.1em;text-transform:uppercase">Top miss</th></tr></thead>
-          <tbody>
-            <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 0;font-weight:500">NII Calculation</td><td style="text-align:center;color:var(--coral);font-weight:700">7</td><td style="padding:14px 4px;color:var(--text-2)">Missing empty states</td></tr>
-            <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 0;font-weight:500">Entitlement</td><td style="text-align:center;color:var(--coral);font-weight:700">5</td><td style="padding:14px 4px;color:var(--text-2)">Placeholder copy in filters</td></tr>
-            <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 0;font-weight:500">Stress Testing</td><td style="text-align:center;color:var(--coral);font-weight:700">5</td><td style="padding:14px 4px;color:var(--text-2)">No feedback after save</td></tr>
-            <tr style="border-bottom:1px solid var(--border)"><td style="padding:14px 0;font-weight:500">Market Data</td><td style="text-align:center;color:var(--amber);font-weight:700">4</td><td style="padding:14px 4px;color:var(--text-2)">Generic CTA labels</td></tr>
-            <tr><td style="padding:14px 0;font-weight:500">Recovery and Resolution</td><td style="text-align:center;color:var(--amber);font-weight:700">3</td><td style="padding:14px 4px;color:var(--text-2)">Contrast failures</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <span style="font-size:12px;color:var(--text-3);letter-spacing:.04em">Click a domain to drill in (coming next)</span>
     </div>
-    <div class="card" style="padding:28px">
-      <div class="sec-eyebrow">Recurring patterns — Design System action needed</div>
-      <div class="three-col" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
-        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600">Generic CTA labels</span><span class="pill pill-missing">8 screens</span></div><div style="font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:12px">"Submit", "OK" instead of "Confirm payment" or "Save assumptions".</div><div style="font-size:12px;padding:10px 12px;border-radius:10px;background:rgba(255,193,167,.08);color:var(--coral);line-height:1.5">Add CTA writing guide to button component spec</div></div>
-        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600">Missing empty states</span><span class="pill pill-missing">7 screens</span></div><div style="font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:12px">Blank UI when search returns zero results or data fails to load.</div><div style="font-size:12px;padding:10px 12px;border-radius:10px;background:rgba(255,193,167,.08);color:var(--coral);line-height:1.5">Create standard empty state component</div></div>
-        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600">No save confirmation</span><span class="pill pill-review">6 screens</span></div><div style="font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:12px">Forms completing without any toast — users unsure if action worked.</div><div style="font-size:12px;padding:10px 12px;border-radius:10px;background:rgba(255,224,143,.08);color:var(--amber);line-height:1.5">Define standard toast pattern in DS</div></div>
-        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600">Low contrast headers</span><span class="pill pill-review">5 screens</span></div><div style="font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:12px">Table headers using ~#888 — below WCAG 4.5:1.</div><div style="font-size:12px;padding:10px 12px;border-radius:10px;background:rgba(255,224,143,.08);color:var(--amber);line-height:1.5">Update table spec to enforce min #444</div></div>
-        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600">Competing primary CTAs</span><span class="pill" style="background:var(--lavender-soft);color:var(--lavender);border:1px solid rgba(203,184,255,.25)">4 screens</span></div><div style="font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:12px">Multiple filled buttons — users can't identify primary.</div><div style="font-size:12px;padding:10px 12px;border-radius:10px;background:var(--lavender-soft);color:var(--lavender);line-height:1.5">Document one-primary-CTA rule</div></div>
-        <div class="pat-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600">Internal jargon visible</span><span class="pill" style="background:var(--lavender-soft);color:var(--lavender);border:1px solid rgba(203,184,255,.25)">3 screens</span></div><div style="font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:12px">"Auth failed: code 401" shown to end users.</div><div style="font-size:12px;padding:10px 12px;border-radius:10px;background:var(--lavender-soft);color:var(--lavender);line-height:1.5">Add plain-language error message guide</div></div>
+    <div class="dom-grid" id="dom-grid"></div>
+
+    <!-- Lens tabs -->
+    <div class="lens-row">
+      <div class="lens-tabs">
+        <button class="lens-tab active" onclick="swLens('common',this)">Common Issues <span class="count" id="ct-common"></span></button>
+        <button class="lens-tab" onclick="swLens('risks',this)">Potential Risks <span class="count" id="ct-risks"></span></button>
+        <button class="lens-tab" onclick="swLens('opps',this)">Opportunities <span class="count" id="ct-opps"></span></button>
+      </div>
+      <div class="lens-body">
+        <div id="lens-common"></div>
+        <div id="lens-risks" style="display:none"></div>
+        <div id="lens-opps" style="display:none"></div>
       </div>
     </div>
   </div>
@@ -825,6 +931,77 @@ const FLAGS=[
   {dim:'UI',q:'Is there a clear visual difference between the search button and the primary action?',why:'Competing button weights make the next step ambiguous, slowing the user down.'}
 ];
 const PASS_THRESHOLD=70;
+
+// ─── Portfolio data (13 business domains) ───
+const DOMAINS=[
+  {key:'analysis',title:'Analysis & Calculation',desc:'What-if scenario modeling, NII / RWA / ECL metrics.',riskCritical:false},
+  {key:'nrt',title:'Near real time',desc:'Live cash, liquidity, FX, trading exposures.',riskCritical:false},
+  {key:'mi',title:'Management information',desc:'Tailored insights and reports for leadership.',riskCritical:false},
+  {key:'tda',title:'Treasury data asset',desc:'Acquire, prepare and serve treasury data.',riskCritical:false},
+  {key:'ddc',title:'Data discovery & clean up',desc:'Cleanse, query, analyze treasury data.',riskCritical:false},
+  {key:'tooling',title:'Tooling',desc:'Data sharing, document management, workflow.',riskCritical:false},
+  {key:'reg',title:'Regulatory reporting',desc:'Auditable, mandated regulatory submissions.',riskCritical:true},
+  {key:'rod',title:'Release on demand',desc:'Release safety, deploy control, virtualization.',riskCritical:false},
+  {key:'bbdp',title:'Build better digital product',desc:'Reusable UI templates and workspace.',riskCritical:false},
+  {key:'slut',title:'Support large user traffic',desc:'Scale, perf engineering, Tier 0 resilience.',riskCritical:false},
+  {key:'dit',title:'Data Insight and Trackability',desc:'Lineage, metadata, safe production testing.',riskCritical:false},
+  {key:'rrp',title:'Resilience and Reliable Platform',desc:'Rule engines, storage modernization.',riskCritical:false},
+  {key:'cov',title:'Coverage and adoption',desc:'Early use cases to global entity coverage.',riskCritical:false}
+];
+
+// 23 audits across the active domains
+const DOMAIN_AUDITS=[
+  {comp:'Entitlement — Assumption Management',dom:'analysis',pil:'IRRBB',score:84,missing:2,review:1,owner:'dev.chen',team:'Delivery',year:'2026',topMiss:'Customer-friendly language'},
+  {comp:'NII Calculation — Filter Panel',dom:'analysis',pil:'IRRBB',score:58,missing:6,review:3,owner:'dev.wang',team:'Delivery',year:'2026',topMiss:'Missing empty states'},
+  {comp:'MP Prepayment Model',dom:'analysis',pil:'Forecasting',score:72,missing:3,review:2,owner:'dev.li',team:'Delivery',year:'2026',topMiss:'Generic CTA labels'},
+  {comp:'Stress Testing — Scenario Builder',dom:'analysis',pil:'Stress Testing',score:62,missing:5,review:2,owner:'dev.chen',team:'Delivery',year:'2026',topMiss:'No save confirmation'},
+  {comp:'Intraday Nostro Funding Dashboard',dom:'nrt',pil:'Market Treasury',score:79,missing:2,review:2,owner:'dev.smith',team:'Delivery',year:'2026',topMiss:'Action feedback'},
+  {comp:'Client Deposit Monitoring',dom:'nrt',pil:'Liquidity',score:88,missing:1,review:1,owner:'dev.patel',team:'Delivery',year:'2026',topMiss:'Empty state'},
+  {comp:'Kyoto Dashboard Enhancement',dom:'mi',pil:'Liquidity',score:76,missing:3,review:2,owner:'dev.smith',team:'Delivery',year:'2026',topMiss:'No save confirmation'},
+  {comp:'CIB Dashboard',dom:'mi',pil:'Liquidity',score:81,missing:2,review:1,owner:'dev.li',team:'Delivery',year:'2026',topMiss:'Generic CTA labels'},
+  {comp:'Treasury Governance Dashboard',dom:'mi',pil:'TRSC',score:88,missing:1,review:1,owner:'dev.li',team:'Delivery',year:'2026',topMiss:'Low contrast headers'},
+  {comp:'SDI Migration UI',dom:'tda',pil:'Capital',score:68,missing:4,review:2,owner:'dev.jones',team:'Platform',year:'2026',topMiss:'Low contrast headers'},
+  {comp:'ROTE & EP Dashboard',dom:'tda',pil:'Capital',score:73,missing:2,review:3,owner:'dev.jones',team:'Platform',year:'2026',topMiss:'No save confirmation'},
+  {comp:'NII Metrics Sharing',dom:'ddc',pil:'IRRBB',score:85,missing:1,review:2,owner:'dev.chen',team:'Delivery',year:'2026',topMiss:'Generic CTA labels'},
+  {comp:'RWA/ECL Metrics Sharing',dom:'ddc',pil:'Forecasting',score:82,missing:2,review:1,owner:'dev.wang',team:'Delivery',year:'2026',topMiss:'Empty state'},
+  {comp:'Liquidity Premium Regional Rollout',dom:'tooling',pil:'Liquidity',score:74,missing:3,review:2,owner:'dev.patel',team:'Delivery',year:'2026',topMiss:'No save confirmation'},
+  {comp:'Structural Hedge Report — Georgia Refactor',dom:'tooling',pil:'IRRBB',score:77,missing:2,review:2,owner:'dev.wang',team:'Delivery',year:'2026',topMiss:'Generic CTA labels'},
+  {comp:'R&R Data Upload',dom:'tooling',pil:'R&R',score:71,missing:3,review:2,owner:'dev.jones',team:'Platform',year:'2026',topMiss:'Missing empty states'},
+  {comp:'NTMR/FSA17/CART Report',dom:'reg',pil:'IRRBB',score:65,missing:5,review:1,owner:'dev.patel',team:'Delivery',year:'2026',topMiss:'Customer-friendly language'},
+  {comp:'Asset Encumbrance Report',dom:'reg',pil:'Liquidity',score:71,missing:3,review:1,owner:'dev.li',team:'Delivery',year:'2026',topMiss:'Approved UI components'},
+  {comp:'LCR/NSFR Report',dom:'reg',pil:'Liquidity',score:69,missing:4,review:2,owner:'dev.smith',team:'Delivery',year:'2026',topMiss:'Approved UI components'},
+  {comp:'A/B Testing UI',dom:'rod',pil:'',score:88,missing:1,review:0,owner:'dev.smith',team:'Platform',year:'2026',topMiss:'Action feedback'},
+  {comp:'Apex Configuration Center',dom:'rod',pil:'',score:92,missing:0,review:2,owner:'dev.jones',team:'Platform',year:'2026',topMiss:'Inputs have clear labels'},
+  {comp:'Canary Releases Dashboard',dom:'rod',pil:'',score:86,missing:1,review:1,owner:'dev.jones',team:'Platform',year:'2026',topMiss:'Loading state'},
+  {comp:'Feature-rich Data Grid Web Component',dom:'bbdp',pil:'',score:90,missing:1,review:1,owner:'dev.chen',team:'Platform',year:'2026',topMiss:'Inputs have clear labels'}
+];
+
+// Common patterns (issues repeated across multiple components / domains)
+const COMMON_PATTERNS=[
+  {title:'Generic CTA labels',count:8,domains:['analysis','mi','tooling','ddc'],desc:'"Submit", "OK" instead of "Confirm payment" or "Save assumptions".',fix:'Add CTA writing guide to button component spec',sev:'high'},
+  {title:'Missing empty states',count:7,domains:['analysis','nrt','tooling','ddc'],desc:'Blank UI when search returns zero results or data fails to load.',fix:'Create standard empty state component with message slot',sev:'high'},
+  {title:'No save confirmation',count:6,domains:['mi','tda','tooling','analysis'],desc:'Forms completing without any toast — users unsure if action worked.',fix:'Define standard toast pattern in Design System',sev:'med'},
+  {title:'Low contrast headers',count:5,domains:['analysis','tda','mi'],desc:'Table headers using ~#888 — below WCAG 4.5:1.',fix:'Update table spec to enforce min #444 for header text',sev:'med'},
+  {title:'Customer-friendly language missing',count:4,domains:['analysis','reg'],desc:'Internal jargon ("Filter No.1", "MP_RUN_ID") shown to users.',fix:'Add plain-language glossary + reviewer checklist',sev:'med'},
+  {title:'Sequential placeholder labels',count:4,domains:['analysis','tda'],desc:'Tabs / columns labeled "Type No.1 … No.7" with no business meaning.',fix:'Require semantic naming + tooltip for abbreviations',sev:'low'}
+];
+
+// Risk register (auto-flagged from audits in risk-critical domains, plus high-severity items)
+const RISKS=[
+  {id:'R-001',sev:'P0',title:'Customer-friendly language missing on regulatory report',comp:'NTMR/FSA17/CART Report',dom:'reg',pil:'IRRBB',owner:'dev.patel',why:'Regulatory reports must be unambiguous to auditors and supervisors. Internal codes shown could mislead during review and trigger findings.'},
+  {id:'R-002',sev:'P0',title:'Non-approved UI components used in submitted report',comp:'LCR/NSFR Report',dom:'reg',pil:'Liquidity',owner:'dev.smith',why:'Reports rendered with custom components may not match the audit-trail spec required for regulatory submission. Compliance risk.'},
+  {id:'R-003',sev:'P1',title:'Sequential placeholder labels on regulatory dashboard',comp:'Asset Encumbrance Report',dom:'reg',pil:'Liquidity',owner:'dev.li',why:'Auditor cannot map "Filter No.1" back to encumbrance type without dev support. Slows compliance review.'},
+  {id:'R-004',sev:'P1',title:'Accessibility — low contrast on a treasury data screen',comp:'SDI Migration UI',dom:'tda',pil:'Capital',owner:'dev.jones',why:'WCAG AA contrast failure on a screen used by treasury analysts daily. Exposes HSBC to a11y compliance findings.'}
+];
+
+// Opportunities — cross-cutting fixes
+const OPPORTUNITIES=[
+  {id:'O-001',title:'Standard Empty State component in Design System',count:7,domains:['analysis','nrt','tooling','ddc'],effort:'M',impact:'7 components × 0.5d = ~3.5d saved per quarter; consistent across 4 domains',owner:'Design System team'},
+  {id:'O-002',title:'CTA writing guide + ESLint rule for button text',count:8,domains:['analysis','mi','tooling','ddc'],effort:'S',impact:'8 components fixed in one pass; prevents recurrence for new screens',owner:'Content design'},
+  {id:'O-003',title:'Save-confirmation toast pattern',count:6,domains:['mi','tda','tooling','analysis'],effort:'S',impact:'6 components instantly compliant; addresses #3 most-reported defect',owner:'Design System team'},
+  {id:'O-004',title:'Table header contrast token override',count:5,domains:['analysis','tda','mi'],effort:'S',impact:'Removes 5 P2 a11y findings; one DS token change',owner:'Design System team'},
+  {id:'O-005',title:'Plain-language glossary for regulatory screens',count:4,domains:['analysis','reg'],effort:'M',impact:'Direct compliance risk reduction on 2 regulatory reports',owner:'Compliance + Content design'}
+];
 
 function statusOf(s){return s==='pass'?'pass':s==='missing'?'missing':'review'}
 function pillFor(s){return s==='pass'?'<span class="pill pill-pass">Pass</span>':s==='missing'?'<span class="pill pill-missing">Missing</span>':'<span class="pill pill-review">Review</span>'}
@@ -1137,8 +1314,166 @@ function closeNav(){
 }
 function navToM(key){closeNav();setTimeout(function(){navTo(key,null);},120);}
 
+// ─── Portfolio Dashboard ───
+function getFilters(){
+  return {
+    team:document.getElementById('flt-team')?.value||'',
+    year:document.getElementById('flt-year')?.value||'',
+    pillar:document.getElementById('flt-pillar')?.value||''
+  };
+}
+function filteredAudits(){
+  var f=getFilters();
+  return DOMAIN_AUDITS.filter(function(a){
+    if(f.team && a.team!==f.team) return false;
+    if(f.year && a.year!==f.year) return false;
+    if(f.pillar && a.pil!==f.pillar) return false;
+    return true;
+  });
+}
+function domainStats(domKey, audits){
+  var rows=audits.filter(function(a){return a.dom===domKey;});
+  if(!rows.length) return {count:0,avg:null,missing:0,review:0,topMiss:null,risks:0};
+  var sum=rows.reduce(function(s,r){return s+r.score;},0);
+  var miss=rows.reduce(function(s,r){return s+r.missing;},0);
+  var rev=rows.reduce(function(s,r){return s+r.review;},0);
+  var topMiss=null,topCnt=0;
+  var missCounts={};
+  rows.forEach(function(r){missCounts[r.topMiss]=(missCounts[r.topMiss]||0)+1;});
+  Object.keys(missCounts).forEach(function(k){if(missCounts[k]>topCnt){topCnt=missCounts[k];topMiss=k;}});
+  var risks=RISKS.filter(function(R){
+    return R.dom===domKey && rows.some(function(r){return r.comp===R.comp;});
+  }).length;
+  return {count:rows.length,avg:Math.round(sum/rows.length),missing:miss,review:rev,topMiss:topMiss,risks:risks};
+}
+function healthClass(score){
+  if(score==null) return 'none';
+  if(score>=80) return 'good';
+  if(score>=70) return 'warn';
+  return 'bad';
+}
+function renderPortfolioKPIs(audits){
+  var totalAudits=audits.length;
+  var avg=audits.length?Math.round(audits.reduce(function(s,a){return s+a.score;},0)/audits.length):0;
+  var f=getFilters();
+  // Risks filtered: any risk whose component is in the current filter
+  var compsInScope={};audits.forEach(function(a){compsInScope[a.comp]=true;});
+  var visibleRisks=RISKS.filter(function(R){return compsInScope[R.comp];}).length;
+  var visibleOpps=OPPORTUNITIES.length; // opportunities are portfolio-wide; show all
+  document.getElementById('port-kpis').innerHTML=
+    '<div class="port-kpi"><div class="lbl">Audits in view</div><div class="num">'+totalAudits+'</div><div class="foot">'+(f.year||'all years')+(f.pillar?' · '+f.pillar:'')+'</div></div>'+
+    '<div class="port-kpi"><div class="lbl">Avg UX score</div><div class="num" style="color:'+(avg>=PASS_THRESHOLD?'var(--mint)':'var(--coral)')+'">'+(totalAudits?avg:'—')+'</div><div class="foot">'+(totalAudits?(avg>=PASS_THRESHOLD?'Above pass threshold':'Below pass threshold (70)'):'No audits in this filter')+'</div></div>'+
+    '<div class="port-kpi"><div class="lbl">Risks flagged</div><div class="num" style="color:var(--coral)">'+visibleRisks+'</div><div class="foot">'+(visibleRisks?'In risk-critical domains':'None')+'</div></div>'+
+    '<div class="port-kpi"><div class="lbl">DS opportunities</div><div class="num" style="color:var(--lavender)">'+visibleOpps+'</div><div class="foot">Cross-cutting fixes</div></div>';
+}
+function renderDomainGrid(audits){
+  var grid=document.getElementById('dom-grid');
+  grid.innerHTML=DOMAINS.map(function(D){
+    var s=domainStats(D.key, audits);
+    var hc=healthClass(s.avg);
+    var head='<div class="dom-card-head"><div><div class="dom-card-title">'+D.title+(D.riskCritical?' <span style="font-size:10px;color:var(--coral);margin-left:2px">●</span>':'')+'</div></div>'+
+      '<span class="dom-health '+hc+'">'+(s.avg!=null?'<span class="score">'+s.avg+'</span><span class="out">/100</span>':'<span class="score">—</span>')+'</span></div>';
+    var desc='<div class="dom-card-desc">'+D.desc+'</div>';
+    var flag='';
+    if(s.risks>0) flag='<span class="risk-flag">⚠ '+s.risks+' risk'+(s.risks>1?'s':'')+'</span>';
+    else if(s.count>0 && s.avg>=80) flag='<span class="ok-flag">✓ Healthy</span>';
+    var stats='';
+    if(s.count===0){
+      stats='<div class="dom-card-stats"><span class="label">Not yet audited</span></div>';
+    } else {
+      stats='<div class="dom-card-stats">'+
+        '<span><span class="label">Audits</span> '+s.count+'</span>'+
+        '<span><span class="label">Missing</span> '+s.missing+'</span>'+
+        '<span><span class="label">Review</span> '+s.review+'</span>'+
+        (s.topMiss?'<span style="margin-left:auto;font-size:10px;color:var(--text-3)">Top: '+s.topMiss+'</span>':'')+
+        '</div>';
+    }
+    return '<div class="dom-card spot-target'+(s.count===0?' empty':'')+'" data-dom="'+D.key+'">'+head+desc+flag+stats+'</div>';
+  }).join('');
+}
+function renderLenses(audits){
+  // Common Issues: filter patterns by which domains are in scope
+  var visibleDoms={};audits.forEach(function(a){visibleDoms[a.dom]=true;});
+  var commonInScope=COMMON_PATTERNS.filter(function(p){
+    return p.domains.some(function(d){return visibleDoms[d];});
+  });
+  document.getElementById('ct-common').textContent=commonInScope.length;
+  document.getElementById('lens-common').innerHTML=commonInScope.length===0?
+    '<div class="lens-empty">No recurring patterns in this filter.</div>':
+    commonInScope.map(function(p){
+      var domTitles=p.domains.map(function(d){var D=DOMAINS.find(function(x){return x.key===d;});return D?D.title:d;});
+      return '<div class="iss-row">'+
+        '<div class="head"><div class="title">'+p.title+'</div>'+
+        '<span class="pill pill-'+(p.sev==='high'?'missing':p.sev==='med'?'review':'pass')+'">'+p.count+' components</span></div>'+
+        '<div class="desc">'+p.desc+'</div>'+
+        '<div class="fix '+p.sev+'">→ '+p.fix+'</div>'+
+        '<div class="impact-row"><span><span class="k">Spans</span>'+
+        '<span class="dom-pills">'+domTitles.map(function(t){return '<span class="dp">'+t+'</span>';}).join('')+'</span></span></div>'+
+        '</div>';
+    }).join('');
+
+  // Risks
+  var compsInScope={};audits.forEach(function(a){compsInScope[a.comp]=true;});
+  var risksInScope=RISKS.filter(function(R){return compsInScope[R.comp];});
+  document.getElementById('ct-risks').textContent=risksInScope.length;
+  document.getElementById('lens-risks').innerHTML=risksInScope.length===0?
+    '<div class="lens-empty">No risks flagged in this filter.</div>':
+    risksInScope.map(function(R){
+      var D=DOMAINS.find(function(x){return x.key===R.dom;});
+      var sevColor=R.sev==='P0'?'var(--coral)':'var(--amber)';
+      var sevBg=R.sev==='P0'?'var(--coral-soft)':'var(--amber-soft)';
+      return '<div class="iss-row" style="border-left:3px solid '+sevColor+'">'+
+        '<div class="head"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
+        '<span class="pill" style="background:'+sevBg+';color:'+sevColor+';border:1px solid '+sevColor+'">'+R.sev+' · '+R.id+'</span>'+
+        '<div class="title">'+R.title+'</div></div>'+
+        '<span class="meta">'+R.owner+'</span></div>'+
+        '<div class="why"><strong style="color:var(--text)">Why it matters:</strong> '+R.why+'</div>'+
+        '<div class="impact-row">'+
+        '<span><span class="k">Component</span>'+R.comp+'</span>'+
+        '<span><span class="k">Domain</span>'+(D?D.title:R.dom)+'</span>'+
+        (R.pil?'<span><span class="k">Pillar</span>'+R.pil+'</span>':'')+
+        '</div></div>';
+    }).join('');
+
+  // Opportunities (portfolio-wide; show all)
+  document.getElementById('ct-opps').textContent=OPPORTUNITIES.length;
+  document.getElementById('lens-opps').innerHTML=OPPORTUNITIES.map(function(O){
+    var domTitles=O.domains.map(function(d){var D=DOMAINS.find(function(x){return x.key===d;});return D?D.title:d;});
+    return '<div class="iss-row" style="border-left:3px solid var(--lavender)">'+
+      '<div class="head"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
+      '<span class="pill" style="background:var(--lavender-soft);color:var(--lavender);border:1px solid rgba(203,184,255,.25)">'+O.id+' · Opportunity</span>'+
+      '<div class="title">'+O.title+'</div></div>'+
+      '<span class="meta">'+O.owner+'</span></div>'+
+      '<div class="why"><strong style="color:var(--text)">Impact:</strong> '+O.impact+'</div>'+
+      '<div class="impact-row">'+
+      '<span><span class="k">Effort</span>'+O.effort+'</span>'+
+      '<span><span class="k">Resolves</span>'+O.count+' components</span>'+
+      '<span><span class="k">Across</span><span class="dom-pills">'+domTitles.map(function(t){return '<span class="dp">'+t+'</span>';}).join('')+'</span></span>'+
+      '</div></div>';
+  }).join('');
+}
+function renderDashboard(){
+  var audits=filteredAudits();
+  renderPortfolioKPIs(audits);
+  renderDomainGrid(audits);
+  renderLenses(audits);
+}
+function swLens(key,btn){
+  document.querySelectorAll('.lens-tab').forEach(function(t){t.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+  document.getElementById('lens-common').style.display=key==='common'?'block':'none';
+  document.getElementById('lens-risks').style.display=key==='risks'?'block':'none';
+  document.getElementById('lens-opps').style.display=key==='opps'?'block':'none';
+}
+// Wire filter changes
+['flt-team','flt-year','flt-pillar'].forEach(function(id){
+  var el=document.getElementById(id);
+  if(el) el.addEventListener('change', renderDashboard);
+});
+
 // Initial render of checklist with default statuses
 renderChecklist();
+renderDashboard();
 chk();
 </script>
 </body>
